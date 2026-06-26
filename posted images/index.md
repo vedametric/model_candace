@@ -5,6 +5,25 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #004 — Car selfie (soft morning / playful-bratty)
+
+- **File:** `2026-06-26_004_car-selfie_instagram.png`
+- **Posted:** 2026-06-26 18:06:00 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaDv6y5DNhU/
+- **Platform post ID:** `18038459462804275`
+- **Media type:** Photo (768 × 1376, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > running errands but make it cute 🤍 don't talk to me until after coffee tbh 😏 who's riding with me?? 📍 Columbus, Ohio
+- **Hashtags:** #carselfie #carootd #morningvibes #blondesofinstagram #morningselfie #croptophere #614vibes #midwestchic #morningmood #girlsofig #ohiobabe #columbuslife #casualstyle #whitecrop #errandrun #justcasual #cargirlvibes
+- **Source generation:** Higgsfield `nano_banana_2`, job `1d606ac2-66fc-41fc-aa5e-bc0344f26c6b` (persona reference `49aff4e5-9c20-44a3-87e8-85ba87e0d642`)
+- **Upload service:** upload-post.com (`request_id` `f4cdc031b489468b841c2eab78496a10`, `job_id` `edd5477c041f46d5b3099c4e478a22a3`)
+- **Status:** ✅ completed / success
+
+---
+
 ## #003 — Hotel bed phone selfie (moody night / sleepy-sultry)
 
 - **File:** `2026-06-26_003_hotel-bed-selfie_instagram.png`

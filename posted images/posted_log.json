@@ -2,6 +2,51 @@
   "profile": "model_candacesummers",
   "posts": [
     {
+      "id": "004",
+      "file": "2026-06-26_004_car-selfie_instagram.png",
+      "posted_at_utc": "2026-06-26T18:06:00Z",
+      "platform": "instagram",
+      "profile_username": "model_candacesummers",
+      "post_url": "https://www.instagram.com/p/DaDv6y5DNhU/",
+      "platform_post_id": "18038459462804275",
+      "media_type": "photo",
+      "dimensions": "768x1376",
+      "location_tag": "Columbus, Ohio",
+      "caption": "running errands but make it cute 🤍 don't talk to me until after coffee tbh 😏 who's riding with me?? 📍 Columbus, Ohio",
+      "hashtags": [
+        "#carselfie",
+        "#carootd",
+        "#morningvibes",
+        "#blondesofinstagram",
+        "#morningselfie",
+        "#croptophere",
+        "#614vibes",
+        "#midwestchic",
+        "#morningmood",
+        "#girlsofig",
+        "#ohiobabe",
+        "#columbuslife",
+        "#casualstyle",
+        "#whitecrop",
+        "#errandrun",
+        "#justcasual",
+        "#cargirlvibes"
+      ],
+      "generation": {
+        "engine": "higgsfield",
+        "model": "nano_banana_2",
+        "job_id": "1d606ac2-66fc-41fc-aa5e-bc0344f26c6b",
+        "persona_reference_job_id": "49aff4e5-9c20-44a3-87e8-85ba87e0d642"
+      },
+      "upload": {
+        "service": "upload-post.com",
+        "request_id": "f4cdc031b489468b841c2eab78496a10",
+        "job_id": "edd5477c041f46d5b3099c4e478a22a3",
+        "status": "completed",
+        "success": true
+      }
+    },
+    {
       "id": "003",
       "file": "2026-06-26_003_hotel-bed-selfie_instagram.png",
       "posted_at_utc": "2026-06-26T12:08:05Z",
