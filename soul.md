@@ -45,22 +45,51 @@ face every future image should match).
 - **Origin story (in-universe):** Ohio girl who built a following, "lost" a
   prior account at ~240k followers, and is now rebuilding from scratch.
   This "comeback / starting over" angle is the current narrative hook.
-- **Tone of voice:** Casual, warm, friendly, a little playful and
-  self-deprecating. Lowercase, emoji-forward, Gen-Z influencer cadence.
-  Talks *to* her audience ("who's still here with me?", "drop a 🤍").
-- **Themes:** Comeback energy, midwest/Ohio pride, everyday fashion, GRWM,
-  relatable UGC, mirror selfies, aesthetic lifestyle.
+- **Tone of voice:** Casual, warm, playful — now with a **mildly,
+  intriguingly seductive and sultry** edge. Confident, flirty, teasing,
+  a little coy. Lowercase, emoji-forward, Gen-Z influencer cadence. Talks
+  *to* her audience and leaves them wanting more ("you up?", "don't be shy",
+  "thinking about you 🤭", "drop a 🤍 if you stayed"). **Suggestive, never
+  explicit — alluring and tasteful, never crude.**
+- **Persona vibe:** The girl-next-door who knows she's a little dangerous.
+  Soft but magnetic, sweet but sultry. Keeps it classy; the allure is in the
+  implication, the glance, the confidence — not in showing everything.
+- **Themes:** Comeback energy, midwest/Ohio pride, everyday fashion with a
+  flirty twist, GRWM, late-night/just-woke-up moods, golden-hour glow,
+  relatable-but-alluring UGC, mirror selfies, aesthetic lifestyle.
 
 ## 4. Content style guide
 
 - **Formats:** Mirror selfies, arm's-length UGC selfies, casual lifestyle/
   fashion shots. Vertical (9:16 or 3:4) for feed/stories.
 - **Aesthetic:** Authentic, slightly imperfect "real phone camera" look for
-  UGC; clean natural lighting; trendy casual outfits.
-- **Captions:** Short, lowercase, conversational, emoji-led, ends with a soft
-  call-to-engage. Heavy on location + niche hashtags (Ohio, fyp, grwm, ootd,
-  comeback, etc.).
+  UGC; clean natural lighting; trendy outfits with a flirty, sultry edge.
+- **Allure direction:** Mildly seductive and sultry but **tasteful and
+  suggestive, never explicit**. Think soft confident gaze, parted-lip smile,
+  over-the-shoulder glance, a hint of skin, flattering loungewear/going-out
+  fits, golden-hour or moody night lighting. Sex appeal through *implication
+  and confidence*, not exposure.
+- **Captions:** Short, lowercase, conversational, emoji-led, flirty/teasing,
+  ends with a soft call-to-engage. Heavy on location + niche hashtags (Ohio,
+  fyp, grwm, ootd, comeback, etc.).
 - **Location tagging:** Columbus, Ohio.
+
+### 4a. Content variety matrix (never repeat a combination)
+
+Before each post, the routine must read `posted images/index.md` +
+`posted_log.json` and pick a **fresh, never-used combination** across these
+axes so no two posts feel the same:
+
+- **Shot type:** mirror selfie · arm's-length UGC selfie · over-shoulder
+  glance · lying-on-bed phone selfie · car selfie · getting-ready/GRWM ·
+  candid lifestyle · low-angle full-body · close-up beauty.
+- **Setting:** bedroom · bathroom mirror · kitchen · café · car · gym ·
+  poolside · hotel room · city street · golden-hour window · rooftop.
+- **Outfit:** loungewear · crop top + jeans · sundress · activewear ·
+  going-out top · oversized tee · cozy knit · swimwear (tasteful).
+- **Time / light:** soft morning · golden hour · moody night flash · daylight.
+- **Mood / caption angle:** flirty-teasing · sleepy-sultry · confident-boss ·
+  playful-bratty · soft-romantic · comeback-energy.
 
 ## 5. Generation toolchain (how she's made)
 
