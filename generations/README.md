@@ -30,6 +30,7 @@ all via Higgsfield from the persona reference
 | `2026-06-26_beach-ugc-sand_10s.mp4` | 10s | `6d2eebd3-4713-4d25-a671-cb2988fb005a` | UGC, sitting in sand |
 | `2026-06-26_boudoir_8s.mp4` | 8s | `c3ebfd62-7335-451f-b385-09d85eec3714` | satin loungewear, golden hour |
 | `2026-06-26_gym-squats_8s.mp4` | 8s | `c583a7ce-d95f-4ec5-bd87-a85e0b54e66a` | UGC gym squats (first to locked UGC rules) |
+| `2026-06-26_bedroom-ugc-selfie_15s.mp4` | 15s | `83308a8f-df6d-4053-bc2d-485cf38dad25` | UGC bedroom selfie-POV, nightwear |
 
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._
