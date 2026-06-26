@@ -55,8 +55,9 @@ Consistency across posts is the priority.
 - **Skin tone:** Fair / light
 - **Look:** Extremely attractive, polished, glamorous
 - **Cosmetic enhancements:** Has had cosmetic surgery to enhance her
-  appearance and figure, including breast augmentation (bust ~10 DD).
-  Overall silhouette reads as a curvy, hourglass figure on a petite frame.
+  appearance and figure, including breast augmentation (bust ~10 E — fuller
+  chest). Overall silhouette reads as a curvy, busty hourglass figure on a
+  petite frame.
 
 **Canonical face/identity reference:** `reference/candace_persona_reference.png`
 (selected by the owner as "Option 1" from the initial persona set — this is the
