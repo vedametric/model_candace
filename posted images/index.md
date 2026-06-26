@@ -5,6 +5,25 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #002 — Arm's-length café selfie (golden hour / flirty-teasing)
+
+- **File:** `2026-06-26_002_arms-length-cafe-selfie_instagram.png`
+- **Posted:** 2026-06-26 10:08:50 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaC5C4cDO6I/
+- **Platform post ID:** `18118595338692141`
+- **Media type:** Photo (768 × 1376, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > golden hour + coffee = the whole vibe ☕🌅 found my new fave little corner in columbus and i'm not sharing it 🤭 drop a ☀️ if you'd pull up tho 📍 Columbus, Ohio
+- **Hashtags:** #goldenhour #cafegirl #columbus #ohiolife #sundressgirl #ootdinspo #lifestyleblogger #614eats #coffeetime #goldenhourglow #ohiocheck #blondegirl #summeroutfit #ohioinfluencer #cafestyle #sundressseason #blondelife #aesthetic614 #ohiogirls
+- **Source generation:** Higgsfield `nano_banana_2`, job `c40af8b5-984e-45d6-a860-d4d9d7a58a1e` (persona reference `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`)
+- **Upload service:** upload-post.com (`request_id` `2f32824f306d410b960fb335a2698c5a`, `job_id` `46bafc2df0424c00892e268253491c00`)
+- **Status:** ✅ completed / success
+
+---
+
 ## #001 — Mirror selfie (comeback launch post)
 
 - **File:** `2026-06-26_001_mirror-selfie_instagram.png`
