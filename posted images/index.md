@@ -5,6 +5,26 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #003 — Hotel bed phone selfie (moody night / sleepy-sultry)
+
+- **File:** `2026-06-26_003_hotel-bed-selfie_instagram.png`
+- **Posted:** 2026-06-26 12:08:05 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaDGxr_jCcv/
+- **Platform post ID:** `18452212759142745`
+- **Media type:** Photo (768 × 1376, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > late check-in from room 412 🌙🛎️ ordered room service and forgot to do literally anything productive 😮‍💨 columbus keeps calling and idk… maybe i'll stay a little longer 🤍 📍 Columbus, Ohio
+- **Hashtags:** #hotelvibes #hotelroom #latenightvibes #moodylighting #loungewear #silkslip #nighttime #softlife #blondesofig #614girl #midwestbabe #bedvibes #cozynight #sleepaesthetic #nightowl #comfyfit #hotellife #nightmood #columbusnight #ohionights
+- **Source generation:** Higgsfield `nano_banana_2`, job `10f6a12b-d00b-48dc-8a35-919417ed32a6` (persona reference `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`)
+- **Upload service:** upload-post.com (`request_id` `320d47345f6d4a1287cdb812fe7b904c`, `job_id` `c27822ad62a443da93635c0e07e52eb6`)
+- **Status:** ✅ completed / success
+
+---
+
+
 ## #002 — Arm's-length café selfie (golden hour / flirty-teasing)
 
 - **File:** `2026-06-26_002_arms-length-cafe-selfie_instagram.png`
