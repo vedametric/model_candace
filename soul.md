@@ -9,6 +9,28 @@ _Last updated: 2026-06-26_
 
 ---
 
+## 0. ⛔ CANDACE SYSTEM INSTRUCTIONS — LOCKED (DO NOT OVERRIDE)
+
+These rules apply to **EVERY image and EVERY video** generated for Candace,
+with no exceptions. They **override any conflicting styling** in a prompt or
+request — if something clashes (e.g. "cinematic", "studio", "editorial"), keep
+these rules and adapt the rest.
+
+- **Shot on an iPhone, UGC style.**
+- **Natural lighting only** — no studio/artificial lighting.
+- **Casual, everyday environment.**
+- **Candid, unposed, mid-action** — authentic, genuine moments.
+- **NOT retouched** — keep natural imperfections (skin texture, slight grain,
+  imperfect framing, handheld feel).
+- **NO studio, no professional/glossy/editorial polish.**
+
+Every generation prompt MUST encode the above. Sultry / thirst-trap / flirty
+themes are fine **within** these constraints (and within the SFW line — see
+note in §4) — they must always read as a real person's phone footage, never a
+produced shoot.
+
+---
+
 ## 1. Identity
 
 | Field | Value |
