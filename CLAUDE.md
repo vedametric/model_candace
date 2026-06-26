@@ -21,9 +21,11 @@ and must stay tasteful/SFW (suggestive, no nudity — no explicit content).
 
 ## Key facts
 
-- **Face/identity reference:** `reference/candace_persona_reference.png`
-  (Higgsfield job id `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`) — match this face
-  on every generation.
+- **Face/identity reference:** `reference/candace_persona_reference.png` — v2,
+  Higgsfield job id `49aff4e5-9c20-44a3-87e8-85ba87e0d642` (same face as the
+  original, with the fuller 10E figure on her petite 5'1" frame). Pass this job
+  id as the `image` reference and match this face + figure on every generation.
+  (Original v1 face anchor: `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`.)
 - **Generation:** Higgsfield MCP — `nano_banana_pro` (image), `seedance_2_0`
   (video, pass the reference as `image` role for identity).
 - **Posting:** upload-post.com API, managed user `model_candacesummers`

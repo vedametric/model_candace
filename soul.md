@@ -60,8 +60,12 @@ Consistency across posts is the priority.
   petite frame.
 
 **Canonical face/identity reference:** `reference/candace_persona_reference.png`
-(selected by the owner as "Option 1" from the initial persona set — this is the
-face every future image should match).
+— **v2** (Higgsfield job `49aff4e5-9c20-44a3-87e8-85ba87e0d642`): same face as
+the original Option 1, updated to the fuller **10E** figure on her petite 5'1"
+frame, in UGC iPhone style. This is the face + figure every future image should
+match. Pass this job id as the `image` reference on new generations.
+(Original Option 1 face anchor `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9` archived as
+`reference/candace_persona_reference_v1_original.png`.)
 
 ## 3. Backstory & voice
 
@@ -125,7 +129,8 @@ axes so no two posts feel the same:
   tends to drift toward editorial portraits — prefer `nano_banana_pro` for
   posed/composition-specific shots (mirror selfie, phone-in-hand, etc.).
 - **Known Higgsfield job IDs:**
-  - Persona reference (Option 1): `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`
+  - **Persona reference v2 (CURRENT — 10E figure):** `49aff4e5-9c20-44a3-87e8-85ba87e0d642`
+  - Persona reference v1 (original Option 1 face): `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`
   - Mirror selfie (1st post): `2b14bde5-f95b-4088-9924-c9dacb1573a5`
 
 ## 6. Posting toolchain (how she publishes)
