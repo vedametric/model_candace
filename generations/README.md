@@ -6,6 +6,9 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 
 - **Exact prompts** for each generation → [`PROMPTS.md`](./PROMPTS.md)
 - **Itemised credit costs** → [`CREDIT_USAGE.md`](./CREDIT_USAGE.md)
+- **Live dashboard** → `../index.html` (GitHub Pages). Data = `manifest.json`,
+  rebuilt by `python3 build_manifest.py`. **This is auto-maintained on every new
+  generation** — see the logging rule in `../CLAUDE.md`.
 
 ## Persona portraits (initial set)
 

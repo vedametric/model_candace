@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candace — Generations Dashboard</title>
+<style>
+  :root{
+    --bg:#0e0e12; --card:#17171f; --card2:#1d1d27; --line:#2a2a36;
+    --txt:#e9e9f0; --mut:#9a9ab0; --pink:#ff6fa5; --accent:#7c8cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{padding:24px 20px 8px;max-width:1400px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:24px}
+  h1 .pink{color:var(--pink)}
+  .sub{color:var(--mut);font-size:13px}
+  .stats{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px}
+  .stat b{display:block;font-size:20px}
+  .stat span{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 4px}
+  .chip{background:var(--card);border:1px solid var(--line);color:var(--txt);
+    padding:6px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+  .chip.active{background:var(--pink);border-color:var(--pink);color:#1a0a12;font-weight:600}
+  input[type=search]{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);
+    color:var(--txt);padding:8px 12px;border-radius:10px;font-size:14px}
+  main{max-width:1400px;margin:0 auto;padding:12px 20px 60px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    display:flex;flex-direction:column}
+  .media{background:#000;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .media img,.media video{width:100%;height:100%;object-fit:cover;display:block}
+  .body{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .fn{font-size:12.5px;color:var(--txt);word-break:break-all}
+  .badges{display:flex;gap:6px;flex-wrap:wrap}
+  .b{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
+  .b.vid{color:var(--accent);border-color:var(--accent)}
+  .b.img{color:var(--pink);border-color:var(--pink)}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px;color:var(--mut)}
+  .meta b{color:var(--txt);font-weight:600}
+  details{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+  summary{cursor:pointer;color:var(--mut);font-size:12px}
+  details p{margin:8px 0 2px;font-size:12.5px;color:var(--txt);white-space:pre-wrap}
+  .dl{display:inline-block;text-align:center;background:var(--accent);color:#0a0a16;text-decoration:none;
+    padding:8px;border-radius:9px;font-weight:600;font-size:13px}
+  .dl:hover{filter:brightness(1.1)}
+  .empty{color:var(--mut);padding:40px;text-align:center}
+  footer{max-width:1400px;margin:0 auto;padding:0 20px 40px;color:var(--mut);font-size:12px}
+  code{background:#000;padding:1px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Candace <span class="pink">·</span> Generations Dashboard</h1>
+  <div class="sub">Every image &amp; video generated for <b>model_candacesummers</b> — previews, prompts, costs, sizes &amp; downloads.</div>
+  <div class="stats" id="stats"></div>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search filename, prompt, model, job id…">
+  </div>
+  <div class="controls" id="filters"></div>
+</header>
+<main><div class="grid" id="grid"></div><div class="empty" id="empty" hidden>No matches.</div></main>
+<footer id="foot"></footer>
+
+<script>
+const GEN = "generations/";
+let DATA = {items:[]}, fType="all", fBatch="all", q="";
+
+fetch(GEN+"manifest.json?_="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;init();})
+  .catch(e=>{document.getElementById("grid").innerHTML=
+    '<div class="empty">Could not load <code>generations/manifest.json</code>.<br>'+e+'</div>';});
+
+function init(){
+  const s=document.getElementById("stats");
+  s.innerHTML =
+    stat(DATA.count, "assets") +
+    stat((DATA.total_cost_cr??0)+" cr", "total credits") +
+    stat(DATA.total_size_human||"", "total size") +
+    stat(DATA.items.filter(i=>i.type==='image').length, "photos") +
+    stat(DATA.items.filter(i=>i.type==='video').length, "videos");
+  const batches=[...new Set(DATA.items.map(i=>i.batch))].sort();
+  const f=document.getElementById("filters");
+  f.innerHTML = chip("type","all","All")+chip("type","image","Photos")+chip("type","video","Videos")
+    + '<span style="width:8px"></span>' + batches.map(b=>chip("batch",b,b)).join("");
+  f.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+    const k=c.dataset.k, v=c.dataset.v;
+    if(k==="type"){fType=v} else {fBatch=(fBatch===v?"all":v)}
+    f.querySelectorAll('.chip[data-k="type"]').forEach(x=>x.classList.toggle("active",x.dataset.v===fType));
+    f.querySelectorAll('.chip[data-k="batch"]').forEach(x=>x.classList.toggle("active",x.dataset.v===fBatch));
+    render();
+  });
+  f.querySelector('.chip[data-v="all"]').classList.add("active");
+  document.getElementById("q").oninput=e=>{q=e.target.value.toLowerCase();render();};
+  document.getElementById("foot").innerHTML =
+    "Manifest built "+(DATA.generated_at_utc||"")+" · rebuild with <code>python3 generations/build_manifest.py</code> after each new generation.";
+  render();
+}
+function stat(b,l){return `<div class="stat"><b>${b}</b><span>${l}</span></div>`}
+function chip(k,v,label){return `<button class="chip" data-k="${k}" data-v="${v}">${esc(label)}</button>`}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function render(){
+  let items=DATA.items.slice().sort((a,b)=>(b.generated_at||"").localeCompare(a.generated_at||""));
+  items=items.filter(i=>(fType==="all"||i.type===fType) && (fBatch==="all"||i.batch===fBatch));
+  if(q) items=items.filter(i=>(i.file+" "+i.prompt+" "+i.model+" "+i.job_id+" "+i.notes).toLowerCase().includes(q));
+  const g=document.getElementById("grid");
+  document.getElementById("empty").hidden=items.length>0;
+  g.innerHTML=items.map(card).join("");
+}
+function card(i){
+  const src=GEN+encodeURIComponent(i.file);
+  const media = i.type==="video"
+    ? `<video src="${src}#t=0.5" preload="metadata" controls playsinline></video>`
+    : `<img loading="lazy" src="${src}" alt="${esc(i.file)}">`;
+  const cost = (i.cost_cr==null?"—":i.cost_cr+" cr");
+  return `<div class="card">
+    <div class="media">${media}</div>
+    <div class="body">
+      <div class="badges">
+        <span class="b ${i.type==='video'?'vid':'img'}">${i.type}</span>
+        <span class="b">${esc(i.batch)}</span>
+        ${i.notes?`<span class="b">${esc(i.notes)}</span>`:""}
+      </div>
+      <div class="fn">${esc(i.file)}</div>
+      <div class="meta">
+        <span>Cost</span><b>${cost}</b>
+        <span>Size</span><b>${esc(i.size_human)}</b>
+        <span>Model</span><b>${esc(i.model)}</b>
+        <span>Job</span><b>${esc(i.job_id||"—")}</b>
+        <span>Made</span><b>${esc(i.generated_at||"—")}</b>
+      </div>
+      ${i.prompt?`<details><summary>Prompt</summary><p>${esc(i.prompt)}</p></details>`:""}
+      <a class="dl" href="${src}" download>⬇ Download</a>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>

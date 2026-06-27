@@ -32,3 +32,24 @@ and must stay tasteful/SFW (suggestive, no nudity — no explicit content).
   (Instagram). Photo endpoint `POST /api/upload_photos`.
 - **Posting log:** archive every published asset in `posted images/` and append
   to `posted images/index.md` + `posted_log.json`.
+
+## 📒 Generation logging — DO THIS EVERY TIME (no exceptions)
+
+Whenever you generate ANY image or video for Candace, before ending the turn:
+
+1. **Save the file** into `generations/` named
+   `YYYY-MM-DD_<short-desc>_<job-id-short>.ext`.
+2. **Add a `META` entry** for it in `generations/build_manifest.py` with: model,
+   job id, **cost in credits** (look it up via the Higgsfield `transactions`
+   tool — flagged/failed jobs auto-refund, so only count successes), batch,
+   `generated_at` (UTC), the **exact prompt**, and a short note.
+3. **Re-run** `python3 generations/build_manifest.py` to refresh
+   `generations/manifest.json` (sizes + totals).
+4. Also keep `generations/CREDIT_USAGE.md` and `generations/PROMPTS.md` current.
+5. **Commit & push.** The dashboard (`/index.html`, served by GitHub Pages from
+   this branch root) reads `manifest.json` and updates automatically.
+
+The dashboard shows every asset with preview, file size, download link, prompt,
+cost, model, job id, and time. GitHub Pages must be set to **Deploy from a
+branch → this branch → `/ (root)`** (no Actions). `.nojekyll` is committed so
+files are served as-is.
