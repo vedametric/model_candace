@@ -61,6 +61,16 @@ For full-body "walking with the head" gags the face is tiny, so lip-sync is moot
 use Wan 2.7 on a full-body still (body motion + pouch jiggle) or Motion Control
 with a continuous walking driver.
 
+**CRITICAL — Motion Control ERASES a separated hanging sac.** Kling reconstructs
+the neck/throat from the DRIVER (which has a normal neck), so a distinct sac that
+"floats"/hangs clear of the neck gets smoothed away — the gag vanishes mid-video.
+The MORE separated-from-the-neck the sac is, the more reliably MC deletes it. So:
+an INTEGRATED chin-melt pouch (blended into the jaw/neck) mostly survives MC, but a
+DISTINCT two-lobed hanging sac does NOT — for that, **use Wan 2.7** (it animates
+from the still, so it keeps the sac AND lip-syncs from the audio). Always pull a
+frame from the FINISHED MC video and confirm the sac is still there before
+delivering (it looks fine in the puppet still, then disappears in motion).
+
 ## Tools
 - **Social_Evidence** `fetch_url` — metadata + a (usually video-only) stored copy.
 - **yt-dlp** (`python3 -m yt_dlp`) — the real audio + the highest-res driver.
