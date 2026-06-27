@@ -5,6 +5,25 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #005 — Over-shoulder rooftop (golden hour / confident-boss)
+
+- **File:** `2026-06-27_005_over-shoulder-rooftop_instagram.png`
+- **Posted:** 2026-06-27 06:11:19 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaFCvYfDBOX/
+- **Platform post ID:** `17999845208958275`
+- **Media type:** Photo (1536 × 2752, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > rooftop views hit different when you own the city 😏 columbus never looked so good… or maybe that's just me 🤭 📍 Columbus, Ohio
+- **Hashtags:** #rooftop #columbusohio #614 #ohiobabe #goldenhour #goldenhourhair #ootdinspo #goingoutlook #blondelife #cityvibes #rooftopvibes #fyp #midwestfashion #girlsofig #confidentisgorgeous #ohiogirl #blondesofinstagram #columbuslife #blondesgram #nightoutfit
+- **Source generation:** Higgsfield `nano_banana_2`, job `cb7c0b90-4e61-4cdc-936f-788599e8c696` (persona reference `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`)
+- **Upload service:** upload-post.com (`request_id` `21361064ae8641d48c7ef7202a976be6`, `job_id` `041a90736c2b402bbe929d78da219a1b`)
+- **Status:** ✅ completed / success
+
+---
+
 ## #004 — Car selfie (soft morning / playful-bratty)
 
 - **File:** `2026-06-26_004_car-selfie_instagram.png`
