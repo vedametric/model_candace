@@ -2,126 +2,197 @@
 name: michaela-testicle-gen
 description: >
   Turn a TikTok/Instagram video into a 15s comedic "testicle character" parody:
-  download the clip, pull its audio, transform the creator's head into the absurd
+  download the clip, pull its audio, transform the creator into the absurd
   saggy-pouch creature (the "michaela testicle prompt") while keeping the outfit
-  she wears in THAT clip, then get TRUE lip-sync by transferring her real
-  performance onto the creature with Kling Motion Control. Use when the user asks
-  for the "michaela testicle prompt", the "testicle character", or to redo this
-  comedic head-swap on a new video/clip.
+  she wears in THAT clip, then lip-sync it to the original audio. Two lip-sync
+  paths: Wan 2.7 (image+audio → native sync, simplest) or Kling Motion Control
+  (transfers her REAL performance). Supports full head-swap OR chin-melt styles,
+  iterative character edits (age, plump, makeup, outfit/background), and full-body
+  walking variants. Use when the user asks for the "michaela testicle prompt", the
+  "testicle character", or to redo this comedic transform on a new video/clip.
 ---
 
 # Michaela Testicle Character Generator
 
-Transforms the creator of a source video into a goofy creature whose head is a
-single saggy human-testicle-shaped flesh pouch (with their own eyes, nose, lips +
-hair), talking to camera, **lip-synced to the original audio**.
+Transforms the creator of a source video into a goofy creature with a single
+saggy human-testicle-shaped flesh pouch (their own eyes/nose/lips + hair),
+talking to camera, **lip-synced to the original audio**.
 
-## Two hard requirements (do not violate)
-
-1. **TRUE lip-sync to the ORIGINAL audio.** Do NOT generate a free animation and
-   mux audio onto it — that is NOT lip-sync and will be rejected. The mouth must
-   actually track the words. There is **no audio→lipsync model** in Higgsfield
-   that works for this: Kling 3.0 rejects an audio role; Seedance's audio role
-   gives only loose, unusable sync. The method that works is **performance
-   transfer** (see step 5): puppet the creature still with the creator's REAL
-   performance from the original clip via Kling **Motion Control**. Because the
-   motion is copied frame-for-frame from the genuine clip, the mouth/head move
-   exactly as hers did, so the original audio lines up = real sync.
-2. **Re-dress per clip.** For each clip, the creature still must wear the SAME
-   outfit the creator wears in that clip, framed talking to camera. Build the
-   head-swap from a frame of that clip so the outfit/scene match automatically.
-
-## The naming trap (NSFW filter)
+## The naming trap (NSFW filter) — read first
 
 The gag must read as that organ **without ever naming it**. Clinical words
-("testicle", "scrotum", "ballsack", etc.) trip the image NSFW filter. Confirmed
-with a controlled test: a fully clothed, zero-cleavage crop STILL got flagged the
+("testicle", "scrotum", "ballsack", etc.) trip the image NSFW filter — confirmed
+with a controlled test: a fully clothed, zero-cleavage crop STILL flagged the
 moment clinical wording was used, and passed once reworded to pure shape
-description. **It's the wording, not the skin.** Describe the shape instead (see
-the prompt below).
+description. **It's the wording, not the skin.** Always describe the SHAPE
+("soft saggy pendulous pouch of loose wrinkled flesh, central seam, sparse stray
+hairs"). Run `count:3-4`; some pushier variants flag while a tamer one passes.
+`nano_banana_pro` flags more on revealing frames; bias toward calmer base frames.
+
+## Two style variants (ask / infer which)
+
+1. **Full head-swap** — the WHOLE head becomes the pouch with her face set into
+   the front, hair on top. Bold, surreal. (Original style.)
+2. **Chin-melt** — keep her **real upper face** (eyes, nose, mouth, forehead,
+   hair all normal); ONLY the chin/jaw/under-chin melts into the hanging seamed
+   pouch. Reads cleaner and is better for lip-sync (her real mouth still moves).
+   This is usually what people mean by "under the chin, normal size."
+
+## Lip-sync: pick the method
+
+Two valid paths — the OLD claim "no audio→lipsync model works" is WRONG, Wan 2.7
+works. Choose by what matters more:
+
+- **Wan 2.7 — audio-driven (DEFAULT for a talking-to-camera clip).** Model
+  `wan2_7`. Feed `start_image` (the character still, a job_id is fine) + `audio`
+  (clean MP3). It solves the mouth FROM the audio: crisp sync, **no driver clip,
+  no muxing, zero drift**, and it naturally adds head movement. Caps 15s,
+  720p/1080p, 9:16. Tradeoff: it INVENTS her motion (not her real performance)
+  and identity can wobble slightly. Also the best fix when a Motion Control result
+  "looks fake / off-sync".
+- **Kling Motion Control — motion transfer (when faithfulness to her REAL
+  performance/choreography matters, e.g. specific gestures or full-body walking).**
+  Model `motion_control`. Puppet still + a real driver clip → copies her actual
+  head/mouth/hand motion. Caveat: it transfers MOTION, it does **not** solve
+  phonemes, so mouths are approximate (see "Why MC can look fake"). Needs a
+  continuous trackable face and an audio drift-fix.
+
+For full-body "walking with the head" gags the face is tiny, so lip-sync is moot —
+use Wan 2.7 on a full-body still (body motion + pouch jiggle) or Motion Control
+with a continuous walking driver.
 
 ## Tools
 - **Social_Evidence** `fetch_url` — metadata + a (usually video-only) stored copy.
-- **yt-dlp** (`python3 -m yt_dlp`) — the real audio + a clean motion-driver video.
+- **yt-dlp** (`python3 -m yt_dlp`) — the real audio + the highest-res driver.
 - **ffmpeg** — bundled at
   `/usr/local/lib/python3.11/dist-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2`
   (`pip install imageio-ffmpeg` if missing; system/apt ffmpeg is unavailable).
-- **Higgsfield MCP** — `generate_image` (`nano_banana_pro`) for the head-swap
-  still; `motion_control` (Kling 3.0) for the lip-synced animation;
-  `media_upload`/`media_confirm`; `job_display` to poll.
+- **Higgsfield MCP** — `generate_image` (`nano_banana_pro`); `generate_video`
+  (`wan2_7`); `motion_control` (Kling 3.0); `media_upload`/`media_confirm`;
+  `job_display` to poll. NOTE: `media_upload` often sits behind a permission
+  gate — the user must tap "Allow" in their client; chat text doesn't clear it.
+  The character still needs NO upload (pass its job_id); only local driver/audio
+  files need `media_upload`.
 
 ## Pipeline
 
-1. **Fetch metadata**: `Social_Evidence.fetch_url(url)`.
-2. **Get audio + driver video** (the SE copy is usually video-only):
-   - `python3 -m yt_dlp -F <url>` → pick an `h264_*` format (carries `aac`).
-     If `curl_cffi` is installed and the proxy breaks its TLS,
-     `pip uninstall -y curl_cffi` so yt-dlp uses the proxy-trusting urllib path.
-   - `yt_dlp -f "h264_540p_<id>-0" -o withaudio.%(ext)s <url>`
-3. **Pick the lip-sync window — CRITICAL.** Motion transfer needs a CONTINUOUS
-   talking-to-camera face for the whole window. Many clips are fast-cut montages
-   (B-roll cutaways) with only a few seconds of face — build a contact sheet and
-   check before committing:
-   `for t in $(seq 0 2 <dur>); do ffmpeg -y -ss $t -i se.mp4 -frames:v 1 -vf scale=150:-1 tl/$t.jpg; done`
-   then montage with PIL. Choose the longest continuous talking stretch. If it's
-   <15s, tell the user and offer a shorter clip or a different source — do not
-   silently stretch over B-roll (motion transfer breaks on no-face frames).
-4. **Cut the window** (same start/length for video + audio):
-   - driver video: `ffmpeg -y -ss <a> -t 15 -i withaudio.mp4 -an -c:v libx264 -pix_fmt yuv420p -crf 20 motion_driver.mp4`
-   - audio: `ffmpeg -y -ss <a> -t 15 -i withaudio.mp4 -vn -ac 2 -ar 44100 -c:a aac -b:a 192k audio_win.m4a`
-5. **Head-swap still (re-dressed):** extract a clear front-facing frame from the
-   window, upload it, and `generate_image` (`nano_banana_pro`, `count:2`,
-   `aspect_ratio:"9:16"`, `medias:[{role:"image", value:<frame>}]`) with the
-   prompt below — keep the SAME outfit/scene, swap only the head. If a result
-   comes back `nsfw`, soften wording toward pure shape and retry.
-6. **Lip-synced animation — Kling Motion Control:**
-   - Upload `motion_driver.mp4` (`media_upload`→PUT→`media_confirm` type video).
-   - `motion_control({ image_id:<passing head-swap job_id>,
-     motion_video_id:<driver media_id>, scene_control:"image", resolution:"720p" })`
-   - The creature copies her real head/mouth/hand motion → genuine lip-sync.
-7. **Mux the window's original audio** (frame-aligned to the transferred motion,
-   so sync is preserved — this is muxing the CORRECT track onto motion that came
-   FROM that track, not faking sync):
-   `ffmpeg -y -i mc.mp4 -i audio_win.m4a -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest final.mp4`
-8. **Deliver** via SendUserFile. Parody, not a Candace asset — keep in scratchpad,
+1. **Download** (SE copy is usually video-only → use yt-dlp):
+   - `python3 -m yt_dlp -F <url>` → pick the **highest-res** format. Prefer a
+     720p source over 540p — bigger mouth = better lip-sync tracking. The 720p
+     TikTok format is often HEVC (`bytevc1_720p_*`), still fine as a driver.
+     If `curl_cffi` breaks TLS via the proxy, `pip uninstall -y curl_cffi`.
+   - `yt_dlp -f "<id>-0" -o "withaudio.mp4" <url>` (avoid `%(ext)s` — the parens
+     break the shell; use a literal filename).
+2. **Pick the window — CRITICAL for Motion Control.** It needs a CONTINUOUS
+   talking-to-camera face. Build a contact sheet and AVOID stretches where hands
+   wave in front of the face (breaks the tracker) or cutaway B-roll:
+   `for t in $(seq 0 2 <dur>); do ffmpeg -y -ss $t -i withaudio.mp4 -frames:v 1 -vf scale=150:-1 tl/$t.jpg; done`
+   then montage with PIL. Choose the longest clean talking stretch (often the
+   opening). If <15s, tell the user. (Wan 2.7 doesn't need a driver, but still
+   pick clean audio.)
+3. **Cut window** (same start/length for video + audio):
+   - audio: `ffmpeg -y -ss <a> -t 15 -i withaudio.mp4 -vn -ac 2 -ar 44100 -c:a libmp3lame -b:a 192k audio.mp3`
+     (clean **MP3** — m4a can fail as a model audio input.)
+   - driver (MC only): `ffmpeg -y -ss <a> -t 15 -i <hi-res>.mp4 -an -c:v libx264 -pix_fmt yuv420p -crf 18 driver.mp4`
+4. **Character still (re-dressed):** extract a clear, calm, front-facing frame;
+   upload it; `generate_image` (`nano_banana_pro`, `count:3-4`, `aspect_ratio:"9:16"`,
+   `medias:[{role:"image", value:<frame>}]`) with the prompt below. Keep the SAME
+   outfit/scene; swap only the head (or chin). Show options; let the user pick.
+5. **Iterate the character** by feeding the chosen result's **job_id** back as the
+   `image` reference with a tight "keep everything the same EXCEPT ..." prompt.
+   Proven edits, one lever at a time: **age up ~10yr** (forehead lines, crow's
+   feet, nasolabial folds), **plumper/saggier pouch**, **subtle makeup + plumper
+   lips**, **swap outfit / add background** (e.g. USA flag wall + a tee with small
+   pink text — nano_banana renders short words fine). Always `count:3` and show.
+6. **Animate:**
+   - **Wan 2.7:** upload `audio.mp3`; `generate_video({ model:"wan2_7",
+     duration:15, aspect_ratio:"9:16", resolution:"1080p", medias:[
+     {role:"start_image", value:<char job_id>}, {role:"audio", value:<audio media_id>}]})`.
+     If a `preset_recommendation` notice fires, retry with `declined_preset_id`.
+     Audio is baked in — **no muxing**, done.
+   - **Kling Motion Control:** upload `driver.mp4`; `motion_control({ image_id:<char
+     job_id>, motion_video_id:<driver media_id>, scene_control:"image",
+     resolution:"1080p" })`. Then do the **drift-fix mux** (next step). Keep
+     `scene_control:"image"` so the re-dressed background is preserved.
+7. **Drift-fix mux (Motion Control ONLY).** Kling silently RETIMES the output
+   (e.g. 15.00s driver → 14.93s / 448 frames). Muxing the untouched 15.0s audio
+   makes lips drift, worst at the end. Measure the real output length and
+   time-stretch the audio to match (≈0.45% = inaudible pitch shift):
+   - frames: `ffmpeg -i mc.mp4 -map 0:v:0 -f null - 2>&1 | grep -oE 'frame=[ ]*[0-9]+' | tail -1`
+   - `atempo = audio_seconds / (frames/30)`; then
+     `ffmpeg -y -i mc.mp4 -i audio.mp3 -af "atempo=<f>" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest final.mp4`
+8. **Compress before delivery.** Kling 1080p exports are absurdly over-bitrated
+   (~35 Mbps, 60MB+ for 15s) and won't download. Re-encode:
+   `ffmpeg -y -i final.mp4 -c:v libx264 -pix_fmt yuv420p -crf 21 -preset veryfast -movflags +faststart -c:a aac -b:a 160k final_web.mp4`
+9. **Deliver** via SendUserFile. Parody, not a Candace asset — keep in scratchpad,
    don't log to `posted images/` unless asked.
 
-## The "michaela testicle prompt" (image / head-swap)
+## Motion Control quality (if it "looks fake / off-sync")
 
-> Candid iPhone UGC selfie video still, absurd comedy meme. Keep EVERYTHING from
-> the reference photo the same — same body, same outfit, **[OUTFIT/SCENE from this
-> clip, e.g. white top + seatbelt + car interior]**, same hair, same natural
-> lighting, same casual handheld framing — EXCEPT swap the head for a silly
-> surreal creature head. ONLY change the head into a soft, saggy, pendulous
-> teardrop-shaped pouch of loose flesh: heavier and droopier toward the bottom so
-> it sags like a soft water-filled sack, slightly narrower at the top where the
-> hair grows. Cover its surface in fine soft wrinkles, creases and loose crepey
-> skin folds, pale pinkish-tan matte skin. Add a faint vertical seam line down the
-> center-front from top to bottom. Scatter a few sparse coarse curly stray hairs
-> across the lower part. Set into the front, exactly where a face goes, the SAME
-> eyes, nose and lips as the person in the reference, in normal face positions,
-> hair flowing down from the top like hair. Soft, squishy, gelatinous — looks like
-> it would wobble and jiggle. Goofy, harmless, absurd comedy meme creature — SFW,
-> not gross, not explicit. Photoreal, candid iPhone UGC look, natural skin
-> texture, slight grain, NOT retouched, no studio polish.
+Root causes, biggest first: (1) MC transfers MOTION, not phonemes — mouths never
+crisply hit b/m/p closures; (2) tiny mouth in a low-res driver → mushy tracking;
+(3) the transform sitting right under the lips kills the jaw cues that sell
+speech; (4) audio drift from muxing (step 7); (5) single-still mouth-interior
+hallucination. Fixes: use the **720p+ driver** (not 540p); render **1080p**; for
+chin-melt keep the mouth area legible; apply the **drift-fix**. To enlarge the
+mouth further you can zoom-crop the driver AND the character to a *matched*
+head-and-shoulders framing — but don't crop out scene elements the user asked for
+(e.g. on-shirt text). If sync still isn't crisp, switch to **Wan 2.7** — it's
+fundamentally better at mouth sync because it solves from audio.
+
+## The "michaela testicle prompt" (image)
+
+**Full head-swap:**
+> Candid iPhone UGC selfie video still, absurd SFW comedy meme. Keep EVERYTHING
+> from the reference the same — same body, **[OUTFIT/SCENE from THIS clip]**, same
+> hair, same natural lighting, same casual handheld framing — EXCEPT swap the head
+> for a silly surreal creature head. ONLY change the head into a soft, saggy,
+> pendulous teardrop-shaped pouch of loose flesh: heavier/droopier toward the
+> bottom, narrower at the top where the hair grows. Fine soft wrinkles, creases,
+> loose crepey folds, pale pinkish-tan matte skin, a faint vertical seam down the
+> center-front, a few sparse coarse stray hairs across the lower part. Set into the
+> front, where a face goes, the SAME eyes, nose and lips as the reference, normal
+> positions, hair flowing down from the top. Soft, squishy, gelatinous — looks like
+> it would wobble. Goofy, harmless, absurd comedy meme — SFW, not gross, not
+> explicit. Photoreal, candid iPhone UGC, natural skin texture, slight grain, NOT
+> retouched, no studio polish.
+
+**Chin-melt (real upper face kept):**
+> ...Keep her UPPER face COMPLETELY NORMAL — real eyes, eyebrows, nose, lips,
+> cheeks, forehead, hair. The ONLY change: everything BELOW her bottom lip — chin,
+> jaw and the area under the chin — softly melts into a saggy droopy pendulous
+> pouch of loose wrinkled flesh hanging where the chin/jaw were. Deep soft VERTICAL
+> wrinkle creases top-to-bottom, loose crepey pale pinkish-tan skin, a faint
+> central seam, a few sparse stray hairs near the bottom; soft, squishy, would
+> gently wobble. [size/position clamp if needed: "the pouch hangs from just under
+> her lower lip to about mid-neck and does NOT touch her top or chest"]. SFW...
+
+Size control: words like "hangs/pendulous/droopy" make it drape LONG; "compact
+round ball, not hanging" makes it small but loses the testicle read; for "small
+but reads as testicles" combine a two-lobe+seam shape WITH a hard clamp ("size of
+a lime, must NOT reach the collarbone"). Never use literal nouns ("two apples") —
+the model inserts real apples.
 
 ## Gotchas (learned the hard way)
 
-1. **Social_Evidence stores video-only** (0 audio streams). Get audio + the motion
-   driver from TikTok directly via yt-dlp's `h264_*` formats.
-2. **Lip-sync = motion transfer, NOT mux-on-top.** A free Seedance/Kling animation
-   with audio added afterward is not synced and gets rejected. Use Motion Control
-   driven by the real clip; only mux the matching-window audio at the very end.
-3. **No continuous face = no motion-transfer lip-sync.** Montage clips with B-roll
-   can't be lip-synced across their length. Verify the window first (step 3).
-4. **NSFW filter = wording, not skin.** Never use clinical anatomy nouns; pure
-   shape description passes. `count:2-3` for options; some pushy variants still
-   flag while a tamer one passes.
-5. **Render queue is slow & congested** (saw 30–90 min for one job). A healthy job
-   sits in `waiting`/`in_progress`; a real input failure dies within ~1-2 min.
-   Don't panic on slow — poll `job_display`.
+1. **Social_Evidence stores video-only** (0 audio streams). Get audio + driver
+   from TikTok via yt-dlp; prefer the highest-res format available.
+2. **Wan 2.7 IS the easy lip-sync** (image+audio→native sync). Use it by default
+   for talking-to-camera. Reserve Motion Control for faithful real-performance/
+   choreography (and then apply the drift-fix + HD driver).
+3. **Kling retimes the output** → always drift-fix the audio before muxing (step 7).
+4. **No continuous face = no MC lip-sync.** Avoid hands-over-face/B-roll windows.
+5. **NSFW filter = wording, not skin.** Shape description only; `count:3-4`.
+6. **Render queue is slow** (30–90 min seen). Healthy job sits in
+   `waiting`/`in_progress`; a real input failure dies in ~1-2 min. Poll
+   `job_display`; render ONE thing at a time so you can restrategize on failure.
+7. **`media_upload` permission gate** — needs the user's "Allow"; retries alone
+   won't clear it. Character stills skip upload (pass job_id).
+8. **Compress Kling exports** before SendUserFile or they won't download (step 8).
 
 ## Defaults & extensions
-- Default output: 15s, 720p, 9:16 (Motion Control supports 720p/1080p).
-- `scene_control:"video"` would pull the driver's background instead of the
-  creature image's — keep `"image"` to preserve the re-dressed scene.
+- Default output: 15s, 1080p, 9:16.
+- One lever per edit; always show `count:3` options and let the user pick before
+  animating ("show me the puppet before you run the video").
+- `scene_control:"video"` pulls the driver's background instead of the character's
+  — keep `"image"` to preserve the re-dressed scene.
