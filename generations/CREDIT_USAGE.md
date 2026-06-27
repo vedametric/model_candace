@@ -68,7 +68,28 @@ _(Also spent that day but NOT archived: a 720p beach-cinematic fallback dup
 
 - **2026-06-26:** ~377.4 cr
 - **2026-06-27:** 85 cr
-- **Grand total (committed generations):** **~462 cr**
+- **Grand total (committed generations):** **458.1 cr**
+
+## Reconciliation — archived vs. actually spent
+
+The figure above (458.1 cr) is **only the cost of the assets kept in this
+folder**. The real credit burn on the account is higher:
+
+| | Credits |
+|---|---|
+| Balance before Candace's first generation | 1688.55 |
+| Balance now (2026-06-27) | 642.33 |
+| **Net actually spent on Candace** | **1046.22** |
+| — of which: archived assets (above) | 458.10 |
+| — of which: **non-archived** | **588.12** |
+
+**Non-archived spend (~588 cr)** = the automated 2×/day posting routine
+(Seedream 4.5, Wan 2.7), duplicate/fallback renders (e.g. the 720p beach
+fallback), motion-control retries, and discarded experiments. Filter-flagged
+and failed jobs auto-refund, so they net to 0 and aren't counted.
+
+> Keep `BALANCE_NOW` in `build_manifest.py` updated (from the Higgsfield
+> `balance` tool) so the dashboard's "net credits spent" stays accurate.
 
 ### Takeaways for cost control
 - **Images are cheap** (2 cr) — generate freely; flagged/failed ones refund.

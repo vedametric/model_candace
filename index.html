@@ -7,42 +7,53 @@
 <style>
   :root{
     --bg:#0e0e12; --card:#17171f; --card2:#1d1d27; --line:#2a2a36;
-    --txt:#e9e9f0; --mut:#9a9ab0; --pink:#ff6fa5; --accent:#7c8cff;
+    --txt:#e9e9f0; --mut:#9a9ab0; --pink:#ff6fa5; --accent:#7c8cff; --good:#54d6a0;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--txt);
     font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--accent)}
   header{padding:24px 20px 8px;max-width:1400px;margin:0 auto}
   h1{margin:0 0 4px;font-size:24px}
   h1 .pink{color:var(--pink)}
   .sub{color:var(--mut);font-size:13px}
-  .stats{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px}
   .stat b{display:block;font-size:20px}
+  .stat.big b{color:var(--pink)}
   .stat span{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
-  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 4px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0}
   .chip{background:var(--card);border:1px solid var(--line);color:var(--txt);
     padding:6px 12px;border-radius:999px;cursor:pointer;font-size:13px}
   .chip.active{background:var(--pink);border-color:var(--pink);color:#1a0a12;font-weight:600}
   input[type=search]{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);
     color:var(--txt);padding:8px 12px;border-radius:10px;font-size:14px}
+  select{background:var(--card);border:1px solid var(--line);color:var(--txt);
+    padding:7px 10px;border-radius:10px;font-size:13px}
+  label.f{color:var(--mut);font-size:12px;display:flex;gap:6px;align-items:center}
   main{max-width:1400px;margin:0 auto;padding:12px 20px 60px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
-    display:flex;flex-direction:column}
+    display:flex;flex-direction:column;scroll-margin-top:90px}
+  .card.flash{animation:flash 1.6s ease}
+  @keyframes flash{0%,100%{box-shadow:0 0 0 0 transparent}15%{box-shadow:0 0 0 3px var(--pink)}}
   .media{background:#000;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;overflow:hidden}
   .media img,.media video{width:100%;height:100%;object-fit:cover;display:block}
   .body{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-  .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
-  .fn{font-size:12.5px;color:var(--txt);word-break:break-all}
+  .fn{font-size:12.5px;word-break:break-all}
   .badges{display:flex;gap:6px;flex-wrap:wrap}
   .b{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
   .b.vid{color:var(--accent);border-color:var(--accent)}
   .b.img{color:var(--pink);border-color:var(--pink)}
-  .meta{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px;color:var(--mut)}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;color:var(--mut);align-items:center}
   .meta b{color:var(--txt);font-weight:600}
+  .copybtn{background:none;border:1px solid var(--line);color:var(--mut);border-radius:6px;
+    cursor:pointer;font-size:11px;padding:1px 6px;margin-left:6px}
+  .copybtn:hover{color:var(--txt);border-color:var(--accent)}
+  .copybtn.ok{color:var(--good);border-color:var(--good)}
+  .jobcell{display:flex;align-items:center}
   details{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
-  summary{cursor:pointer;color:var(--mut);font-size:12px}
+  summary{cursor:pointer;color:var(--mut);font-size:12px;display:flex;justify-content:space-between;align-items:center}
   details p{margin:8px 0 2px;font-size:12.5px;color:var(--txt);white-space:pre-wrap}
   .dl{display:inline-block;text-align:center;background:var(--accent);color:#0a0a16;text-decoration:none;
     padding:8px;border-radius:9px;font-weight:600;font-size:13px}
@@ -55,10 +66,19 @@
 <body>
 <header>
   <h1>Candace <span class="pink">·</span> Generations Dashboard</h1>
-  <div class="sub">Every image &amp; video generated for <b>model_candacesummers</b> — previews, prompts, costs, sizes &amp; downloads.</div>
+  <div class="sub">Every image &amp; video for <b>model_candacesummers</b> — previews, prompts, costs, sizes &amp; downloads. Times in <b>Brisbane (AEST)</b>.</div>
   <div class="stats" id="stats"></div>
   <div class="controls">
     <input type="search" id="q" placeholder="Search filename, prompt, model, job id…">
+    <label class="f">Sort
+      <select id="sort">
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="costhi">Cost: high → low</option>
+        <option value="costlo">Cost: low → high</option>
+      </select>
+    </label>
+    <label class="f">Model <select id="model"><option value="all">All</option></select></label>
   </div>
   <div class="controls" id="filters"></div>
 </header>
@@ -66,57 +86,95 @@
 <footer id="foot"></footer>
 
 <script>
-const GEN = "generations/";
-let DATA = {items:[]}, fType="all", fBatch="all", q="";
+const GEN="generations/";
+let DATA={items:[]}, fType="all", fBatch="all", fModel="all", sortBy="new", q="";
 
 fetch(GEN+"manifest.json?_="+Date.now()).then(r=>r.json()).then(d=>{DATA=d;init();})
   .catch(e=>{document.getElementById("grid").innerHTML=
     '<div class="empty">Could not load <code>generations/manifest.json</code>.<br>'+e+'</div>';});
 
 function init(){
-  const s=document.getElementById("stats");
-  s.innerHTML =
-    stat(DATA.count, "assets") +
-    stat((DATA.total_cost_cr??0)+" cr", "total credits") +
-    stat(DATA.total_size_human||"", "total size") +
-    stat(DATA.items.filter(i=>i.type==='image').length, "photos") +
-    stat(DATA.items.filter(i=>i.type==='video').length, "videos");
+  document.getElementById("stats").innerHTML =
+    stat(DATA.count,"assets") +
+    statBig((DATA.net_spent_cr??0)+" cr","net credits spent","all Candace activity") +
+    stat((DATA.archived_cost_cr??0)+" cr","archived assets cost") +
+    stat(DATA.total_size_human||"","total size") +
+    stat(DATA.items.filter(i=>i.type==='image').length,"photos") +
+    stat(DATA.items.filter(i=>i.type==='video').length,"videos");
+  // batch chips
   const batches=[...new Set(DATA.items.map(i=>i.batch))].sort();
   const f=document.getElementById("filters");
-  f.innerHTML = chip("type","all","All")+chip("type","image","Photos")+chip("type","video","Videos")
-    + '<span style="width:8px"></span>' + batches.map(b=>chip("batch",b,b)).join("");
+  f.innerHTML=chip("type","all","All")+chip("type","image","Photos")+chip("type","video","Videos")
+    +'<span style="width:8px"></span>'+batches.map(b=>chip("batch",b,b)).join("");
   f.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
-    const k=c.dataset.k, v=c.dataset.v;
-    if(k==="type"){fType=v} else {fBatch=(fBatch===v?"all":v)}
+    const k=c.dataset.k,v=c.dataset.v;
+    if(k==="type")fType=v; else fBatch=(fBatch===v?"all":v);
     f.querySelectorAll('.chip[data-k="type"]').forEach(x=>x.classList.toggle("active",x.dataset.v===fType));
     f.querySelectorAll('.chip[data-k="batch"]').forEach(x=>x.classList.toggle("active",x.dataset.v===fBatch));
     render();
   });
   f.querySelector('.chip[data-v="all"]').classList.add("active");
+  // model dropdown
+  const ms=[...new Set(DATA.items.map(i=>i.model))].sort();
+  document.getElementById("model").innerHTML='<option value="all">All</option>'+ms.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
+  document.getElementById("model").onchange=e=>{fModel=e.target.value;render();};
+  document.getElementById("sort").onchange=e=>{sortBy=e.target.value;render();};
   document.getElementById("q").oninput=e=>{q=e.target.value.toLowerCase();render();};
-  document.getElementById("foot").innerHTML =
-    "Manifest built "+(DATA.generated_at_utc||"")+" · rebuild with <code>python3 generations/build_manifest.py</code> after each new generation.";
+  document.getElementById("foot").innerHTML=
+    `<b>Credits:</b> net spent <b>${DATA.net_spent_cr} cr</b> (start ${DATA.balance_start_cr} → now ${DATA.balance_now_cr}) = `+
+    `archived assets <b>${DATA.archived_cost_cr} cr</b> + non-archived <b>${DATA.non_archived_cr} cr</b> `+
+    `(automated posting routine, duplicate/fallback renders, motion-control retries, discarded experiments — flagged/failed jobs auto-refund to 0).<br>`+
+    `Manifest built ${DATA.generated_at_utc||""} · rebuild with <code>python3 generations/build_manifest.py</code> after each new generation.`;
+  if(location.hash) setTimeout(()=>goto(location.hash.slice(1)),300);
   render();
 }
 function stat(b,l){return `<div class="stat"><b>${b}</b><span>${l}</span></div>`}
+function statBig(b,l,t){return `<div class="stat big" title="${esc(t)}"><b>${b}</b><span>${l}</span></div>`}
 function chip(k,v,label){return `<button class="chip" data-k="${k}" data-v="${v}">${esc(label)}</button>`}
-function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function esc(s){return (s||"").toString().replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function bne(utc){ // UTC iso -> Brisbane time string
+  if(!utc) return "—";
+  try{ return new Date(utc).toLocaleString('en-AU',{timeZone:'Australia/Brisbane',
+    day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})+" AEST"; }
+  catch(e){ return utc; }
+}
+function copy(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{const o=btn.textContent;btn.textContent="✓ copied";btn.classList.add("ok");
+    setTimeout(()=>{btn.textContent=o;btn.classList.remove("ok");},1200);});
+}
+function goto(id){const el=document.getElementById(id); if(el){el.scrollIntoView({behavior:"smooth",block:"center"});
+  el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash");}}
 
 function render(){
-  let items=DATA.items.slice().sort((a,b)=>(b.generated_at||"").localeCompare(a.generated_at||""));
-  items=items.filter(i=>(fType==="all"||i.type===fType) && (fBatch==="all"||i.batch===fBatch));
+  let items=DATA.items.slice();
+  items.sort((a,b)=>{
+    if(sortBy==="costhi")return (b.cost_cr||0)-(a.cost_cr||0);
+    if(sortBy==="costlo")return (a.cost_cr||0)-(b.cost_cr||0);
+    const c=(b.generated_at||"").localeCompare(a.generated_at||"");
+    return sortBy==="old"?-c:c;
+  });
+  items=items.filter(i=>(fType==="all"||i.type===fType)&&(fBatch==="all"||i.batch===fBatch)&&(fModel==="all"||i.model===fModel));
   if(q) items=items.filter(i=>(i.file+" "+i.prompt+" "+i.model+" "+i.job_id+" "+i.notes).toLowerCase().includes(q));
-  const g=document.getElementById("grid");
   document.getElementById("empty").hidden=items.length>0;
-  g.innerHTML=items.map(card).join("");
+  document.getElementById("grid").innerHTML=items.map(card).join("");
+  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copy(b,b.getAttribute("data-copy")));
+  document.querySelectorAll("[data-goto]").forEach(a=>a.onclick=e=>{e.preventDefault();goto("job-"+a.getAttribute("data-goto"));});
+}
+function srcRow(i){
+  if(!i.source_job) return "";
+  const t=DATA.items.find(x=>x.job_id===i.source_job);
+  const label=t?t.file:i.source_job;
+  return `<span>Source still</span><b><a href="#job-${esc(i.source_job)}" data-goto="${esc(i.source_job)}">▶ ${esc(i.source_job)}</a></b>`;
 }
 function card(i){
   const src=GEN+encodeURIComponent(i.file);
-  const media = i.type==="video"
+  const media=i.type==="video"
     ? `<video src="${src}#t=0.5" preload="metadata" controls playsinline></video>`
     : `<img loading="lazy" src="${src}" alt="${esc(i.file)}">`;
-  const cost = (i.cost_cr==null?"—":i.cost_cr+" cr");
-  return `<div class="card">
+  const cost=(i.cost_cr==null?"—":i.cost_cr+" cr");
+  const job=i.job_id?`<span class="jobcell"><b>${esc(i.job_id)}</b><button class="copybtn" data-copy="${esc(i.job_id)}">copy</button></span>`:`<b>—</b>`;
+  return `<div class="card" id="job-${esc(i.job_id)}">
     <div class="media">${media}</div>
     <div class="body">
       <div class="badges">
@@ -129,10 +187,11 @@ function card(i){
         <span>Cost</span><b>${cost}</b>
         <span>Size</span><b>${esc(i.size_human)}</b>
         <span>Model</span><b>${esc(i.model)}</b>
-        <span>Job</span><b>${esc(i.job_id||"—")}</b>
-        <span>Made</span><b>${esc(i.generated_at||"—")}</b>
+        <span>Job</span>${job}
+        ${srcRow(i)}
+        <span>Made</span><b>${esc(bne(i.generated_at))}</b>
       </div>
-      ${i.prompt?`<details><summary>Prompt</summary><p>${esc(i.prompt)}</p></details>`:""}
+      ${i.prompt?`<details><summary><span>Prompt</span><button class="copybtn" data-copy="${esc(i.prompt)}">⧉ copy</button></summary><p>${esc(i.prompt)}</p></details>`:""}
       <a class="dl" href="${src}" download>⬇ Download</a>
     </div>
   </div>`;

@@ -55,17 +55,17 @@ META = {
  "2026-06-27_pool-book-B_524077e4.png": dict(model="nano_banana_pro", job="524077e4", cost=2, batch="pool", at="2026-06-27T13:07Z", prompt=P_POOL_BOOK, notes=""),
  "2026-06-27_pool-book-C_ad9e8aeb.png": dict(model="nano_banana_pro", job="ad9e8aeb", cost=2, batch="pool", at="2026-06-27T13:08Z", prompt=P_POOL_BOOK, notes=""),
  "2026-06-27_pool-cocktail_74a316d2.png": dict(model="nano_banana_pro", job="74a316d2", cost=2, batch="pool", at="2026-06-27T13:22Z", prompt=P_POOL_COCKTAIL, notes="waist-up framing cleared the filter"),
- "2026-06-27_pool-cocktail-motion_b01ff1e1.mp4": dict(model="motion_control 720p", job="b01ff1e1", cost=22, batch="pool", at="2026-06-27T14:15Z", prompt="Kling 3.0 Motion Control. Still=pool-cocktail (74a316d2), driven by user reference video. Scene from image. ~13s.", notes=""),
+ "2026-06-27_pool-cocktail-motion_b01ff1e1.mp4": dict(model="motion_control 720p", job="b01ff1e1", cost=22, batch="pool", at="2026-06-27T14:15Z", src="74a316d2", prompt="Kling 3.0 Motion Control. Still=pool-cocktail (74a316d2), driven by user reference video. Scene from image. ~13s.", notes=""),
  # 2026-06-27 gym
  "2026-06-27_gym-A_4f629463.png": dict(model="nano_banana_pro", job="4f629463", cost=2, batch="gym", at="2026-06-27T14:45Z", prompt=P_GYM, notes=""),
  "2026-06-27_gym-B_180a5398.png": dict(model="nano_banana_pro", job="180a5398", cost=2, batch="gym", at="2026-06-27T14:47Z", prompt=P_GYM, notes="approved -> animated"),
  "2026-06-27_gym-C_ce4234e9.png": dict(model="nano_banana_pro", job="ce4234e9", cost=2, batch="gym", at="2026-06-27T14:45Z", prompt=P_GYM, notes=""),
- "2026-06-27_gym-B-motion_47b0f56f.mp4": dict(model="motion_control 720p", job="47b0f56f", cost=22, batch="gym", at="2026-06-27T14:55Z", prompt="Kling 3.0 Motion Control. Still=gym-B (180a5398), driven by user reference video #2. Scene from image. ~12s.", notes="identity drifted (full-body still)"),
+ "2026-06-27_gym-B-motion_47b0f56f.mp4": dict(model="motion_control 720p", job="47b0f56f", cost=22, batch="gym", at="2026-06-27T14:55Z", src="180a5398", prompt="Kling 3.0 Motion Control. Still=gym-B (180a5398), driven by user reference video #2. Scene from image. ~12s.", notes="identity drifted (full-body still)"),
  # 2026-06-27 nighty
  "2026-06-27_nighty-A_c984178e.png": dict(model="nano_banana_pro", job="c984178e", cost=2, batch="nighty", at="2026-06-27T15:16Z", prompt=P_NIGHTY, notes="approved -> animated"),
  "2026-06-27_nighty-B_92c49e4a.png": dict(model="nano_banana_pro", job="92c49e4a", cost=2, batch="nighty", at="2026-06-27T15:16Z", prompt=P_NIGHTY, notes=""),
  "2026-06-27_nighty-C_fc2acbf5.png": dict(model="nano_banana_pro", job="fc2acbf5", cost=2, batch="nighty", at="2026-06-27T15:16Z", prompt=P_NIGHTY, notes=""),
- "2026-06-27_nighty-A-motion_847e66ef.mp4": dict(model="motion_control 720p", job="847e66ef", cost=21, batch="nighty", at="2026-06-27T15:24Z", prompt="Kling 3.0 Motion Control. Still=nighty-A (c984178e), driven by pose-matched user reference video #3. Scene from image. ~12s.", notes="held identity well (face-crop still + matched pose)"),
+ "2026-06-27_nighty-A-motion_847e66ef.mp4": dict(model="motion_control 720p", job="847e66ef", cost=21, batch="nighty", at="2026-06-27T15:24Z", src="c984178e", prompt="Kling 3.0 Motion Control. Still=nighty-A (c984178e), driven by pose-matched user reference video #3. Scene from image. ~12s.", notes="held identity well (face-crop still + matched pose)"),
 }
 
 def human(n):
@@ -91,16 +91,30 @@ for fn in sorted(os.listdir(HERE)):
         "cost_cr": m.get("cost", None),
         "batch": m.get("batch", "misc"),
         "generated_at": m.get("at", ""),
+        "source_job": m.get("src", ""),
         "prompt": m.get("prompt", ""),
         "notes": m.get("notes", ""),
     })
 
 total_cost = sum(i["cost_cr"] or 0 for i in items)
 total_size = sum(i["size_bytes"] for i in items)
+
+# Account-level reconciliation (from Higgsfield balance / transactions).
+# balance_start = balance right before Candace's first generation this project.
+# balance_now   = update each time you rebuild (Higgsfield `balance` tool).
+BALANCE_START = 1688.55
+BALANCE_NOW   = 642.33   # as of 2026-06-27 ~16:25 UTC
+net_spent = round(BALANCE_START - BALANCE_NOW, 2)
+
 out = {
     "generated_at_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "count": len(items),
-    "total_cost_cr": round(total_cost, 2),
+    "archived_cost_cr": round(total_cost, 2),      # cost of the kept assets shown below
+    "net_spent_cr": net_spent,                      # ALL Candace activity (incl. routine, retries, fallbacks)
+    "balance_start_cr": BALANCE_START,
+    "balance_now_cr": BALANCE_NOW,
+    "non_archived_cr": round(net_spent - total_cost, 2),
+    "total_cost_cr": round(total_cost, 2),          # back-compat alias = archived_cost_cr
     "total_size_bytes": total_size,
     "total_size_human": human(total_size),
     "items": items,

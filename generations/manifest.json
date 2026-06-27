@@ -1,6 +1,11 @@
 {
-  "generated_at_utc": "2026-06-27T16:22:39Z",
+  "generated_at_utc": "2026-06-27T16:36:51Z",
   "count": 28,
+  "archived_cost_cr": 458.1,
+  "net_spent_cr": 1046.22,
+  "balance_start_cr": 1688.55,
+  "balance_now_cr": 642.33,
+  "non_archived_cr": 588.12,
   "total_cost_cr": 458.1,
   "total_size_bytes": 195368976,
   "total_size_human": "186.3 MB",
@@ -15,6 +20,7 @@
       "cost_cr": 135,
       "batch": "beach",
       "generated_at": "2026-06-26T12:20Z",
+      "source_job": "",
       "prompt": "Cinematic beach b-roll: walks out of surf, slow wet-hair flip, over-shoulder glance, hip sway, golden hour. Silent 9:16.",
       "notes": ""
     },
@@ -28,6 +34,7 @@
       "cost_cr": 45,
       "batch": "beach",
       "generated_at": "2026-06-26T13:40Z",
+      "source_job": "",
       "prompt": "Friend-filmed iPhone, cute bikini, bouncing on a small trampoline on sand, laughing, playful, hair flying, ocean behind. Silent 9:16.",
       "notes": ""
     },
@@ -41,6 +48,7 @@
       "cost_cr": 45,
       "batch": "beach",
       "generated_at": "2026-06-26T12:30Z",
+      "source_job": "",
       "prompt": "UGC iPhone, sits low in the sand sifting it through her fingers, gazing at the ocean, candid, not looking at camera. Silent 9:16.",
       "notes": ""
     },
@@ -54,6 +62,7 @@
       "cost_cr": 67.5,
       "batch": "bedroom",
       "generated_at": "2026-06-26T13:35Z",
+      "source_job": "",
       "prompt": "iPhone selfie-POV (arm holding phone, phone not in frame), lying back in cozy bedroom in nightwear, flirty, plays with hair. Silent 9:16.",
       "notes": ""
     },
@@ -67,6 +76,7 @@
       "cost_cr": 36,
       "batch": "boudoir",
       "generated_at": "2026-06-26T12:44Z",
+      "source_job": "",
       "prompt": "Golden-hour bedroom, satin slip/robe, soft eye contact, slow hand-through-hair, shoulder roll, over-shoulder glance. Silent 9:16.",
       "notes": ""
     },
@@ -80,6 +90,7 @@
       "cost_cr": 2,
       "batch": "posted",
       "generated_at": "2026-06-26T10:05Z",
+      "source_job": "",
       "prompt": "(routine) golden-hour cafe arm's-length selfie, sundress.",
       "notes": "POSTED #002 (routine)"
     },
@@ -93,6 +104,7 @@
       "cost_cr": 36,
       "batch": "gym",
       "generated_at": "2026-06-26T12:56Z",
+      "source_job": "",
       "prompt": "UGC iPhone gym, pink activewear, doing squats, natural daylight, candid, subtle over-shoulder glance. Silent 9:16.",
       "notes": "first clip to locked UGC rules"
     },
@@ -106,6 +118,7 @@
       "cost_cr": 2,
       "batch": "posted",
       "generated_at": "2026-06-26T12:06Z",
+      "source_job": "",
       "prompt": "(routine) moody hotel-bed phone selfie, loungewear, sleepy-sultry.",
       "notes": "POSTED #003 (routine)"
     },
@@ -119,6 +132,7 @@
       "cost_cr": 2,
       "batch": "posted",
       "generated_at": "2026-06-26T09:27Z",
+      "source_job": "",
       "prompt": "iPhone mirror selfie, phone covering part of face, flash glare, bedroom, trendy casual influencer outfit. 3:4.",
       "notes": "POSTED #001"
     },
@@ -132,6 +146,7 @@
       "cost_cr": 0.12,
       "batch": "persona-v1",
       "generated_at": "2026-06-26T09:20Z",
+      "source_job": "",
       "prompt": "Photorealistic fashion-editorial portrait of Candace (21, Ohio): petite 5'1, blonde, blue eyes, fair skin, curvy. 3:4 2K.",
       "notes": "Chosen v1 reference"
     },
@@ -145,6 +160,7 @@
       "cost_cr": 0.12,
       "batch": "persona-v1",
       "generated_at": "2026-06-26T09:20Z",
+      "source_job": "",
       "prompt": "(same as option 1, alt seed)",
       "notes": "alt"
     },
@@ -158,6 +174,7 @@
       "cost_cr": 0.12,
       "batch": "persona-v1",
       "generated_at": "2026-06-26T09:20Z",
+      "source_job": "",
       "prompt": "(same as option 1, alt seed)",
       "notes": "alt"
     },
@@ -171,6 +188,7 @@
       "cost_cr": 2,
       "batch": "persona-v2",
       "generated_at": "2026-06-26T13:59Z",
+      "source_job": "",
       "prompt": "Full-body UGC iPhone photo of Candace, EXACT same face, petite 5'1, fuller 10E bust, crop top + jeans, casual bedroom, natural window light. Vertical 9:16.",
       "notes": "CURRENT canonical reference"
     },
@@ -184,6 +202,7 @@
       "cost_cr": 0.12,
       "batch": "persona-v1",
       "generated_at": "2026-06-26T09:24Z",
+      "source_job": "",
       "prompt": "Early UGC attempt (drifted editorial).",
       "notes": "not used"
     },
@@ -197,6 +216,7 @@
       "cost_cr": 0.12,
       "batch": "persona-v1",
       "generated_at": "2026-06-26T09:25Z",
+      "source_job": "",
       "prompt": "Early mirror attempt (drifted editorial).",
       "notes": "not used"
     },
@@ -210,6 +230,7 @@
       "cost_cr": 2,
       "batch": "gym",
       "generated_at": "2026-06-27T14:45Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo by her friend, candid, natural gym lighting, no studio, not retouched. Identity ref + pose ref (sitting on a step, hands near knees). Candace sitting on gym steps post-workout, tight pink sports bra + pink shorts, light sweat sheen, gym equipment behind, water bottle + messy towel beside her. Vertical 9:16.",
       "notes": ""
     },
@@ -223,6 +244,7 @@
       "cost_cr": 22,
       "batch": "gym",
       "generated_at": "2026-06-27T14:55Z",
+      "source_job": "180a5398",
       "prompt": "Kling 3.0 Motion Control. Still=gym-B (180a5398), driven by user reference video #2. Scene from image. ~12s.",
       "notes": "identity drifted (full-body still)"
     },
@@ -236,6 +258,7 @@
       "cost_cr": 2,
       "batch": "gym",
       "generated_at": "2026-06-27T14:47Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo by her friend, candid, natural gym lighting, no studio, not retouched. Identity ref + pose ref (sitting on a step, hands near knees). Candace sitting on gym steps post-workout, tight pink sports bra + pink shorts, light sweat sheen, gym equipment behind, water bottle + messy towel beside her. Vertical 9:16.",
       "notes": "approved -> animated"
     },
@@ -249,6 +272,7 @@
       "cost_cr": 2,
       "batch": "gym",
       "generated_at": "2026-06-27T14:45Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo by her friend, candid, natural gym lighting, no studio, not retouched. Identity ref + pose ref (sitting on a step, hands near knees). Candace sitting on gym steps post-workout, tight pink sports bra + pink shorts, light sweat sheen, gym equipment behind, water bottle + messy towel beside her. Vertical 9:16.",
       "notes": ""
     },
@@ -262,6 +286,7 @@
       "cost_cr": 21,
       "batch": "nighty",
       "generated_at": "2026-06-27T15:24Z",
+      "source_job": "c984178e",
       "prompt": "Kling 3.0 Motion Control. Still=nighty-A (c984178e), driven by pose-matched user reference video #3. Scene from image. ~12s.",
       "notes": "held identity well (face-crop still + matched pose)"
     },
@@ -275,6 +300,7 @@
       "cost_cr": 2,
       "batch": "nighty",
       "generated_at": "2026-06-27T15:16Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone front-facing selfie, candid, natural ambient indoor night lighting, no studio, not retouched. Identity ref + close-up selfie pose ref. Candace in a close-up head-and-shoulders selfie in a home hallway, wearing a pink silk slip nightie, soft relaxed gaze. Vertical 9:16.",
       "notes": "approved -> animated"
     },
@@ -288,6 +314,7 @@
       "cost_cr": 2,
       "batch": "nighty",
       "generated_at": "2026-06-27T15:16Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone front-facing selfie, candid, natural ambient indoor night lighting, no studio, not retouched. Identity ref + close-up selfie pose ref. Candace in a close-up head-and-shoulders selfie in a home hallway, wearing a pink silk slip nightie, soft relaxed gaze. Vertical 9:16.",
       "notes": ""
     },
@@ -301,6 +328,7 @@
       "cost_cr": 2,
       "batch": "nighty",
       "generated_at": "2026-06-27T15:16Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone front-facing selfie, candid, natural ambient indoor night lighting, no studio, not retouched. Identity ref + close-up selfie pose ref. Candace in a close-up head-and-shoulders selfie in a home hallway, wearing a pink silk slip nightie, soft relaxed gaze. Vertical 9:16.",
       "notes": ""
     },
@@ -314,6 +342,7 @@
       "cost_cr": 2,
       "batch": "pool",
       "generated_at": "2026-06-27T13:07Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo casually taken by her friend, candid and unposed, natural daylight, no studio, not retouched, slightly imperfect handheld framing. Candace relaxing on a poolside lounge chair on a sunny afternoon, cute pink and yellow bikini, reading a paperback book, not looking at the camera. Blue pool, palm trees, bright natural sunlight. Vertical 9:16.",
       "notes": ""
     },
@@ -327,6 +356,7 @@
       "cost_cr": 2,
       "batch": "pool",
       "generated_at": "2026-06-27T13:07Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo casually taken by her friend, candid and unposed, natural daylight, no studio, not retouched, slightly imperfect handheld framing. Candace relaxing on a poolside lounge chair on a sunny afternoon, cute pink and yellow bikini, reading a paperback book, not looking at the camera. Blue pool, palm trees, bright natural sunlight. Vertical 9:16.",
       "notes": ""
     },
@@ -340,6 +370,7 @@
       "cost_cr": 2,
       "batch": "pool",
       "generated_at": "2026-06-27T13:08Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo casually taken by her friend, candid and unposed, natural daylight, no studio, not retouched, slightly imperfect handheld framing. Candace relaxing on a poolside lounge chair on a sunny afternoon, cute pink and yellow bikini, reading a paperback book, not looking at the camera. Blue pool, palm trees, bright natural sunlight. Vertical 9:16.",
       "notes": ""
     },
@@ -353,6 +384,7 @@
       "cost_cr": 22,
       "batch": "pool",
       "generated_at": "2026-06-27T14:15Z",
+      "source_job": "74a316d2",
       "prompt": "Kling 3.0 Motion Control. Still=pool-cocktail (74a316d2), driven by user reference video. Scene from image. ~13s.",
       "notes": ""
     },
@@ -366,6 +398,7 @@
       "cost_cr": 2,
       "batch": "pool",
       "generated_at": "2026-06-27T13:22Z",
+      "source_job": "",
       "prompt": "Authentic UGC iPhone photo by her friend, candid, natural daylight, no studio, not retouched. Waist-up shot of Candace sitting up on a poolside lounge chair, pink and yellow bikini top, holding a colorful fruity drink with a fruit garnish. No book, no text. Background lounger messy with a crumpled towel and empty glasses. Blue pool, palm trees, bright sun. Vertical 9:16.",
       "notes": "waist-up framing cleared the filter"
     }
