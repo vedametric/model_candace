@@ -80,5 +80,20 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-28_sheer-top-C_19f0ac04.png` | image | `19f0ac04` | black mesh / black bralette |
 | `2026-06-28_sheer-top-A-motion_dc136e20.mp4` | motion | `dc136e20` | animated from sheer-top-A + user motion ref (13s, 720p) |
 
+**Corset** (red satin waterfront — first natively-2k images, + motion control):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-28_corset-A_2534968d.png` | image | `2534968d` | ✅ approved → animated (peering over glasses) |
+| `2026-06-28_corset-B_e70b9cbd.png` | image | `e70b9cbd` | head-on, brighter |
+| `2026-06-28_corset-A-motion_117faa1f.mp4` | motion | `117faa1f` | animated from corset-A + TikTok birthday-selfie ref (19s, 720p); face held crisp |
+
+**Gym mirror** (pink shorts mirror selfie — native 2k):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-28_gym-mirror-A_8feaf367.png` | image | `8feaf367` | full side-profile head-to-toe (best pose match to driving clip) |
+| `2026-06-28_gym-mirror-B_08048a91.png` | image | `08048a91` | 3/4 turn, face larger/clearer |
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._

@@ -72,14 +72,19 @@ _(Also spent that day but NOT archived: a 720p beach-cinematic fallback dup
 | sheer-top-B_b38773ab | nano_banana_pro | 2 |
 | sheer-top-C_19f0ac04 | nano_banana_pro | 2 |
 | sheer-top-A-motion_dc136e20 | motion_control 720p | 23 |
-| **2026-06-28 subtotal** | | **29** |
+| corset-A_2534968d (2k) | nano_banana_pro | 2 |
+| corset-B_e70b9cbd (2k) | nano_banana_pro | 2 |
+| corset-A-motion_117faa1f (19s) | motion_control 720p | 31 |
+| gym-mirror-A_8feaf367 (2k) | nano_banana_pro | 2 |
+| gym-mirror-B_08048a91 (2k) | nano_banana_pro | 2 |
+| **2026-06-28 subtotal** | | **68** |
 
 ## Totals (archived assets only)
 
 - **2026-06-26:** ~377.4 cr
 - **2026-06-27:** 85 cr
-- **2026-06-28:** 29 cr
-- **Grand total (committed generations):** **487.1 cr**
+- **2026-06-28:** 68 cr
+- **Grand total (committed generations):** **526.1 cr**
 
 ## Reconciliation — archived vs. actually spent
 
@@ -89,9 +94,9 @@ folder**. The real credit burn on the account is higher:
 | | Credits |
 |---|---|
 | Balance before Candace's first generation | 1688.55 |
-| Balance now (2026-06-28) | 607.33 |
-| **Net actually spent on Candace** | **1081.22** |
-| — of which: archived assets (above) | 487.10 |
+| Balance now (2026-06-28) | 568.33 |
+| **Net actually spent on Candace** | **1120.22** |
+| — of which: archived assets (above) | 526.10 |
 | — of which: **non-archived** | **594.12** |
 
 **Non-archived spend (~588 cr)** = the automated 2×/day posting routine

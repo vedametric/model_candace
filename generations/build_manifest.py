@@ -36,6 +36,18 @@ P_SHEER = ("Authentic UGC iPhone photo, candid and unposed, natural indoor dayli
     "oversized sheer mesh long-sleeve top worn as a layer OVER a fitted bralette/bandeau (base top clearly covers "
     "her, tasteful, no nudity), paired with denim shorts. Standing relaxed and confident in a casual bedroom, "
     "front-facing, soft flirty expression, three-quarter body framing. Vertical 9:16. No text.")
+P_CORSET = ("Authentic UGC iPhone arm's-length selfie, candid, natural golden-hour sunlight, no studio, NOT "
+    "retouched, natural skin texture and pores. Candace (exact face, long blonde hair, blue eyes, fair skin, "
+    "petite curvy figure) on a sunny waterfront promenade by the ocean, palm trees behind. Deep red / burgundy "
+    "satin corset bustier top (boned, sweetheart neckline, tasteful, no nudity) with a delicate gold necklace, "
+    "holding red-tinted cat-eye sunglasses near her face. CLOSE waist-up selfie framing, FACE LARGE, SHARP and in "
+    "focus, fine facial detail. Vertical 9:16. No text. [matches a TikTok birthday-selfie motion reference]")
+P_GYMMIRROR = ("Authentic UGC iPhone gym mirror selfie, candid, natural gym lighting, no studio, NOT retouched, "
+    "phone visible held up to the mirror. Candace (exact face, long blonde hair, blue eyes, fair skin, petite "
+    "curvy figure) side-on / side profile to a full-length gym mirror, taking a mirror selfie, posing confidently. "
+    "Fitted black workout tank top + cute pink high-waisted gym shorts, white sneakers and ankle socks. Casual gym "
+    "with equipment and dark mirrored walls behind. Face clear and in focus. Cheeky-but-cute fitness vibe, "
+    "tasteful, no nudity. Vertical 9:16. No text.")
 
 # filename -> metadata
 META = {
@@ -77,6 +89,13 @@ META = {
  "2026-06-28_sheer-top-B_b38773ab.png": dict(model="nano_banana_pro", job="b38773ab", cost=2, batch="sheer-top", at="2026-06-28T06:18Z", prompt=P_SHEER, notes="white mesh over black bandeau"),
  "2026-06-28_sheer-top-C_19f0ac04.png": dict(model="nano_banana_pro", job="19f0ac04", cost=2, batch="sheer-top", at="2026-06-28T06:18Z", prompt=P_SHEER, notes="black mesh over black bralette"),
  "2026-06-28_sheer-top-A-motion_dc136e20.mp4": dict(model="motion_control 720p", job="dc136e20", cost=23, batch="sheer-top", at="2026-06-28T06:31Z", src="666c2a8e", prompt="Kling 3.0 Motion Control. Still=sheer-top-A (666c2a8e), driven by user motion reference video. Scene from image. 13s, 720p.", notes="oversized see-through top concept"),
+ # 2026-06-28 corset (red satin, waterfront) — first images at native 2k
+ "2026-06-28_corset-A_2534968d.png": dict(model="nano_banana_pro", job="2534968d", cost=2, batch="corset", at="2026-06-28T07:05Z", prompt=P_CORSET, notes="2k, approved -> animated (peering over glasses)"),
+ "2026-06-28_corset-B_e70b9cbd.png": dict(model="nano_banana_pro", job="e70b9cbd", cost=2, batch="corset", at="2026-06-28T07:05Z", prompt=P_CORSET, notes="2k, head-on, brighter"),
+ "2026-06-28_corset-A-motion_117faa1f.mp4": dict(model="motion_control 720p", job="117faa1f", cost=31, batch="corset", at="2026-06-28T07:13Z", src="2534968d", prompt="Kling 3.0 Motion Control. Still=corset-A (2534968d), driven by user TikTok birthday-selfie motion ref (8af7b6a7). Scene from image. 19s, 720p.", notes="face held crisp throughout (close 2k start frame)"),
+ # 2026-06-28 gym mirror selfie (pink shorts) — images at native 2k
+ "2026-06-28_gym-mirror-A_8feaf367.png": dict(model="nano_banana_pro", job="8feaf367", cost=2, batch="gym-mirror", at="2026-06-28T07:24Z", prompt=P_GYMMIRROR, notes="2k, full side-profile head-to-toe (best pose match to driving clip)"),
+ "2026-06-28_gym-mirror-B_08048a91.png": dict(model="nano_banana_pro", job="08048a91", cost=2, batch="gym-mirror", at="2026-06-28T07:24Z", prompt=P_GYMMIRROR, notes="2k, 3/4 turn, face larger/clearer"),
 }
 
 def human(n):
@@ -114,7 +133,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 607.33   # as of 2026-06-28 ~06:53 UTC
+BALANCE_NOW   = 568.33   # as of 2026-06-28 ~07:26 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {
