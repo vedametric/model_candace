@@ -54,6 +54,11 @@ P_BEACHSUNSET = ("Authentic UGC iPhone video-still, candid, natural golden-hour 
     "hot-pink tank top with an orange hibiscus print + matching hot-pink hibiscus-print shorts, thin striped bikini "
     "at the neckline, dainty gold necklace. Candid mid-stride, front-facing, three-quarter to full body, face "
     "clear. Tasteful, no nudity. Vertical 9:16. No text. [matches a sophieraiin beach-walk motion ref]")
+P_BEACHGLAM = ("Iterated from the beach-sunset frame (identity ref + c6c91485 as scene/pose/composition ref): same "
+    "golden-hour walk out of the surf, front-facing. Skin-tight light-pink fitted cropped tank over a light-pink "
+    "bikini top, with matching skin-tight SHORT light-pink booty shorts (higher on the thigh). More makeup — glam "
+    "but natural beach look: defined eyes, mascara/lashes, bronzy eyeshadow, blush, glossy nude-pink lips. Fully "
+    "covered, tasteful, no nudity. Candid mid-stride, face clear. Vertical 9:16. No text.")
 
 # filename -> metadata
 META = {
@@ -105,7 +110,11 @@ META = {
  "2026-06-28_gym-mirror-A-motion_ca3df7db.mp4": dict(model="motion_control 720p", job="ca3df7db", cost=23, batch="gym-mirror", at="2026-06-28T07:30Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by user Ellie-hub gym mirror-selfie motion ref (b08319ff). Scene from image. 13s, 720p.", notes="side-profile mirror selfie; identity held"),
  # 2026-06-28 beach sunset (hot-pink hibiscus two-piece) — native 2k
  "2026-06-28_beach-sunset-A_03dca7d2.png": dict(model="nano_banana_pro", job="03dca7d2", cost=2, batch="beach-sunset", at="2026-06-28T14:33Z", prompt=P_BEACHSUNSET, notes="2k, walking out of surf"),
- "2026-06-28_beach-sunset-B_c6c91485.png": dict(model="nano_banana_pro", job="c6c91485", cost=2, batch="beach-sunset", at="2026-06-28T14:33Z", prompt=P_BEACHSUNSET, notes="2k, walking out of surf (alt)"),
+ "2026-06-28_beach-sunset-B_c6c91485.png": dict(model="nano_banana_pro", job="c6c91485", cost=2, batch="beach-sunset", at="2026-06-28T14:33Z", prompt=P_BEACHSUNSET, notes="2k, walking out of surf; chosen as composition ref for the iterations"),
+ # 2026-06-28 beach final look (iterated from c6c91485: skin-tight light-pink + more makeup + shorter shorts)
+ "2026-06-28_beach-glam-A_c51d30fa.png": dict(model="nano_banana_pro", job="c51d30fa", cost=2, batch="beach-sunset", at="2026-06-28T14:58Z", src="c6c91485", prompt=P_BEACHGLAM, notes="2k, CHOSEN -> animated; skin-tight light-pink, glam makeup, shorter shorts"),
+ "2026-06-28_beach-glam-B_9f0c6f28.png": dict(model="nano_banana_pro", job="9f0c6f28", cost=2, batch="beach-sunset", at="2026-06-28T14:58Z", src="c6c91485", prompt=P_BEACHGLAM, notes="2k, alt"),
+ "2026-06-28_beach-walk-motion_5bd2305e.mp4": dict(model="motion_control 1080p", job="5bd2305e", cost=16, batch="beach-sunset", at="2026-06-28T15:08Z", src="c51d30fa", prompt="Kling 3.0 Motion Control. Still=beach-glam-A (c51d30fa), driven by user sophieraiin beach-walk motion ref (91f632e1). Scene from image. 9s, output 1080p.", notes="face/makeup/outfit held; playful walk+dance transferred"),
 }
 
 def human(n):
@@ -143,7 +152,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 545.33   # as of 2026-06-28 ~07:46 UTC
+BALANCE_NOW   = 388.98   # as of 2026-06-28 ~15:24 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

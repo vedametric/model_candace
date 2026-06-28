@@ -96,5 +96,15 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-28_gym-mirror-B_08048a91.png` | image | `08048a91` | 3/4 turn, face larger/clearer |
 | `2026-06-28_gym-mirror-A-motion_ca3df7db.mp4` | motion | `ca3df7db` | animated from gym-mirror-A + Ellie-hub gym ref (13s, 720p); identity held |
 
+**Beach sunset walk** (hot-pink → iterated to skin-tight light-pink glam — native 2k, + motion control):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-28_beach-sunset-A_03dca7d2.png` | image | `03dca7d2` | hot-pink hibiscus two-piece, walking out of surf |
+| `2026-06-28_beach-sunset-B_c6c91485.png` | image | `c6c91485` | walking out of surf; chosen as composition ref for iterations |
+| `2026-06-28_beach-glam-A_c51d30fa.png` | image | `c51d30fa` | ✅ chosen → animated; skin-tight light-pink, glam makeup, short shorts |
+| `2026-06-28_beach-glam-B_9f0c6f28.png` | image | `9f0c6f28` | alt |
+| `2026-06-28_beach-walk-motion_5bd2305e.mp4` | motion | `5bd2305e` | animated from beach-glam-A + sophieraiin beach-walk ref (9s, 1080p out) |
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._
