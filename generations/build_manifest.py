@@ -115,6 +115,7 @@ META = {
  "2026-06-28_beach-glam-A_c51d30fa.png": dict(model="nano_banana_pro", job="c51d30fa", cost=2, batch="beach-sunset", at="2026-06-28T14:58Z", src="c6c91485", prompt=P_BEACHGLAM, notes="2k, CHOSEN -> animated; skin-tight light-pink, glam makeup, shorter shorts"),
  "2026-06-28_beach-glam-B_9f0c6f28.png": dict(model="nano_banana_pro", job="9f0c6f28", cost=2, batch="beach-sunset", at="2026-06-28T14:58Z", src="c6c91485", prompt=P_BEACHGLAM, notes="2k, alt"),
  "2026-06-28_beach-walk-motion_5bd2305e.mp4": dict(model="motion_control 1080p", job="5bd2305e", cost=16, batch="beach-sunset", at="2026-06-28T15:08Z", src="c51d30fa", prompt="Kling 3.0 Motion Control. Still=beach-glam-A (c51d30fa), driven by user sophieraiin beach-walk motion ref (91f632e1). Scene from image. 9s, output 1080p.", notes="face/makeup/outfit held; playful walk+dance transferred"),
+ "2026-06-28_beach-walk2-motion_6ea7177a.mp4": dict(model="motion_control 1080p", job="6ea7177a", cost=15, batch="beach-sunset", at="2026-06-28T15:28Z", src="c51d30fa", prompt="Kling 3.0 Motion Control. Still=beach-glam-A (c51d30fa) — SAME start frame as 5bd2305e for identical character — driven by a 2nd sophieraiin beach motion ref (447c64a0, talk-to-camera arm gestures). Scene from image. 8s, output 1080p.", notes="reused exact start frame -> Candace 100% consistent with clip #1, new motion"),
 }
 
 def human(n):
@@ -152,7 +153,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 388.98   # as of 2026-06-28 ~15:24 UTC
+BALANCE_NOW   = 373.98   # as of 2026-06-28 ~15:29 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

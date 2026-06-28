@@ -86,3 +86,4 @@ why the nighty clip held identity far better than the gym one).
 | corset-A-motion · `117faa1f` | `2534968d` | user ref (TikTok birthday selfie) | image | 720p |
 | gym-mirror-A-motion · `ca3df7db` | `8feaf367` | user ref (Ellie-hub gym mirror selfie) | image | 720p |
 | beach-walk-motion · `5bd2305e` | `c51d30fa` | user ref (sophieraiin beach walk) | image | 1080p out |
+| beach-walk2-motion · `6ea7177a` | `c51d30fa` (same as #1) | user ref (sophieraiin beach #2) | image | 1080p out |

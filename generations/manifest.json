@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-28T15:24:50Z",
-  "count": 43,
-  "archived_cost_cr": 573.1,
-  "net_spent_cr": 1299.57,
+  "generated_at_utc": "2026-06-28T17:30:17Z",
+  "count": 44,
+  "archived_cost_cr": 588.1,
+  "net_spent_cr": 1314.57,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 388.98,
+  "balance_now_cr": 373.98,
   "non_archived_cr": 726.47,
-  "total_cost_cr": 573.1,
-  "total_size_bytes": 337519470,
-  "total_size_human": "321.9 MB",
+  "total_cost_cr": 588.1,
+  "total_size_bytes": 353443225,
+  "total_size_human": "337.1 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -471,6 +471,20 @@
       "source_job": "c51d30fa",
       "prompt": "Kling 3.0 Motion Control. Still=beach-glam-A (c51d30fa), driven by user sophieraiin beach-walk motion ref (91f632e1). Scene from image. 9s, output 1080p.",
       "notes": "face/makeup/outfit held; playful walk+dance transferred"
+    },
+    {
+      "file": "2026-06-28_beach-walk2-motion_6ea7177a.mp4",
+      "type": "video",
+      "size_bytes": 15923755,
+      "size_human": "15.2 MB",
+      "model": "motion_control 1080p",
+      "job_id": "6ea7177a",
+      "cost_cr": 15,
+      "batch": "beach-sunset",
+      "generated_at": "2026-06-28T15:28Z",
+      "source_job": "c51d30fa",
+      "prompt": "Kling 3.0 Motion Control. Still=beach-glam-A (c51d30fa) \u2014 SAME start frame as 5bd2305e for identical character \u2014 driven by a 2nd sophieraiin beach motion ref (447c64a0, talk-to-camera arm gestures). Scene from image. 8s, output 1080p.",
+      "notes": "reused exact start frame -> Candace 100% consistent with clip #1, new motion"
     },
     {
       "file": "2026-06-28_corset-A-motion_117faa1f.mp4",
