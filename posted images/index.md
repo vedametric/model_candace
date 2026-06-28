@@ -5,6 +5,26 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #007 — Low-angle city street (golden hour / playful-bratty)
+
+- **File:** `2026-06-28_007_low-angle-city-street_instagram.png`
+- **Posted:** 2026-06-28 18:03:27 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaI5PLSDAQL/
+- **Platform post ID:** `18080153537417405`
+- **Media type:** Photo (1536 × 2752, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > don't mind me just turning short north into my personal runway 😏 somebody catch me if i trip tho 🤭 columbus girls just different fr 💅 📍 Columbus, Ohio
+- **Hashtags:** #shortnorth #columbusohio #614 #shortnorthcolumbus #activewear #matchingset #fitgirlsofig #activewearset #ootd #blondegirl #ohiobabe #midwestfashion #streetstyle #goldenhourstyle #ohiofitness #gymootd #athleisure #fitstagram #fitnessgirl #streetootd
+- **First comment:** ok who's brave enough to keep up 👀 drop your name below and we'll see 😏
+- **Source generation:** Higgsfield `nano_banana_2`, job `40621c77-1d06-4176-9a1c-a60cc0006757` (persona reference `49aff4e5-9c20-44a3-87e8-85ba87e0d642`)
+- **Upload service:** upload-post.com (`request_id` `74ecb54a8f8c475b80ff3a0389cc2e99`, `job_id` `78043795d4994d89b1d368e650bde0e7`)
+- **Status:** ✅ completed / success
+
+---
+
 ## #006 — Candid kitchen morning (soft daylight / soft-romantic)
 
 - **File:** `2026-06-28_006_candid-kitchen_instagram.png`

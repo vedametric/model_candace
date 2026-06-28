@@ -2,6 +2,55 @@
   "profile": "model_candacesummers",
   "posts": [
     {
+      "id": "007",
+      "file": "2026-06-28_007_low-angle-city-street_instagram.png",
+      "posted_at_utc": "2026-06-28T18:03:27Z",
+      "platform": "instagram",
+      "profile_username": "model_candacesummers",
+      "post_url": "https://www.instagram.com/p/DaI5PLSDAQL/",
+      "platform_post_id": "18080153537417405",
+      "media_type": "photo",
+      "dimensions": "1536x2752",
+      "location_tag": "Columbus, Ohio",
+      "caption": "don't mind me just turning short north into my personal runway 😏 somebody catch me if i trip tho 🤭 columbus girls just different fr 💅 📍 Columbus, Ohio",
+      "first_comment": "ok who's brave enough to keep up 👀 drop your name below and we'll see 😏",
+      "hashtags": [
+        "#shortnorth",
+        "#columbusohio",
+        "#614",
+        "#shortnorthcolumbus",
+        "#activewear",
+        "#matchingset",
+        "#fitgirlsofig",
+        "#activewearset",
+        "#ootd",
+        "#blondegirl",
+        "#ohiobabe",
+        "#midwestfashion",
+        "#streetstyle",
+        "#goldenhourstyle",
+        "#ohiofitness",
+        "#gymootd",
+        "#athleisure",
+        "#fitstagram",
+        "#fitnessgirl",
+        "#streetootd"
+      ],
+      "generation": {
+        "engine": "higgsfield",
+        "model": "nano_banana_2",
+        "job_id": "40621c77-1d06-4176-9a1c-a60cc0006757",
+        "persona_reference_job_id": "49aff4e5-9c20-44a3-87e8-85ba87e0d642"
+      },
+      "upload": {
+        "service": "upload-post.com",
+        "request_id": "74ecb54a8f8c475b80ff3a0389cc2e99",
+        "job_id": "78043795d4994d89b1d368e650bde0e7",
+        "status": "completed",
+        "success": true
+      }
+    },
+    {
       "id": "006",
       "file": "2026-06-28_006_candid-kitchen_instagram.png",
       "posted_at_utc": "2026-06-28T00:07:34Z",
