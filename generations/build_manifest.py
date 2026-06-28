@@ -48,6 +48,12 @@ P_GYMMIRROR = ("Authentic UGC iPhone gym mirror selfie, candid, natural gym ligh
     "Fitted black workout tank top + cute pink high-waisted gym shorts, white sneakers and ankle socks. Casual gym "
     "with equipment and dark mirrored walls behind. Face clear and in focus. Cheeky-but-cute fitness vibe, "
     "tasteful, no nudity. Vertical 9:16. No text.")
+P_BEACHSUNSET = ("Authentic UGC iPhone video-still, candid, natural golden-hour sunset light, no studio, NOT "
+    "retouched. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) walking out of "
+    "shallow ocean surf toward the camera on a tropical sandy beach at sunset, calm sea and low sun behind. Cute "
+    "hot-pink tank top with an orange hibiscus print + matching hot-pink hibiscus-print shorts, thin striped bikini "
+    "at the neckline, dainty gold necklace. Candid mid-stride, front-facing, three-quarter to full body, face "
+    "clear. Tasteful, no nudity. Vertical 9:16. No text. [matches a sophieraiin beach-walk motion ref]")
 
 # filename -> metadata
 META = {
@@ -97,6 +103,9 @@ META = {
  "2026-06-28_gym-mirror-A_8feaf367.png": dict(model="nano_banana_pro", job="8feaf367", cost=2, batch="gym-mirror", at="2026-06-28T07:24Z", prompt=P_GYMMIRROR, notes="2k, full side-profile head-to-toe (best pose match to driving clip)"),
  "2026-06-28_gym-mirror-B_08048a91.png": dict(model="nano_banana_pro", job="08048a91", cost=2, batch="gym-mirror", at="2026-06-28T07:24Z", prompt=P_GYMMIRROR, notes="2k, 3/4 turn, face larger/clearer"),
  "2026-06-28_gym-mirror-A-motion_ca3df7db.mp4": dict(model="motion_control 720p", job="ca3df7db", cost=23, batch="gym-mirror", at="2026-06-28T07:30Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by user Ellie-hub gym mirror-selfie motion ref (b08319ff). Scene from image. 13s, 720p.", notes="side-profile mirror selfie; identity held"),
+ # 2026-06-28 beach sunset (hot-pink hibiscus two-piece) — native 2k
+ "2026-06-28_beach-sunset-A_03dca7d2.png": dict(model="nano_banana_pro", job="03dca7d2", cost=2, batch="beach-sunset", at="2026-06-28T14:33Z", prompt=P_BEACHSUNSET, notes="2k, walking out of surf"),
+ "2026-06-28_beach-sunset-B_c6c91485.png": dict(model="nano_banana_pro", job="c6c91485", cost=2, batch="beach-sunset", at="2026-06-28T14:33Z", prompt=P_BEACHSUNSET, notes="2k, walking out of surf (alt)"),
 }
 
 def human(n):

@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-28T07:47:47Z",
-  "count": 38,
-  "archived_cost_cr": 549.1,
+  "generated_at_utc": "2026-06-28T14:38:06Z",
+  "count": 40,
+  "archived_cost_cr": 553.1,
   "net_spent_cr": 1143.22,
   "balance_start_cr": 1688.55,
   "balance_now_cr": 545.33,
-  "non_archived_cr": 594.12,
-  "total_cost_cr": 549.1,
-  "total_size_bytes": 291324403,
-  "total_size_human": "277.8 MB",
+  "non_archived_cr": 590.12,
+  "total_cost_cr": 553.1,
+  "total_size_bytes": 308353150,
+  "total_size_human": "294.1 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -401,6 +401,34 @@
       "source_job": "",
       "prompt": "Authentic UGC iPhone photo by her friend, candid, natural daylight, no studio, not retouched. Waist-up shot of Candace sitting up on a poolside lounge chair, pink and yellow bikini top, holding a colorful fruity drink with a fruit garnish. No book, no text. Background lounger messy with a crumpled towel and empty glasses. Blue pool, palm trees, bright sun. Vertical 9:16.",
       "notes": "waist-up framing cleared the filter"
+    },
+    {
+      "file": "2026-06-28_beach-sunset-A_03dca7d2.png",
+      "type": "image",
+      "size_bytes": 8018435,
+      "size_human": "7.6 MB",
+      "model": "nano_banana_pro",
+      "job_id": "03dca7d2",
+      "cost_cr": 2,
+      "batch": "beach-sunset",
+      "generated_at": "2026-06-28T14:33Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone video-still, candid, natural golden-hour sunset light, no studio, NOT retouched. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) walking out of shallow ocean surf toward the camera on a tropical sandy beach at sunset, calm sea and low sun behind. Cute hot-pink tank top with an orange hibiscus print + matching hot-pink hibiscus-print shorts, thin striped bikini at the neckline, dainty gold necklace. Candid mid-stride, front-facing, three-quarter to full body, face clear. Tasteful, no nudity. Vertical 9:16. No text. [matches a sophieraiin beach-walk motion ref]",
+      "notes": "2k, walking out of surf"
+    },
+    {
+      "file": "2026-06-28_beach-sunset-B_c6c91485.png",
+      "type": "image",
+      "size_bytes": 9010312,
+      "size_human": "8.6 MB",
+      "model": "nano_banana_pro",
+      "job_id": "c6c91485",
+      "cost_cr": 2,
+      "batch": "beach-sunset",
+      "generated_at": "2026-06-28T14:33Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone video-still, candid, natural golden-hour sunset light, no studio, NOT retouched. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) walking out of shallow ocean surf toward the camera on a tropical sandy beach at sunset, calm sea and low sun behind. Cute hot-pink tank top with an orange hibiscus print + matching hot-pink hibiscus-print shorts, thin striped bikini at the neckline, dainty gold necklace. Candid mid-stride, front-facing, three-quarter to full body, face clear. Tasteful, no nudity. Vertical 9:16. No text. [matches a sophieraiin beach-walk motion ref]",
+      "notes": "2k, walking out of surf (alt)"
     },
     {
       "file": "2026-06-28_corset-A-motion_117faa1f.mp4",
