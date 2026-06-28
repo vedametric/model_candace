@@ -2,6 +2,51 @@
   "profile": "model_candacesummers",
   "posts": [
     {
+      "id": "006",
+      "file": "2026-06-28_006_candid-kitchen_instagram.png",
+      "posted_at_utc": "2026-06-28T00:07:34Z",
+      "platform": "instagram",
+      "profile_username": "model_candacesummers",
+      "post_url": "https://www.instagram.com/p/DaG96I3DLQH/",
+      "platform_post_id": "17900789793306211",
+      "media_type": "photo",
+      "dimensions": "768x1376",
+      "location_tag": "Columbus, Ohio",
+      "caption": "mornings are the only time i'm this soft 🥛☀️ just me, my coffee, and absolutely no plans… the way columbus light hits my kitchen tbh 🤍 come keep me company?? 📍 Columbus, Ohio",
+      "hashtags": [
+        "#goodmorning",
+        "#kitchenvibes",
+        "#coffeevibes",
+        "#oversizedtee",
+        "#softmorning",
+        "#morningroutine",
+        "#midwestmorning",
+        "#morningcoffee",
+        "#selfcare",
+        "#columbusmorning",
+        "#naturallight",
+        "#kitchengirl",
+        "#cozygirl",
+        "#614am",
+        "#aestheticmorning",
+        "#sunrisevibes",
+        "#homevibes"
+      ],
+      "generation": {
+        "engine": "higgsfield",
+        "model": "nano_banana_2",
+        "job_id": "a9117ebc-45ad-4d71-847b-25a632fc8b8e",
+        "persona_reference_job_id": "0a3e996d-ff5b-44b3-a0bc-3dc240099cb9"
+      },
+      "upload": {
+        "service": "upload-post.com",
+        "request_id": "0073e4a5f51c49bf90f53729b00e3bf0",
+        "job_id": "56d6fd5c17884f2abc37b83b216646a6",
+        "status": "completed",
+        "success": true
+      }
+    },
+    {
       "id": "005",
       "file": "2026-06-27_005_over-shoulder-rooftop_instagram.png",
       "posted_at_utc": "2026-06-27T06:11:19Z",
