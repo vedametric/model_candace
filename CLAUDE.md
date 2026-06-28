@@ -28,6 +28,9 @@ and must stay tasteful/SFW (suggestive, no nudity — no explicit content).
   (Original v1 face anchor: `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`.)
 - **Generation:** Higgsfield MCP — `nano_banana_pro` (image), `seedance_2_0`
   (video, pass the reference as `image` role for identity).
+- **Image resolution: ALWAYS request `resolution: "2k"` from nano_banana
+  ("banana") on every image generation moving forward.** 2K costs the same 2
+  credits as 1K, so it's a free quality upgrade — never generate at 1K.
 - **Posting:** upload-post.com API, managed user `model_candacesummers`
   (Instagram). Photo endpoint `POST /api/upload_photos`.
 - **Posting log:** archive every published asset in `posted images/` and append
