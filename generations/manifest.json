@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-27T16:36:51Z",
-  "count": 28,
-  "archived_cost_cr": 458.1,
-  "net_spent_cr": 1046.22,
+  "generated_at_utc": "2026-06-28T06:54:09Z",
+  "count": 32,
+  "archived_cost_cr": 487.1,
+  "net_spent_cr": 1081.22,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 642.33,
-  "non_archived_cr": 588.12,
-  "total_cost_cr": 458.1,
-  "total_size_bytes": 195368976,
-  "total_size_human": "186.3 MB",
+  "balance_now_cr": 607.33,
+  "non_archived_cr": 594.12,
+  "total_cost_cr": 487.1,
+  "total_size_bytes": 219200990,
+  "total_size_human": "209.0 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -401,6 +401,62 @@
       "source_job": "",
       "prompt": "Authentic UGC iPhone photo by her friend, candid, natural daylight, no studio, not retouched. Waist-up shot of Candace sitting up on a poolside lounge chair, pink and yellow bikini top, holding a colorful fruity drink with a fruit garnish. No book, no text. Background lounger messy with a crumpled towel and empty glasses. Blue pool, palm trees, bright sun. Vertical 9:16.",
       "notes": "waist-up framing cleared the filter"
+    },
+    {
+      "file": "2026-06-28_sheer-top-A-motion_dc136e20.mp4",
+      "type": "video",
+      "size_bytes": 17600035,
+      "size_human": "16.8 MB",
+      "model": "motion_control 720p",
+      "job_id": "dc136e20",
+      "cost_cr": 23,
+      "batch": "sheer-top",
+      "generated_at": "2026-06-28T06:31Z",
+      "source_job": "666c2a8e",
+      "prompt": "Kling 3.0 Motion Control. Still=sheer-top-A (666c2a8e), driven by user motion reference video. Scene from image. 13s, 720p.",
+      "notes": "oversized see-through top concept"
+    },
+    {
+      "file": "2026-06-28_sheer-top-A_666c2a8e.png",
+      "type": "image",
+      "size_bytes": 2317037,
+      "size_human": "2.2 MB",
+      "model": "nano_banana_pro",
+      "job_id": "666c2a8e",
+      "cost_cr": 2,
+      "batch": "sheer-top",
+      "generated_at": "2026-06-28T06:18Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone photo, candid and unposed, natural indoor daylight from a window, no studio, no professional lighting, not retouched, natural skin texture, slightly imperfect handheld framing. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) in a cute sexy casual outfit: an oversized sheer mesh long-sleeve top worn as a layer OVER a fitted bralette/bandeau (base top clearly covers her, tasteful, no nudity), paired with denim shorts. Standing relaxed and confident in a casual bedroom, front-facing, soft flirty expression, three-quarter body framing. Vertical 9:16. No text.",
+      "notes": "approved -> animated (black mesh over grey ribbed bralette)"
+    },
+    {
+      "file": "2026-06-28_sheer-top-B_b38773ab.png",
+      "type": "image",
+      "size_bytes": 1943349,
+      "size_human": "1.9 MB",
+      "model": "nano_banana_pro",
+      "job_id": "b38773ab",
+      "cost_cr": 2,
+      "batch": "sheer-top",
+      "generated_at": "2026-06-28T06:18Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone photo, candid and unposed, natural indoor daylight from a window, no studio, no professional lighting, not retouched, natural skin texture, slightly imperfect handheld framing. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) in a cute sexy casual outfit: an oversized sheer mesh long-sleeve top worn as a layer OVER a fitted bralette/bandeau (base top clearly covers her, tasteful, no nudity), paired with denim shorts. Standing relaxed and confident in a casual bedroom, front-facing, soft flirty expression, three-quarter body framing. Vertical 9:16. No text.",
+      "notes": "white mesh over black bandeau"
+    },
+    {
+      "file": "2026-06-28_sheer-top-C_19f0ac04.png",
+      "type": "image",
+      "size_bytes": 1971593,
+      "size_human": "1.9 MB",
+      "model": "nano_banana_pro",
+      "job_id": "19f0ac04",
+      "cost_cr": 2,
+      "batch": "sheer-top",
+      "generated_at": "2026-06-28T06:18Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone photo, candid and unposed, natural indoor daylight from a window, no studio, no professional lighting, not retouched, natural skin texture, slightly imperfect handheld framing. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) in a cute sexy casual outfit: an oversized sheer mesh long-sleeve top worn as a layer OVER a fitted bralette/bandeau (base top clearly covers her, tasteful, no nudity), paired with denim shorts. Standing relaxed and confident in a casual bedroom, front-facing, soft flirty expression, three-quarter body framing. Vertical 9:16. No text.",
+      "notes": "black mesh over black bralette"
     }
   ]
 }

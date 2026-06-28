@@ -69,5 +69,16 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-27_nighty-C_fc2acbf5.png` | image | `fc2acbf5` | moodier hallway |
 | `2026-06-27_nighty-A-motion_847e66ef.mp4` | motion | `847e66ef` | held identity well (face-crop still + matched pose) |
 
+## 2026-06-28 — sheer-top
+
+**Sheer top** (nano_banana_pro images + motion control):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-28_sheer-top-A_666c2a8e.png` | image | `666c2a8e` | ✅ approved → animated (black mesh / grey ribbed bralette) |
+| `2026-06-28_sheer-top-B_b38773ab.png` | image | `b38773ab` | white mesh / black bandeau |
+| `2026-06-28_sheer-top-C_19f0ac04.png` | image | `19f0ac04` | black mesh / black bralette |
+| `2026-06-28_sheer-top-A-motion_dc136e20.mp4` | motion | `dc136e20` | animated from sheer-top-A + user motion ref (13s, 720p) |
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._

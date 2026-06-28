@@ -30,6 +30,12 @@ P_GYM = ("Authentic UGC iPhone photo by her friend, candid, natural gym lighting
 P_NIGHTY = ("Authentic UGC iPhone front-facing selfie, candid, natural ambient indoor night lighting, no studio, "
     "not retouched. Identity ref + close-up selfie pose ref. Candace in a close-up head-and-shoulders selfie in a "
     "home hallway, wearing a pink silk slip nightie, soft relaxed gaze. Vertical 9:16.")
+P_SHEER = ("Authentic UGC iPhone photo, candid and unposed, natural indoor daylight from a window, no studio, "
+    "no professional lighting, not retouched, natural skin texture, slightly imperfect handheld framing. Candace "
+    "(exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) in a cute sexy casual outfit: an "
+    "oversized sheer mesh long-sleeve top worn as a layer OVER a fitted bralette/bandeau (base top clearly covers "
+    "her, tasteful, no nudity), paired with denim shorts. Standing relaxed and confident in a casual bedroom, "
+    "front-facing, soft flirty expression, three-quarter body framing. Vertical 9:16. No text.")
 
 # filename -> metadata
 META = {
@@ -66,6 +72,11 @@ META = {
  "2026-06-27_nighty-B_92c49e4a.png": dict(model="nano_banana_pro", job="92c49e4a", cost=2, batch="nighty", at="2026-06-27T15:16Z", prompt=P_NIGHTY, notes=""),
  "2026-06-27_nighty-C_fc2acbf5.png": dict(model="nano_banana_pro", job="fc2acbf5", cost=2, batch="nighty", at="2026-06-27T15:16Z", prompt=P_NIGHTY, notes=""),
  "2026-06-27_nighty-A-motion_847e66ef.mp4": dict(model="motion_control 720p", job="847e66ef", cost=21, batch="nighty", at="2026-06-27T15:24Z", src="c984178e", prompt="Kling 3.0 Motion Control. Still=nighty-A (c984178e), driven by pose-matched user reference video #3. Scene from image. ~12s.", notes="held identity well (face-crop still + matched pose)"),
+ # 2026-06-28 sheer-top
+ "2026-06-28_sheer-top-A_666c2a8e.png": dict(model="nano_banana_pro", job="666c2a8e", cost=2, batch="sheer-top", at="2026-06-28T06:18Z", prompt=P_SHEER, notes="approved -> animated (black mesh over grey ribbed bralette)"),
+ "2026-06-28_sheer-top-B_b38773ab.png": dict(model="nano_banana_pro", job="b38773ab", cost=2, batch="sheer-top", at="2026-06-28T06:18Z", prompt=P_SHEER, notes="white mesh over black bandeau"),
+ "2026-06-28_sheer-top-C_19f0ac04.png": dict(model="nano_banana_pro", job="19f0ac04", cost=2, batch="sheer-top", at="2026-06-28T06:18Z", prompt=P_SHEER, notes="black mesh over black bralette"),
+ "2026-06-28_sheer-top-A-motion_dc136e20.mp4": dict(model="motion_control 720p", job="dc136e20", cost=23, batch="sheer-top", at="2026-06-28T06:31Z", src="666c2a8e", prompt="Kling 3.0 Motion Control. Still=sheer-top-A (666c2a8e), driven by user motion reference video. Scene from image. 13s, 720p.", notes="oversized see-through top concept"),
 }
 
 def human(n):
@@ -103,7 +114,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 642.33   # as of 2026-06-27 ~16:25 UTC
+BALANCE_NOW   = 607.33   # as of 2026-06-28 ~06:53 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {
