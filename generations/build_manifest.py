@@ -96,6 +96,7 @@ META = {
  # 2026-06-28 gym mirror selfie (pink shorts) — images at native 2k
  "2026-06-28_gym-mirror-A_8feaf367.png": dict(model="nano_banana_pro", job="8feaf367", cost=2, batch="gym-mirror", at="2026-06-28T07:24Z", prompt=P_GYMMIRROR, notes="2k, full side-profile head-to-toe (best pose match to driving clip)"),
  "2026-06-28_gym-mirror-B_08048a91.png": dict(model="nano_banana_pro", job="08048a91", cost=2, batch="gym-mirror", at="2026-06-28T07:24Z", prompt=P_GYMMIRROR, notes="2k, 3/4 turn, face larger/clearer"),
+ "2026-06-28_gym-mirror-A-motion_ca3df7db.mp4": dict(model="motion_control 720p", job="ca3df7db", cost=23, batch="gym-mirror", at="2026-06-28T07:30Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by user Ellie-hub gym mirror-selfie motion ref (b08319ff). Scene from image. 13s, 720p.", notes="side-profile mirror selfie; identity held"),
 }
 
 def human(n):
@@ -133,7 +134,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 568.33   # as of 2026-06-28 ~07:26 UTC
+BALANCE_NOW   = 545.33   # as of 2026-06-28 ~07:46 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

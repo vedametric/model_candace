@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-28T07:27:16Z",
-  "count": 37,
-  "archived_cost_cr": 526.1,
-  "net_spent_cr": 1120.22,
+  "generated_at_utc": "2026-06-28T07:47:47Z",
+  "count": 38,
+  "archived_cost_cr": 549.1,
+  "net_spent_cr": 1143.22,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 568.33,
+  "balance_now_cr": 545.33,
   "non_archived_cr": 594.12,
-  "total_cost_cr": 526.1,
-  "total_size_bytes": 271694685,
-  "total_size_human": "259.1 MB",
+  "total_cost_cr": 549.1,
+  "total_size_bytes": 291324403,
+  "total_size_human": "277.8 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -443,6 +443,20 @@
       "source_job": "",
       "prompt": "Authentic UGC iPhone arm's-length selfie, candid, natural golden-hour sunlight, no studio, NOT retouched, natural skin texture and pores. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) on a sunny waterfront promenade by the ocean, palm trees behind. Deep red / burgundy satin corset bustier top (boned, sweetheart neckline, tasteful, no nudity) with a delicate gold necklace, holding red-tinted cat-eye sunglasses near her face. CLOSE waist-up selfie framing, FACE LARGE, SHARP and in focus, fine facial detail. Vertical 9:16. No text. [matches a TikTok birthday-selfie motion reference]",
       "notes": "2k, head-on, brighter"
+    },
+    {
+      "file": "2026-06-28_gym-mirror-A-motion_ca3df7db.mp4",
+      "type": "video",
+      "size_bytes": 19629718,
+      "size_human": "18.7 MB",
+      "model": "motion_control 720p",
+      "job_id": "ca3df7db",
+      "cost_cr": 23,
+      "batch": "gym-mirror",
+      "generated_at": "2026-06-28T07:30Z",
+      "source_job": "8feaf367",
+      "prompt": "Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by user Ellie-hub gym mirror-selfie motion ref (b08319ff). Scene from image. 13s, 720p.",
+      "notes": "side-profile mirror selfie; identity held"
     },
     {
       "file": "2026-06-28_gym-mirror-A_8feaf367.png",

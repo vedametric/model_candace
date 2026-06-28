@@ -80,3 +80,4 @@ why the nighty clip held identity far better than the gym one).
 | nighty-A-motion · `847e66ef` | `c984178e` | user ref #3 (pose-matched) | image | 720p |
 | sheer-top-A-motion · `dc136e20` | `666c2a8e` | user ref (sheer-top) | image | 720p |
 | corset-A-motion · `117faa1f` | `2534968d` | user ref (TikTok birthday selfie) | image | 720p |
+| gym-mirror-A-motion · `ca3df7db` | `8feaf367` | user ref (Ellie-hub gym mirror selfie) | image | 720p |

@@ -94,6 +94,7 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 |---|---|---|---|
 | `2026-06-28_gym-mirror-A_8feaf367.png` | image | `8feaf367` | full side-profile head-to-toe (best pose match to driving clip) |
 | `2026-06-28_gym-mirror-B_08048a91.png` | image | `08048a91` | 3/4 turn, face larger/clearer |
+| `2026-06-28_gym-mirror-A-motion_ca3df7db.mp4` | motion | `ca3df7db` | animated from gym-mirror-A + Ellie-hub gym ref (13s, 720p); identity held |
 
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._
