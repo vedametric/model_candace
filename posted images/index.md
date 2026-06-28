@@ -5,6 +5,25 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #006 — Candid kitchen morning (soft daylight / soft-romantic)
+
+- **File:** `2026-06-28_006_candid-kitchen_instagram.png`
+- **Posted:** 2026-06-28 00:07:34 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaG96I3DLQH/
+- **Platform post ID:** `17900789793306211`
+- **Media type:** Photo (768 × 1376, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > mornings are the only time i'm this soft 🥛☀️ just me, my coffee, and absolutely no plans… the way columbus light hits my kitchen tbh 🤍 come keep me company?? 📍 Columbus, Ohio
+- **Hashtags:** #goodmorning #kitchenvibes #coffeevibes #oversizedtee #softmorning #morningroutine #midwestmorning #morningcoffee #selfcare #columbusmorning #naturallight #kitchengirl #cozygirl #614am #aestheticmorning #sunrisevibes #homevibes
+- **Source generation:** Higgsfield `nano_banana_2`, job `a9117ebc-45ad-4d71-847b-25a632fc8b8e` (persona reference `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`)
+- **Upload service:** upload-post.com (`request_id` `0073e4a5f51c49bf90f53729b00e3bf0`, `job_id` `56d6fd5c17884f2abc37b83b216646a6`)
+- **Status:** ✅ completed / success
+
+---
+
 ## #005 — Over-shoulder rooftop (golden hour / confident-boss)
 
 - **File:** `2026-06-27_005_over-shoulder-rooftop_instagram.png`
