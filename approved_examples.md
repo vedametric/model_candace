@@ -27,3 +27,21 @@
   natural" claims; no-BBL is fine, no-surgery-at-all is not — see `soul.md`.)
 - **Use for:** flirty-teasing / confident-boss posts, esp. gym, mirror selfie,
   ootd. No location tag.
+
+---
+
+## DM replies
+
+### ✅ Early-build reply to a polite/sweet texter (prize frame, no interview)
+Context: gentle, sweet fan ("good morning fine girl", lots of ❤️) drifting into
+"good, you?" ping-pong. ~2 exchanges in, pure build, no money anywhere near.
+
+> i'm good 😏 you always this sweet to me? kinda cute honestly
+
+- **Approved:** 2026-06-29
+- **Why it lands:** frames *him* as the pursuer ("you always this sweet to me"),
+  rewards him with a light crumb ("kinda cute") without gushing, and asks **nothing
+  about his life** — she stays the prize and makes him keep carrying it. Warm but
+  not easy (§3A), and crucially does NOT interview him.
+- **Use for:** early build with polite/earnest/sweet types. Keep it warm, a beat
+  cooler than him, no biographical questions, no dash, one emoji.
