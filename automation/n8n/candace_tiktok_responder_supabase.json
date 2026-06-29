@@ -70,7 +70,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const d = $json || {};\nlet reply = '';\ntry { reply = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { reply = ''; }\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nif (!reply) { reply = 'hey you'; }\nconst bm = $('Build Messages').first().json;\nreturn [{ json: { reply: reply, fan_id: bm.fan_id, bot_id: bm.bot_id, needSummary: bm.needSummary } }];"
+        "jsCode": "const d = $json || {};\nlet reply = '';\ntry { reply = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { reply = ''; }\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nconst allowed = ['\\u{1F60F}', '\\u{1F92D}', '\\u{1F90D}', '\\u{1F440}'];\nreply = reply.replace(/\\p{Extended_Pictographic}/gu, function (m) { return allowed.indexOf(m) === -1 ? '' : m; });\nreply = reply.replace(/[\\uFE0F\\u200D]/g, '').replace(/[ \\t]{2,}/g, ' ').trim();\nif (!reply) { reply = 'hey you'; }\nconst bm = $('Build Messages').first().json;\nreturn [{ json: { reply: reply, fan_id: bm.fan_id, bot_id: bm.bot_id, needSummary: bm.needSummary } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
