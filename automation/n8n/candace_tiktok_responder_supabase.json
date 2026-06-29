@@ -1,5 +1,5 @@
 {
-  "name": "Candace TikTok Talker (OpenAI + Supabase memory + classifier + funnel v5)",
+  "name": "Candace TikTok Talker (classifier + funnel + profiler v6)",
   "nodes": [
     {
       "parameters": {
@@ -52,7 +52,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (cls.ask_back === true);\nconst directive = cls.directive || 'stay cool and playful, be the prize, keep it short.';\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio texting a man in your dms. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private notes about him, things you remember and where things are at: ' + ctx.summary });\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + (askBack ? 'you may end with a question if it genuinely fits.' : 'do NOT end this reply with a question, make a statement.') + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\nconst count = ctx.count || 0;\nconst needSummary = (count > 0 && count % 8 === 0);\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, stage: ctx.stage || 'rapport', needSummary: needSummary, archetype: archetype } }];\n"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (cls.ask_back === true);\nconst directive = cls.directive || 'stay cool and playful, be the prize, keep it short.';\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private read on him, who he is and where things are at, use it: ' + ctx.summary });\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + (askBack ? 'you may end with a question if it genuinely fits.' : 'do NOT end this reply with a question, make a statement.') + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nconst st = ctx.stage || 'rapport';\nif (st === 'funnelled') messages.push({ role: 'system', content: 'STAGE NOTE: you have ALREADY given him your telegram @candace_summers. do not pitch it again like it is new and do not re-explain it. if he has not gone yet, playfully nudge him to actually come find you over there, tease that you are waiting. keep pulling him toward going.' });\nelse if (st === 'converted') messages.push({ role: 'system', content: 'STAGE NOTE: he has come to your telegram. keep him warm and a little more rewarding now, make him glad he came.' });\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\nconst count = ctx.count || 0;\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, stage: st, archetype: archetype } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -118,105 +118,6 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose"
-          },
-          "conditions": [
-            {
-              "id": "cond-needsummary",
-              "leftValue": "={{ $('Format Reply').item.json.needSummary }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        -760,
-        80
-      ],
-      "id": "0af39f97-3341-46d7-9fad-182e2bd81d6b",
-      "name": "Summary due?"
-    },
-    {
-      "parameters": {
-        "jsCode": "const bm = $('Build Messages').first().json;\nconst ctx = $('DB: ingest').first().json;\nconst fr = $('Format Reply').first().json;\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst sys = 'you maintain a short private memory note for candace about a man she is flirting with in her dms. update the note. keep it to two short factual sentences, all lowercase. capture who he is, his vibe or type, anything he revealed, and where the flirtation is at. no fluff, no advice.';\nconst usr = 'existing note: ' + ((ctx.summary && ctx.summary.length) ? ctx.summary : 'none') + '\\n\\nrecent conversation:\\n' + convo + '\\n\\nupdated note:';\nreturn [{ json: { fan_id: bm.fan_id, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -560,
-        -60
-      ],
-      "id": "9ff506b6-57ae-462f-9ba7-ba16f9631d6a",
-      "name": "Build Summary Request"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.openai.com/v1/chat/completions",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.3, max_tokens: 120, messages: $json.messages } }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -360,
-        -60
-      ],
-      "id": "cbab6b30-66f7-49a1-bc8f-ac399303679f",
-      "name": "Summarize (OpenAI)"
-    },
-    {
-      "parameters": {
-        "jsCode": "const d = $json || {};\nlet s = '';\ntry { s = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { s = ''; }\ns = (s || '').trim();\nconst fan_id = $('Build Summary Request').first().json.fan_id;\nreturn [{ json: { summary: s, fan_id: fan_id } }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -160,
-        -60
-      ],
-      "id": "bb946a53-e620-4830-8fae-aaf2eca514e1",
-      "name": "Extract Summary"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_set_summary",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "supabaseApi",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ { p_fan_id: $json.fan_id, p_summary: $json.summary } }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        60,
-        -60
-      ],
-      "id": "37ba29cb-16f7-4bf9-904d-2198f721a34e",
-      "name": "DB: set summary"
-    },
-    {
-      "parameters": {
         "respondWith": "json",
         "responseBody": "={{ { \"message\": $('Format Reply').item.json.reply } }}",
         "options": {
@@ -271,6 +172,72 @@
       ],
       "id": "cls22222-2222-4222-8222-222222222222",
       "name": "Classify (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst sys = [\n'you are an expert conversion strategist for an adult creator dm funnel. candace is a flirty creator who chats with men in her dms and funnels them to her private telegram @candace_summers. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: his buying intent, where he is in the funnel, his type, and the exact technique to convert him. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"intent_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [cold, rapport, warming, hooked, funnelled, converted, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to move him closer to converting from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": two short sentences candace should remember about him, who he is and where things stand',\n'}',\n'intent_score rubric: 0-20 cold or tire kicker, low effort or skeptical, no real interest. 21-40 mild, casual chatting, no buying signals. 41-60 warming, engaged and complimenting and putting in effort. 61-80 hot, strong hooks like jealousy, calls her special or different, future talk, hints at wanting more, or spend or provider signals. 81-100 ready, explicitly asked for more or onlyfans or where to find her, eager, said he would spend or spoil her, or heading to or joined the telegram.',\n'stage: cold=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. funnelled=she has given him the telegram. converted=he has gone to or joined the telegram. lost=cold hostile or gone.',\n'technique by type: provider or baller, make him feel like the man and let him invest, funnel as exclusive access. submissive, dominate and make him earn it, funnel as a privilege. lonely or romantic, build emotional intimacy and girlfriend energy, funnel as getting closer. tire_kicker, do not over invest, keep light, let him go if no movement.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        280
+      ],
+      "id": "prof0001-0001-4001-8001-000000000001",
+      "name": "Build Profile Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.2, max_tokens: 320, response_format: { type: 'json_object' }, messages: $json.profileMessages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -560,
+        280
+      ],
+      "id": "prof0002-0002-4002-8002-000000000002",
+      "name": "Profiler (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst reply = src.reply || '';\nlet stage = p.stage || 'rapport';\nif (/candace_summers|telegram/i.test(reply) && stage !== 'converted') stage = 'funnelled';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.intent_score === 'number') ? p.intent_score : null;\nconst metadata = { intent_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        280
+      ],
+      "id": "prof0003-0003-4003-8003-000000000003",
+      "name": "Apply Profile"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?id=eq.' + $json.fan_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { summary: $json.summary, stage: $json.stage, buyer_type: $json.buyer_type, metadata: $json.metadata } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        280
+      ],
+      "id": "prof0004-0004-4004-8004-000000000004",
+      "name": "DB: patch fan"
     }
   ],
   "connections": {
@@ -349,51 +316,7 @@
             "index": 0
           },
           {
-            "node": "Summary due?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Summary due?": {
-      "main": [
-        [
-          {
-            "node": "Build Summary Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Summary Request": {
-      "main": [
-        [
-          {
-            "node": "Summarize (OpenAI)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Summarize (OpenAI)": {
-      "main": [
-        [
-          {
-            "node": "Extract Summary",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Summary": {
-      "main": [
-        [
-          {
-            "node": "DB: set summary",
+            "node": "Build Profile Request",
             "type": "main",
             "index": 0
           }
@@ -416,6 +339,39 @@
         [
           {
             "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Profile Request": {
+      "main": [
+        [
+          {
+            "node": "Profiler (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profiler (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Apply Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Profile": {
+      "main": [
+        [
+          {
+            "node": "DB: patch fan",
             "type": "main",
             "index": 0
           }
