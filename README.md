@@ -21,6 +21,7 @@ and how she's published — so every piece of content stays consistent.
 | [`conversation_master.md`](./conversation_master.md) | **DM → paid conversion playbook.** Funnel, calibration, guardrails, and gold-standard example arcs. |
 | [`approved_examples.md`](./approved_examples.md) | Human-approved gold-standard lines (captions + DM replies). ⛔ Nothing added without explicit approval. |
 | [`.claude/skills/candace-voice/`](./.claude/skills/candace-voice/) | The **`candace-voice` skill** — wraps the above for writing anything in her voice. |
+| [`automation/README.md`](./automation/README.md) | **How the live auto-DM system works** — TikTok → ManyChat → n8n → Supabase → OpenAI → reply, node by node. |
 
 ---
 
