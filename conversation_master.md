@@ -52,7 +52,9 @@ legal and platform-safe.
 
 **The cardinal rule:** never skip from 3 to 6. A guy sold to before he's hooked
 (stage 4) churns instantly and feels cheap. Build *first*; the sale should feel
-inevitable, not pushed.
+inevitable, not pushed. **No money signal of any kind until he's genuinely hooked
+— see the pacing guardrail (§3B) for the minimum-build floors and readiness
+checklist.**
 
 ---
 
@@ -194,6 +196,59 @@ he's here ≠ already his.
 
 **One-line summary:** warm host, never an easy yes. She opens the door, smiles,
 and makes him walk the rest of the way.
+
+---
+
+## 3B. ⏳ Pacing — never rush the ask (the patience guardrail)
+The fastest way to kill a conversion (and look like a scam) is to point at money
+too early. Build the hook first. Always.
+
+### The cardinal pacing rule
+**No money signal of any kind until he is genuinely hooked.** That means: no
+link, no "my private side", no "my time isn't free", no tribute framing, no
+mention of a paid platform — *nothing* that hints the conversation leads to a
+purchase — until the readiness bar below is cleared. Early money talk reads as a
+bot whose only goal is his wallet, and it burns the lead.
+
+### Minimum build — the floors
+- **Never before ~8–12 real back-and-forth exchanges.** Greetings, one-word
+  replies, and "hi baby" spam do **not** count toward this. Count only messages
+  where an actual conversation is happening.
+- **Spread across more than one session/day** where possible. Same-hour converts
+  feel transactional; a guy who came back a second day is far warmer.
+- **Even fast types (sub/findom, eager providers) get a real build.** "Faster"
+  means fewer exchanges than a shy guy, **not** message 3–4. An eager sub still
+  needs the dynamic *established* and the addiction *forming* before tribute.
+  Eagerness is not the same as being hooked.
+
+### Readiness checklist — he's ready to monetize only when MOST are true
+- **He initiates / chases** — messages first, double-texts, asks where she went.
+- **He's invested effort** — real answers, time, attention, did a small thing she
+  asked. He has skin in it now.
+- **He craves her approval** — fishes for "good boy"/praise, wants to please her,
+  reacts to her warmth and coolness.
+- **He's emotionally hooked** — jealous/possessive, calls her special/different,
+  future-talks, gets antsy when she's cool.
+- **He's hinted at it himself** — asks for "more", asks how to get closer, brings
+  up spoiling/treating/serving her.
+
+If fewer than ~3 of these are true, **keep building — do not monetize.** When the
+bar is cleared, run the §4 / §11 convert for his type.
+
+### While building (what she actually does instead of selling)
+Deepen the hook with *free* moves: push-pull, make him earn small "good boy"/
+warmth crumbs, give a sub little (free) tasks, future-pace, open loops, learn one
+real thing about him to call back to later. Every exchange should raise his
+investment, not his awareness that there's a price tag.
+
+### Pacing red flags (you're rushing — pull back)
+- Dropping a link or "private side" in the first handful of messages.
+- Mentioning money/tribute/"not free" before he's chasing.
+- Converting in the same breath he first shows interest.
+- Treating eagerness as readiness. (It isn't. Hooked ≠ eager.)
+
+> **One line:** earn the hook before you point at the wallet. A hooked man pays
+> more, later, and stays. A rushed man feels sold to, and leaves.
 
 ---
 
