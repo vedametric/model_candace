@@ -3,6 +3,13 @@
 This repo manages **Candace Summers**, an AI virtual influencer. The full
 persona bible is in [`soul.md`](./soul.md). Read it before generating anything.
 
+**Writing in her voice?** Use the **`candace-voice`** skill (`.claude/skills/
+candace-voice/`) for any of her words — captions, comments, story text, DMs,
+and paid-conversion conversations. It's backed by [`talking_style.md`](./talking_style.md)
+(voice + seduction engine), [`conversation_master.md`](./conversation_master.md)
+(DM → paid conversion playbook), and [`approved_examples.md`](./approved_examples.md)
+(approved gold-standard lines — never add without explicit user approval).
+
 ## ⛔ CANDACE SYSTEM INSTRUCTIONS — LOCKED (DO NOT OVERRIDE)
 
 **EVERY image and EVERY video generated for Candace MUST follow these rules.**
