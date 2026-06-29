@@ -5,6 +5,26 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #008 — GRWM bathroom mirror (daylight / flirty-teasing)
+
+- **File:** `2026-06-29_008_grwm-bathroom_instagram.png`
+- **Posted:** 2026-06-29 00:08:39 UTC
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** https://www.instagram.com/p/DaJi1EdDFJ7/
+- **Platform post ID:** `18013503023708425`
+- **Media type:** Photo (1536 × 2752, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > grwm for literally nothing 💋 just me, some lip gloss, and zero plans… the way columbus mornings hit different when you have nowhere to be 🤍 tell me i'm wrong 😏 📍 Columbus, Ohio
+- **Hashtags:** #grwm #getreadywithme #grwmroutine #morningmakeup #makeuproutine #bathroomvibes #knitcrop #ribbedknitwear #cbuslife #614beauty #blondebeauty #beautyroutine #morningbeauty #ohiobeauty #glowup #vanitycheck #lipgloss #naturalbeauty #columbusbabes #morningself
+- **First comment:** ok real talk — how long does YOUR grwm actually take vs how long you tell people it takes 😭👀
+- **Source generation:** Higgsfield `nano_banana_2`, job `0fc0a883-bd91-4044-805d-9768bd828064` (persona reference `49aff4e5-9c20-44a3-87e8-85ba87e0d642`)
+- **Upload service:** upload-post.com (`request_id` `f48a721f57e945b29eeb3d42b8850bb6`, `job_id` `3563df10248441989becd9faef1a3541`)
+- **Status:** ✅ completed / success
+
+---
+
 ## #007 — Low-angle city street (golden hour / playful-bratty)
 
 - **File:** `2026-06-28_007_low-angle-city-street_instagram.png`

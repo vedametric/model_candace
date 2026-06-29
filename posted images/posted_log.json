@@ -2,6 +2,55 @@
   "profile": "model_candacesummers",
   "posts": [
     {
+      "id": "008",
+      "file": "2026-06-29_008_grwm-bathroom_instagram.png",
+      "posted_at_utc": "2026-06-29T00:08:39Z",
+      "platform": "instagram",
+      "profile_username": "model_candacesummers",
+      "post_url": "https://www.instagram.com/p/DaJi1EdDFJ7/",
+      "platform_post_id": "18013503023708425",
+      "media_type": "photo",
+      "dimensions": "1536x2752",
+      "location_tag": "Columbus, Ohio",
+      "caption": "grwm for literally nothing 💋 just me, some lip gloss, and zero plans… the way columbus mornings hit different when you have nowhere to be 🤍 tell me i'm wrong 😏 📍 Columbus, Ohio",
+      "first_comment": "ok real talk — how long does YOUR grwm actually take vs how long you tell people it takes 😭👀",
+      "hashtags": [
+        "#grwm",
+        "#getreadywithme",
+        "#grwmroutine",
+        "#morningmakeup",
+        "#makeuproutine",
+        "#bathroomvibes",
+        "#knitcrop",
+        "#ribbedknitwear",
+        "#cbuslife",
+        "#614beauty",
+        "#blondebeauty",
+        "#beautyroutine",
+        "#morningbeauty",
+        "#ohiobeauty",
+        "#glowup",
+        "#vanitycheck",
+        "#lipgloss",
+        "#naturalbeauty",
+        "#columbusbabes",
+        "#morningself"
+      ],
+      "generation": {
+        "engine": "higgsfield",
+        "model": "nano_banana_2",
+        "job_id": "0fc0a883-bd91-4044-805d-9768bd828064",
+        "persona_reference_job_id": "49aff4e5-9c20-44a3-87e8-85ba87e0d642"
+      },
+      "upload": {
+        "service": "upload-post.com",
+        "request_id": "f48a721f57e945b29eeb3d42b8850bb6",
+        "job_id": "3563df10248441989becd9faef1a3541",
+        "status": "completed",
+        "success": true
+      }
+    },
+    {
       "id": "007",
       "file": "2026-06-28_007_low-angle-city-street_instagram.png",
       "posted_at_utc": "2026-06-28T18:03:27Z",

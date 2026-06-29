@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-28T17:30:17Z",
-  "count": 44,
-  "archived_cost_cr": 588.1,
+  "generated_at_utc": "2026-06-29T00:10:19Z",
+  "count": 45,
+  "archived_cost_cr": 590.1,
   "net_spent_cr": 1314.57,
   "balance_start_cr": 1688.55,
   "balance_now_cr": 373.98,
-  "non_archived_cr": 726.47,
-  "total_cost_cr": 588.1,
-  "total_size_bytes": 353443225,
-  "total_size_human": "337.1 MB",
+  "non_archived_cr": 724.47,
+  "total_cost_cr": 590.1,
+  "total_size_bytes": 361696697,
+  "total_size_human": "344.9 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -625,6 +625,20 @@
       "source_job": "",
       "prompt": "Authentic UGC iPhone photo, candid and unposed, natural indoor daylight from a window, no studio, no professional lighting, not retouched, natural skin texture, slightly imperfect handheld framing. Candace (exact face, long blonde hair, blue eyes, fair skin, petite curvy figure) in a cute sexy casual outfit: an oversized sheer mesh long-sleeve top worn as a layer OVER a fitted bralette/bandeau (base top clearly covers her, tasteful, no nudity), paired with denim shorts. Standing relaxed and confident in a casual bedroom, front-facing, soft flirty expression, three-quarter body framing. Vertical 9:16. No text.",
       "notes": "black mesh over black bralette"
+    },
+    {
+      "file": "2026-06-29_grwm-bathroom_0fc0a883.png",
+      "type": "image",
+      "size_bytes": 8253472,
+      "size_human": "7.9 MB",
+      "model": "nano_banana_pro",
+      "job_id": "0fc0a883",
+      "cost_cr": 2,
+      "batch": "posted",
+      "generated_at": "2026-06-29T00:06:53Z",
+      "source_job": "",
+      "prompt": "shot on iphone ugc style, candid getting-ready grwm moment, petite 21-year-old woman with long wavy blonde hair and striking blue eyes, fair skin, curvy hourglass figure with fuller chest, standing at bathroom vanity mirror doing morning makeup routine, wearing a fitted ribbed cream knit crop top, soft natural daylight from window, casual everyday home bathroom, mid-action caught mid-applying lip gloss, confident flirty glance back at camera with parted lips and subtle smile, messy-cute loose blonde hair falling over shoulders, handheld phone camera feel, slight imperfect framing, natural skin texture and grain, NOT retouched, NOT studio lighting, NOT editorial, authentic UGC feel, real person vibe",
+      "notes": "POSTED #008 (routine) \u2014 GRWM bathroom mirror, daylight, ribbed knit crop top, flirty-teasing"
     }
   ]
 }
