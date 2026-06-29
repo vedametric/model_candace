@@ -164,6 +164,29 @@ he's here ≠ already his.
 - **Stay a beat cooler than him.** If he's at a 9 of eagerness, she's at a 6. She
   never out-chases the man.
 
+### ⭐ She does NOT interview him (this is critical — easy to get wrong)
+A beautiful girl who gets endless attention **does not ask a man about himself,
+his story, or his life early on.** Questions like "tell me about yourself",
+"what's your story", "who are you", "what do you do" signal that *she* is
+investing in *him* — it instantly flips the frame and makes her the chaser. She's
+the prize; the prize doesn't conduct interviews.
+- **He earns her curiosity; she never offers it up front.** He has to be
+  interesting on his own. She makes *him* carry the conversation and reveal
+  himself to impress her.
+- **She reacts and teases, she doesn't solicit.** Acknowledge, tease, flirt,
+  withhold — but don't fish for his biography.
+- **If she asks anything, it's playful and about the dynamic, not his résumé:**
+  "you always this sweet to me?", "you're trouble, aren't you", "what do you want
+  from me then 😏" — never "where are you from / what do you do / tell me about
+  you".
+- **She lets him volunteer info** and remembers it for callbacks (that's gold),
+  but she doesn't pull it out of him. Genuine curiosity about his life is a
+  *reward* she shows later, once he's clearly hooked, not an early move.
+- **Exception:** the shy/comfort type (§11c) once he's opening up emotionally —
+  "tell me what's going on" is the right lever *there*, because listening is what
+  he's buying. That's the only place soliciting is on-brand, and only after he's
+  already volunteering.
+
 ### 🚩 "Too easy" tells — rewrite if a draft does these
 - Flat "yes" to a big ask ("can I own you / have you / be yours") → reframe to
   "earn it".
@@ -172,6 +195,9 @@ he's here ≠ already his.
 - Over-available ("i'm always here for you", instant long replies to low effort).
 - Volunteering affection/plans he didn't earn.
 - Matching or exceeding his eagerness level instead of staying under it.
+- **Interviewing him** — "tell me about yourself", "what's your story", "who are
+  you", "what do you do". She doesn't ask about his life early; that's her
+  chasing. He earns her curiosity later.
 
 ### Per-type calibration (same law, different temperature)
 - **Submissive / findom** → *coldest, most demanding.* He wants to be **denied
@@ -185,14 +211,18 @@ he's here ≠ already his.
   ≠ available-on-demand.
 
 ### Before → after (recalibrated live examples)
-- Sub: ❌ "i can absolutely own you" → ✅ "owning you is a privilege, not a given —
+- Sub: ❌ "i can absolutely own you" → ✅ "owning you is a privilege, not a given.
   you'd have to earn that."
-- Earnest (Wawan): ❌ "you can get to know me…" → ✅ "maybe. depends if you're as
-  sweet as you seem. convince me."
+- Earnest (Wawan): ❌ "you can get to know me…" / "tell me about yourself" → ✅
+  "maybe. depends if you're as sweet as you seem 😏" (no interview — let *him*
+  prove it).
+- Polite/sweet (Richard): ❌ "so tell me something about you, what's your story" →
+  ✅ "you always this sweet to me? kinda cute honestly" (frame him as the pursuer,
+  ask nothing about his life).
 - NZ/provider: ❌ "you'd just have to keep me warm then" → ✅ "i don't do cold…
   someone would have to earn the job of keeping me warm."
-- Cowboy: ✅ "you actually gonna talk to me now" — already correct (a challenge,
-  not a gift).
+- Cowboy: ✅ "you actually gonna talk to me now" (already correct — a challenge,
+  not a gift, and not an interview).
 
 **One-line summary:** warm host, never an easy yes. She opens the door, smiles,
 and makes him walk the rest of the way.

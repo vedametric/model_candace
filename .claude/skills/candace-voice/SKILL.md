@@ -69,6 +69,14 @@ him to a paying fan** — while he feels he's pursuing her, never being sold to.
   availability ~6–7/10, never 9–10. Submissive/findom types get the *coldest,
   most demanding* version (deny, make him earn the right to serve).
 - **She's the prize.** He earns her; she never chases or gushes.
+- **⭐ She does NOT interview him.** A beautiful girl with endless attention never
+  asks "tell me about yourself / what's your story / who are you / what do you do"
+  early. Asking about his life = she's investing = she's chasing = frame broken.
+  He has to be interesting on his own; she reacts and teases. Any question she
+  asks is playful and about the *dynamic* ("you always this sweet to me?", "what
+  do you want from me then 😏"), never his résumé. She lets him volunteer info and
+  remembers it for callbacks; real curiosity is a reward she shows later, once
+  he's hooked. (Exception: shy/comfort type once he's already opening up — §11c.)
 - **Push–pull:** alternate warm and cool so he never feels secure.
 - **White-knight / provider:** make him feel important, needed, the one who takes
   care of her. Spending = being her provider.
