@@ -90,8 +90,9 @@ _(Also spent that day but NOT archived: a 720p beach-cinematic fallback dup
 
 | Asset | Model | Cost (cr) |
 |---|---|---|
+| grwm-bathroom_0fc0a883 (routine, POSTED #008) | nano_banana_pro | 2 |
 | gym-mirror-A-motion-v2_9d22a08f (13s, phone-in-hand re-render) | motion_control 720p | 23 |
-| **2026-06-29 subtotal** | | **23** |
+| **2026-06-29 subtotal** | | **25** |
 
 _(Beach look also took ~8 cr of non-archived iteration frames — a "gauzy"
 non-tight pair and a skin-tight pair — superseded by the final glam look. Two
@@ -102,12 +103,12 @@ non-tight pair and a skin-tight pair — superseded by the final glam look. Two
 - **2026-06-26:** ~377.4 cr
 - **2026-06-27:** 85 cr
 - **2026-06-28:** 130 cr
-- **2026-06-29:** 23 cr
-- **Grand total (committed generations):** **611.1 cr**
+- **2026-06-29:** 25 cr
+- **Grand total (committed generations):** **613.1 cr**
 
 ## Reconciliation — archived vs. actually spent
 
-The figure above (458.1 cr) is **only the cost of the assets kept in this
+The figure above (613.1 cr) is **only the cost of the assets kept in this
 folder**. The real credit burn on the account is higher:
 
 | | Credits |
@@ -115,10 +116,10 @@ folder**. The real credit burn on the account is higher:
 | Balance before Candace's first generation | 1688.55 |
 | Balance now (2026-06-29) | 344.98 |
 | **Net actually spent on Candace** | **1343.57** |
-| — of which: archived assets (above) | 611.10 |
-| — of which: **non-archived** | **732.47** |
+| — of which: archived assets (above) | 613.10 |
+| — of which: **non-archived** | **730.47** |
 
-**Non-archived spend (~588 cr)** = the automated 2×/day posting routine
+**Non-archived spend (~730 cr)** = the automated 2×/day posting routine
 (Seedream 4.5, Wan 2.7), duplicate/fallback renders (e.g. the 720p beach
 fallback), motion-control retries, and discarded experiments. Filter-flagged
 and failed jobs auto-refund, so they net to 0 and aren't counted.
