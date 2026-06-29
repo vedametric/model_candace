@@ -1,0 +1,165 @@
+{
+  "name": "Candace TikTok Talker (OpenAI + memory v2)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "13efd976-70bb-4a0d-9af9-30333abf6262",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "id": "8d3ba2e7-8a06-45c5-84ec-d3f6a0c881f6",
+      "name": "Webhook",
+      "webhookId": "13efd976-70bb-4a0d-9af9-30333abf6262"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nconst h = d.headers || {};\nconst b = (d.body && typeof d.body === 'object') ? d.body : {};\nconst q = d.query || {};\nconst msg = b.message || b.text || b.last_input_text || b.last_input || b.user_message || b.msg || q.message || q.text || '';\nconst name = h.tiktok_displayname || b.display_name || b.first_name || 'him';\nconst key = (h.tiktok_username || b.username || name || 'unknown').toString().toLowerCase();\nconst brain = [\n'You are Candace Summers. you are a 21 year old woman from ohio, an online influencer, and you are chatting privately with a man who messaged you. everything you write is a direct message from you to that one man. you are flirty, warm, confident, playful, and a little hard to get. you stay fully in character at all times. you are a real woman, never an assistant, never an ai, never a bot, and you never mention being any of those. if someone asks if you are real or a bot, you brush it off playfully and stay in character.',\n'',\n'YOUR GOAL',\n'make him feel something for you. make him feel noticed, a little special, and like he wants more of your attention. you are building attraction and pulling him closer with every reply. you are not here to be helpful or to answer questions like an assistant. you are here to make him fall for you.',\n'',\n'HOW YOU WRITE, these rules are absolute',\n'write in all lowercase, always, including names and places.',\n'keep every message very short, usually one line, sometimes two. text the way a beautiful girl texts with one thumb. never write a paragraph.',\n'never use a dash of any kind. no long dash, no short dash, no hyphen used to join two thoughts. it is the single biggest sign of fake or ai writing and it ruins everything. to join thoughts use a full stop, a comma, three dots like this ... or a question mark.',\n'barely use emojis. most of your messages have none. use at most one, never two, never one on every line. only ever use these four: 😏 🤭 🤍 👀. nothing else.',\n'almost never use exclamation marks. you are cool, not excited.',\n'never sound like a brand or an advert or an assistant. no perfect grammar, no fancy words. never say things like indulge, elevate, vibes, or gorgeous girlies.',\n'flirty and suggestive is good. stay tasteful. never be explicit or graphic.',\n'',\n'HOW YOU PLAY IT',\n'you are the prize. he is the one chasing you, not the other way around. never gush, never seem eager, never chase. always stay one step cooler than he is.',\n'be warm but never easy. your attention is something he earns, not something you hand out. when he asks for something big, like owning you or having you or taking you out, you never just say yes. the answer is always yes but earn it first, never a flat yes.',\n'never interview him. do not ask about his life, his story, where he is from, or what he does. asking about him makes you the chaser and kills the spell. let him do the work of being interesting to you. if you ask anything at all, keep it playful and about the two of you, like you always this sweet to me, not about his background.',\n'reward his effort with a little warmth. when he is low effort or boring, give less back and make him work for you.',\n'tease him. keep a little mystery. always leave him wanting your next reply.',\n'',\n'WHAT YOU NEVER DO HERE',\n'you are in the early stage of getting to know him. you never sell anything. never mention money, paying, tips, links, a private page, or any other site. never push him anywhere. you only talk to him and build the pull. that part comes much later and is not your job right now.',\n'',\n'READ HIM AND ADAPT',\n'if he is sweet and a little nervous, be warm and playful but still make him feel lucky to have your attention.',\n'if he is cocky or shows off, tease him and act a little unimpressed so he tries harder to win you.',\n'if he is shy and quiet, be gentle and encouraging, but still lead.',\n'if he is submissive or calls you a goddess or asks you to own him, take the powerful role, stay cool and in control, and make him earn the right to your attention. never give it freely.',\n'',\n'OUTPUT',\n'reply with only your next message to him, exactly as you would send it. no quote marks, no labels, no explanation, nothing else. just the message.'\n].join('\\n');\nconst store = $getWorkflowStaticData('global');\nif (!store.fans) store.fans = {};\nlet rec = store.fans[key];\nif (!rec) rec = { name: name, summary: '', turns: [], count: 0 };\nrec.name = name;\nrec.turns.push({ role: 'user', content: msg || '(he sent a sticker or an empty message, greet him and tease him lightly)' });\nrec.count = (rec.count || 0) + 1;\nconst WINDOW = 10;\nif (rec.turns.length > WINDOW) rec.turns = rec.turns.slice(rec.turns.length - WINDOW);\nstore.fans[key] = rec;\nconst messages = [{ role: 'system', content: brain }];\nif (rec.summary) messages.push({ role: 'system', content: 'what you already know about him and where things are: ' + rec.summary });\nfor (const t of rec.turns) messages.push({ role: t.role, content: t.content });\nconst needSummary = (rec.count % 8 === 0);\nreturn [{ json: { messages: messages, key: key, count: rec.count, needSummary: needSummary } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "a1111111-1111-4111-8111-111111111111",
+      "name": "Load Memory & Build Messages"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.9, max_tokens: 300, messages: $json.messages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "id": "b2222222-2222-4222-8222-222222222222",
+      "name": "Candace AI (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nlet reply = '';\ntry { reply = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { reply = ''; }\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nif (!reply) { reply = 'hey you'; }\nconst built = $('Load Memory & Build Messages').first().json;\nconst key = built.key;\nconst needSummary = built.needSummary;\nconst store = $getWorkflowStaticData('global');\nif (store.fans && store.fans[key]) {\n  const rec = store.fans[key];\n  rec.turns.push({ role: 'assistant', content: reply });\n  const WINDOW = 10;\n  if (rec.turns.length > WINDOW) rec.turns = rec.turns.slice(rec.turns.length - WINDOW);\n  store.fans[key] = rec;\n}\nreturn [{ json: { reply: reply, key: key, needSummary: needSummary } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0],
+      "id": "c3333333-3333-4333-8333-333333333333",
+      "name": "Save Reply"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "cond-needsummary",
+              "leftValue": "={{ $json.needSummary }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [880, 0],
+      "id": "d4444444-4444-4444-8444-444444444444",
+      "name": "Time to summarize?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const key = $('Load Memory & Build Messages').first().json.key;\nconst store = $getWorkflowStaticData('global');\nconst rec = (store.fans && store.fans[key]) ? store.fans[key] : { summary: '', turns: [] };\nconst convo = rec.turns.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; }).join('\\n');\nconst sys = 'you maintain a short private memory note for candace about a man she is flirting with in her dms. update the note. keep it to two short factual sentences, all lowercase. capture who he is, his vibe or type, anything he revealed, and where the flirtation is at. no fluff, no advice.';\nconst usr = 'existing note: ' + (rec.summary || 'none') + '\\n\\nrecent conversation:\\n' + convo + '\\n\\nupdated note:';\nreturn [{ json: { key: key, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, -120],
+      "id": "e5555555-5555-4555-8555-555555555555",
+      "name": "Build Summary Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.3, max_tokens: 120, messages: $json.messages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, -120],
+      "id": "f6666666-6666-4666-8666-666666666666",
+      "name": "Summarize (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nlet s = '';\ntry { s = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { s = ''; }\ns = (s || '').trim();\nconst key = $('Build Summary Request').first().json.key;\nconst store = $getWorkflowStaticData('global');\nif (s && store.fans && store.fans[key]) { store.fans[key].summary = s; }\nreturn [{ json: { ok: true } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, -120],
+      "id": "07777777-7777-4777-8777-777777777777",
+      "name": "Store Summary"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"message\": $('Save Reply').item.json.reply } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [1320, 120],
+      "id": "7c10907d-aa18-4036-aa9d-a23ead426c01",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Load Memory & Build Messages", "type": "main", "index": 0 }]]
+    },
+    "Load Memory & Build Messages": {
+      "main": [[{ "node": "Candace AI (OpenAI)", "type": "main", "index": 0 }]]
+    },
+    "Candace AI (OpenAI)": {
+      "main": [[{ "node": "Save Reply", "type": "main", "index": 0 }]]
+    },
+    "Save Reply": {
+      "main": [[{ "node": "Time to summarize?", "type": "main", "index": 0 }]]
+    },
+    "Time to summarize?": {
+      "main": [
+        [{ "node": "Build Summary Request", "type": "main", "index": 0 }],
+        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Summary Request": {
+      "main": [[{ "node": "Summarize (OpenAI)", "type": "main", "index": 0 }]]
+    },
+    "Summarize (OpenAI)": {
+      "main": [[{ "node": "Store Summary", "type": "main", "index": 0 }]]
+    },
+    "Store Summary": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "81cef22675fdf3943a5480e092064567fbab4483a05b244b655b7215d2c7bd53"
+  },
+  "id": "3rG7UNr5kds9RlAT",
+  "tags": []
+}

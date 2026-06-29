@@ -4,12 +4,38 @@ Drop-in replacement for the static ManyChat auto-reply. It reads the incoming
 DM, generates Candace's reply using her voice + conversation rules, and returns
 it to ManyChat in the same `{ "message": "..." }` shape you already use.
 
-**Two versions (pick one):**
-- **`candace_tiktok_responder_openai.json`** — OpenAI (`gpt-4o-mini`),
-  **cache-optimized**. Recommended for cheapest cost. Loads the full curated
-  brain (`candace_system_prompt.md`) as a cache-stable system message.
+**Versions (pick one):**
+- **`candace_tiktok_responder_openai_memory.json`** — OpenAI + **per-fan memory
+  (v2)**. Recommended. Remembers each fan, keeps a rolling window of recent
+  turns, and auto-summarizes every ~8 messages. Details below.
+- **`candace_tiktok_responder_openai.json`** — OpenAI, cache-optimized,
+  **stateless** (no memory). Simplest.
 - **`candace_tiktok_responder.json`** — Anthropic (Claude) version, condensed
-  prompt.
+  prompt, stateless.
+
+All three keep your exact webhook path and the same OpenAI credential setup.
+
+## Memory version (v2) — how it works
+- **Storage:** n8n's built-in static data (`$getWorkflowStaticData`). **Nothing
+  external to set up.** Each fan is keyed by `tiktok_username`.
+- **Per fan it stores:** name, a rolling window of the last 10 turns, a running
+  summary note, and a message count.
+- **Each reply:** loads his record, sends `[brain] + [his summary] + [recent
+  turns]` to OpenAI, then saves her reply back to his window.
+- **Auto-summary:** every 8th message it folds his thread into a 2-line memory
+  note (a cheap `gpt-4o-mini` call) and stores it, so long threads stay cheap and
+  she keeps remembering who he is even after old turns roll off the window.
+- **Still cache-stable:** the big brain is always `system[0]` and byte-identical,
+  so OpenAI prompt caching still applies; only the small summary + recent turns
+  vary.
+- **Scaling up:** static data is fine for low/medium volume. For high volume or
+  multiple n8n workers, swap the two storage code-nodes to Postgres/Redis keyed
+  by `tiktok_username` (same record shape). The rolling-window + summary pattern
+  keeps token cost bounded no matter how long a thread runs.
+
+> Still no selling: even with memory, this build only develops rapport (per the
+> §3B pacing rule). Wiring memory to a funnel-stage + conversion step is the next
+> layer.
 
 Both keep your exact webhook path and return the same `{ "message": "..." }`.
 
