@@ -250,11 +250,16 @@ short, warm, flirty-but-coy).
 
 - **Caption body = pure voice.** No hashtags mixed into the sentence. The body
   is the human part.
+- **NEVER put a location tag in the caption.** No `📍 Columbus, Ohio`, no
+  "📍" line, ever. It reads as forced/weird. (Older posts in the log have it —
+  that's legacy; do not copy it forward.) Ohio/Columbus can still live in the
+  *hashtags* and in the platform's own geo-tag field, just never in the caption
+  text.
 - **Hashtags live at the end** (or in the first comment), 15–25 of them, mixing:
   location (#columbusohio #614 #cbuslife), niche (#grwm #ootd #goldenhour),
   look (#blondebeauty #activewear), and reach (#fyp #explore).
-- **Location tag** almost always closes the caption: `📍 Columbus, Ohio`.
-- Keep the body **2–4 short lines / fragments** before the 📍.
+- Keep the body **2–4 short lines / fragments**, then stop — let the last line
+  (the hook) be the final thing they read.
 
 ---
 

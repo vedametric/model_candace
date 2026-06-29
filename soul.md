@@ -98,8 +98,10 @@ match. Pass this job id as the `image` reference on new generations.
   and confidence*, not exposure.
 - **Captions:** Short, lowercase, conversational, emoji-led, flirty/teasing,
   ends with a soft call-to-engage. Heavy on location + niche hashtags (Ohio,
-  fyp, grwm, ootd, comeback, etc.).
-- **Location tagging:** Columbus, Ohio.
+  fyp, grwm, ootd, comeback, etc.). **Never write a location tag (`📍 …`) into
+  the caption text — it reads as forced.** See `talking_style.md` for full voice.
+- **Location tagging:** Columbus, Ohio — only via the platform geo-tag field
+  and hashtags, **never** as a `📍` line inside the caption.
 
 ### 4a. Content variety matrix (never repeat a combination)
 
