@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const d = $json || {};\nconst h = d.headers || {};\nconst b = (d.body && typeof d.body === 'object') ? d.body : {};\nconst q = d.query || {};\nconst msg = b.message || b.text || b.last_input_text || b.last_input || b.user_message || b.msg || q.message || q.text || '';\nconst display = h.tiktok_displayname || b.display_name || b.first_name || 'him';\nconst username = (h.tiktok_username || b.username || display || 'unknown').toString().toLowerCase();\nreturn [{ json: { username: username, display: display, msg: msg || '(he sent a sticker or an empty message, greet him and tease him lightly)' } }];"
+        "jsCode": "const d = $json || {};\nconst h = d.headers || {};\nconst b = (d.body && typeof d.body === 'object') ? d.body : {};\nconst q = d.query || {};\nconst msg = b.last_text_input || b.message || b.text || b.last_input_text || b.last_input || b.user_message || b.msg || q.last_text_input || q.message || q.text || '';\nconst display = h.tiktok_displayname || b.display_name || b.first_name || 'him';\nconst username = (h.tiktok_username || b.username || display || 'unknown').toString().toLowerCase();\nreturn [{ json: { username: username, display: display, msg: msg || '(he sent a sticker or an empty message, greet him and tease him lightly)' } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

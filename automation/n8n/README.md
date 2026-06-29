@@ -83,16 +83,15 @@ Webhook  ->  Extract Message & Build Prompt  ->  Candace AI (Anthropic)  ->  For
    - **Value:** your Anthropic API key (`sk-ant-...`)
    (The `anthropic-version: 2023-06-01` header is already set on the node.)
 3. **Activate** the workflow.
-4. **Tell ManyChat to send the message.** In the ManyChat External Request that
-   hits this webhook, set the body to JSON and include the user's last message,
-   e.g.:
-   ```json
-   { "message": "{{last_text_input}}" }
-   ```
-   (The workflow also checks `text`, `last_input_text`, `last_input`,
-   `user_message`, `msg`, and query params, so most field names just work.)
-   The fan's display name is already read from the `tiktok_displayname` header
-   ManyChat sends.
+4. **Tell ManyChat to send the message (REQUIRED — easy to miss).** In the
+   ManyChat External Request that hits this webhook, add a request **parameter**
+   named **`last_text_input`** with the value set to the system field **Last Text
+   Input**. Without this, no message text reaches the workflow and every reply
+   treats the input as empty.
+   (The workflow also accepts `message`, `text`, `last_input_text`,
+   `last_input`, `user_message`, `msg`, and the same names as query params.)
+   The fan's display name + username are read from the `tiktok_displayname` /
+   `tiktok_username` headers ManyChat already sends.
 5. **Map the response** in ManyChat to `message` (same as your current setup) and
    send it back to the user.
 
