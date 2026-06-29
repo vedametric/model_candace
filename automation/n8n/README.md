@@ -4,7 +4,34 @@ Drop-in replacement for the static ManyChat auto-reply. It reads the incoming
 DM, generates Candace's reply using her voice + conversation rules, and returns
 it to ManyChat in the same `{ "message": "..." }` shape you already use.
 
-**File:** `candace_tiktok_responder.json`
+**Two versions (pick one):**
+- **`candace_tiktok_responder_openai.json`** — OpenAI (`gpt-4o-mini`),
+  **cache-optimized**. Recommended for cheapest cost. Loads the full curated
+  brain (`candace_system_prompt.md`) as a cache-stable system message.
+- **`candace_tiktok_responder.json`** — Anthropic (Claude) version, condensed
+  prompt.
+
+Both keep your exact webhook path and return the same `{ "message": "..." }`.
+
+## ⚠️ Security
+The OpenAI version references your key via an n8n **credential** — the key is NOT
+stored in the JSON. If you ever shared a key in plaintext, **rotate it** in the
+OpenAI dashboard.
+
+## Cheapest setup (OpenAI version)
+- **Model `gpt-4o-mini`** — change in the *Candace AI (OpenAI)* node's JSON body.
+- **Automatic prompt caching** — OpenAI caches identical prompt prefixes over
+  ~1024 tokens at **50% off input**, no config. The workflow keeps the ~1k-token
+  Candace brain **byte-identical on every call** (the fan's name + message go in
+  the *user* turn, never the system block), so the cache stays hot across all
+  fans. This is the main cost lever and it's automatic.
+- **`max_tokens` 300** — her replies are short.
+- Credential: create a **Header Auth** credential → Name `Authorization`, Value
+  `Bearer sk-...`, and select it on the *Candace AI (OpenAI)* node.
+
+---
+
+## (Anthropic version) File: `candace_tiktok_responder.json`
 
 ## Flow
 ```
