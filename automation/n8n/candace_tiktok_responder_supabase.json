@@ -192,17 +192,20 @@
     "Build Messages": { "main": [[{ "node": "Candace AI (OpenAI)", "type": "main", "index": 0 }]] },
     "Candace AI (OpenAI)": { "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]] },
     "Format Reply": { "main": [[{ "node": "DB: log reply", "type": "main", "index": 0 }]] },
-    "DB: log reply": { "main": [[{ "node": "Summary due?", "type": "main", "index": 0 }]] },
+    "DB: log reply": { "main": [[
+      { "node": "Respond to Webhook", "type": "main", "index": 0 },
+      { "node": "Summary due?", "type": "main", "index": 0 }
+    ]] },
     "Summary due?": {
       "main": [
         [{ "node": "Build Summary Request", "type": "main", "index": 0 }],
-        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+        []
       ]
     },
     "Build Summary Request": { "main": [[{ "node": "Summarize (OpenAI)", "type": "main", "index": 0 }]] },
     "Summarize (OpenAI)": { "main": [[{ "node": "Extract Summary", "type": "main", "index": 0 }]] },
     "Extract Summary": { "main": [[{ "node": "DB: set summary", "type": "main", "index": 0 }]] },
-    "DB: set summary": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+    "DB: set summary": { "main": [[]] }
   },
   "active": false,
   "settings": { "executionOrder": "v1" },
