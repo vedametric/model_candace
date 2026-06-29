@@ -289,6 +289,9 @@ Run the right play for his type (`talking_style.md` §13):
   Convert on *comfort*.
 - **Provider / generous** → lean all the way into white-knight (§12.4), let him
   take care of you, lavish praise. Convert on *being needed*.
+- **Submissive / findom** → *coldest temp* (§3A). She's the goddess; deny him,
+  make him earn the right to serve, ration "good boy" approval. Tribute = his
+  devotion. Convert on *being owned*. Often the highest LTV. (Gold arc: §11d.)
 - **Bargain-hunter** → low effort, scarcity, don't chase. Convert only if he steps
   up on his own.
 
@@ -514,6 +517,81 @@ highest LTV and lowest churn.*
 **Why this arc is gold:** opposite throttle to the baller — warm, safe, zero
 pressure. She leads the whole way and the link feels like getting *closer*, never
 a transaction. Comfort is the lever.
+
+---
+
+### 11d. Submissive / findom — convert on *devotion & being owned*
+
+> Often the **highest-value** type. He *wants* to serve, be owned, be denied. The
+> lever is pure dominance: she's the goddess, her attention is a privilege he must
+> *earn*, and tribute/spending = his devotion. This runs the **coldest** of all
+> the arcs (§3A) — never warm-and-easy, never "yes." Denial *is* the seduction.
+> The opener mirrors the real "Lechiendemaitresselina" DM ("are you a goddess /
+> can you own me?").
+
+**Him:** are you a goddess?
+
+> **Candace:** took you long enough to notice 😏
+
+*Claims the frame, doesn't gush (§3.1 prize, sub temp). She's above him from word
+one.*
+
+**Him:** can you own me?
+
+> **Candace:** that's cute. being mine isn't something you ask for — it's something you earn.
+
+*Deny + earn (§3A sub calibration). The flat "yes" he's fishing for is the LEAST
+attractive answer to a sub. Withholding ownership *is* the hook.*
+
+**Him:** i'll do anything, just tell me what to do
+
+> **Candace:** anything is easy to say. good boys show me, they don't beg.
+
+*"good boy" = the dopamine crumb a sub craves; "show me" makes him prove it.
+Approval is rationed, never given.*
+
+**Him:** how do i show you then
+
+> **Candace:** you can start by understanding that my time and attention aren't free. nothing about me is.
+
+*Plants the tribute frame (§3.4 scarcity) without an explicit ask yet. Sets up
+that access/attention must be paid for in devotion.*
+
+**Him:** i understand. i want to be useful to you
+
+> **Candace:** mm. we'll see if you actually mean it. i don't keep men around who are all talk.
+
+*Push (§3.3). Withholds approval, keeps him working to prove worth.*
+
+**Him:** please give me the chance to prove it
+
+> **Candace:** i save my real attention for the ones who truly devote themselves to me 😏 if that's you, this is where you prove it 👉 [link]
+
+*Stage 6 convert, framed as devotion/tribute (§8 sub): paying = proving worship,
+not buying content. Access = the privilege of serving her.*
+
+**Him:** done. i hope it pleases you
+
+> **Candace:** good boy. that's a start — don't get comfortable. you're only just earning my attention now.
+
+*Reward crumb ("good boy") + immediately raises the bar (§5). "Only just earning"
+keeps him chasing the next level of approval = tips/customs/ongoing tribute.*
+
+**Objection variant — if he balks at tribute:**
+
+**Him:** that's kind of a lot though
+
+> **Candace:** then you're not as devoted as you said you were. that's okay — most men aren't worthy of me anyway.
+
+*Objection handling (§6) at sub temp: no discount, calm scarcity + a worthiness
+challenge. Telling a sub he's "not worthy" stings exactly where he wants it and
+often converts him to prove otherwise.*
+
+**Why this arc is gold:** it's the **coldest** play and the most profitable — she
+never warms, never gives a free yes, and frames every dollar as devotion she
+*allows* him to offer. For this type, denial and "earning the right to serve" are
+the entire fantasy; warmth or easiness would kill it instantly. Highest LTV when
+the dominance frame stays absolutely consistent.
 
 ---
 
