@@ -119,7 +119,8 @@ META = {
  # 2026-06-29 GRWM bathroom mirror — POSTED #008
  "2026-06-29_grwm-bathroom_0fc0a883.png": dict(model="nano_banana_pro", job="0fc0a883", cost=2, batch="posted", at="2026-06-29T00:06:53Z", prompt="shot on iphone ugc style, candid getting-ready grwm moment, petite 21-year-old woman with long wavy blonde hair and striking blue eyes, fair skin, curvy hourglass figure with fuller chest, standing at bathroom vanity mirror doing morning makeup routine, wearing a fitted ribbed cream knit crop top, soft natural daylight from window, casual everyday home bathroom, mid-action caught mid-applying lip gloss, confident flirty glance back at camera with parted lips and subtle smile, messy-cute loose blonde hair falling over shoulders, handheld phone camera feel, slight imperfect framing, natural skin texture and grain, NOT retouched, NOT studio lighting, NOT editorial, authentic UGC feel, real person vibe", notes="POSTED #008 (routine) — GRWM bathroom mirror, daylight, ribbed knit crop top, flirty-teasing"),
  # 2026-06-29 gym mirror re-render (phone now in hand)
- "2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4": dict(model="motion_control 720p", job="9d22a08f", cost=23, batch="gym-mirror", at="2026-06-29T04:27Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.", notes="re-render: phone now clearly held to the mirror throughout (first take dropped it)"),
+ "2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4": dict(model="motion_control 720p", job="9d22a08f", cost=23, batch="gym-mirror", at="2026-06-29T04:27Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.", notes="re-render: motion control still warped the held phone — superseded by the Seedance v3 below"),
+ "2026-06-29_gym-mirror-seedance-v3_09489cc6.mp4": dict(model="seedance_2_0 (720p)", job="09489cc6", cost=36, batch="gym-mirror", at="2026-06-29T04:44Z", src="8feaf367", prompt="Seedance 2.0 image-to-video (start_image = gym-mirror-A 8feaf367), silent, 8s, 720p. Prompt: keep holding phone in right hand the ENTIRE time taking a mirror selfie, phone stays firmly/naturally in grip, subtle posing (weight shift, hip turn, free hand touches hair, glance at reflection).", notes="PHONE FIX: switched from motion_control to Seedance i2v + prompt so the phone stays naturally held throughout"),
 }
 
 def human(n):
@@ -157,7 +158,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 344.98   # as of 2026-06-29 ~04:38 UTC
+BALANCE_NOW   = 308.98   # as of 2026-06-29 ~05:18 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

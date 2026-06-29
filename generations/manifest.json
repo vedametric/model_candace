@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-29T04:40:09Z",
-  "count": 46,
-  "archived_cost_cr": 613.1,
-  "net_spent_cr": 1343.57,
+  "generated_at_utc": "2026-06-29T05:19:19Z",
+  "count": 47,
+  "archived_cost_cr": 649.1,
+  "net_spent_cr": 1379.57,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 344.98,
+  "balance_now_cr": 308.98,
   "non_archived_cr": 730.47,
-  "total_cost_cr": 613.1,
-  "total_size_bytes": 383422847,
-  "total_size_human": "365.7 MB",
+  "total_cost_cr": 649.1,
+  "total_size_bytes": 389235731,
+  "total_size_human": "371.2 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -652,7 +652,21 @@
       "generated_at": "2026-06-29T04:27Z",
       "source_job": "8feaf367",
       "prompt": "Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.",
-      "notes": "re-render: phone now clearly held to the mirror throughout (first take dropped it)"
+      "notes": "re-render: motion control still warped the held phone \u2014 superseded by the Seedance v3 below"
+    },
+    {
+      "file": "2026-06-29_gym-mirror-seedance-v3_09489cc6.mp4",
+      "type": "video",
+      "size_bytes": 5812884,
+      "size_human": "5.5 MB",
+      "model": "seedance_2_0 (720p)",
+      "job_id": "09489cc6",
+      "cost_cr": 36,
+      "batch": "gym-mirror",
+      "generated_at": "2026-06-29T04:44Z",
+      "source_job": "8feaf367",
+      "prompt": "Seedance 2.0 image-to-video (start_image = gym-mirror-A 8feaf367), silent, 8s, 720p. Prompt: keep holding phone in right hand the ENTIRE time taking a mirror selfie, phone stays firmly/naturally in grip, subtle posing (weight shift, hip turn, free hand touches hair, glance at reflection).",
+      "notes": "PHONE FIX: switched from motion_control to Seedance i2v + prompt so the phone stays naturally held throughout"
     }
   ]
 }
