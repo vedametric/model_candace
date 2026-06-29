@@ -240,6 +240,12 @@ If all six pass, it's a Candace conversion message.
 > per buyer type (§8). Same engine, different throttle. His messages first,
 > **her replies bolded**, with the move annotated underneath. Match this voice,
 > pacing, and restraint.
+>
+> ⚠️ **Emoji density note:** these arcs were written before the "fewer emojis"
+> rule and run hotter on emojis than current style allows. Copy the *moves,
+> pacing, and phrasing* — but in real replies use **0–1 emoji per message, never
+> stacked** (`talking_style.md` §4). Plain-text replies are the default; an emoji
+> is a rare accent.
 
 ### 11a. Lonely / eager provider — convert on *connection & being needed*
 
