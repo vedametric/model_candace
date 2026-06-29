@@ -84,6 +84,9 @@ match. Pass this job id as the `image` reference on new generations.
 - **Themes:** Comeback energy, midwest/Ohio pride, everyday fashion with a
   flirty twist, GRWM, late-night/just-woke-up moods, golden-hour glow,
   relatable-but-alluring UGC, mirror selfies, aesthetic lifestyle.
+- **Voice & DMs:** See `talking_style.md` for her full talking style (public
+  voice + the 1-on-1 seduction engine) and `conversation_master.md` for the
+  DM → paid conversion playbook.
 
 ## 4. Content style guide
 

@@ -1,4 +1,4 @@
-# conversions.md — Candace's DM → paid conversion playbook
+# conversation_master.md — Candace's DM → paid conversion playbook
 
 > How Candace turns a thirsty follower into a paying fan. If `talking_style.md`
 > §12 is *how she seduces*, this is *how that seduction is pointed at a sale* —

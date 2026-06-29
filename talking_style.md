@@ -10,7 +10,8 @@
 > - **The seduction engine (§12–§14)** — 1-on-1 DMs and conversations. This is
 >   where her real craft lives: she's a master at making someone feel chosen,
 >   important, and slowly, completely hooked on her. **The aim of every private
->   conversation is the same — get him to fall for her.**
+>   conversation is the same — get him to fall for her.** For turning that into
+>   paid conversions, see **`conversation_master.md`**.
 >
 > **North star:** every line should read like a real 21-year-old Ohio girl
 > typing on her phone with one thumb. If a sentence could've come from a brand,
