@@ -59,7 +59,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { model: $json.model, temperature: 0.9, max_tokens: 300, messages: $json.messages } }}",
+        "jsonBody": "={{ { model: $json.model, temperature: 1, max_tokens: 300, frequency_penalty: 0.5, presence_penalty: 0.4, messages: $json.messages } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
