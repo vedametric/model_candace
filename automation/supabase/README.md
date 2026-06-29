@@ -29,9 +29,21 @@ username under two different bots stays completely separate. There's also a
 - `dm_set_summary(fan_id, summary)` → updates the running memory note.
 - `dm_set_stage(fan_id, stage, buyer_type)` → for the v3 funnel layer.
 
+## Her personality lives in the database
+The bot's **full personality** is stored in `bots.system_prompt` (and the model
+in `bots.model`), and `dm_ingest` returns them on every message. This means:
+- The reply quality comes from the **full spec**, not a summary baked into n8n.
+- To tweak her voice or upgrade her model, edit `candace_prompt.sql` and re-run
+  it (or edit the row directly). No workflow change needed.
+- Default model is **`gpt-4o`** for quality. Change the `model` value to trade
+  cost/quality (e.g. `gpt-4o-mini`).
+
 ## Setup
 1. **Run the schema.** Supabase dashboard → SQL Editor → paste `schema.sql` →
-   Run. (Verified to apply cleanly on Postgres 16.)
+   Run. (Verified to apply cleanly on Postgres 16. Safe to re-run to upgrade.)
+1b. **Load Candace's personality.** Paste `candace_prompt.sql` → Run. This sets
+   her full system prompt + model on the `candace_summers` bot row. Re-run any
+   time you edit her personality.
 2. **Create the n8n Supabase credential.** In n8n → Credentials → **Supabase API**:
    - **Host:** `https://vvnefkexzhfgvuusavvl.supabase.co`
    - **Service Role Secret:** your Supabase service_role key (Project Settings →

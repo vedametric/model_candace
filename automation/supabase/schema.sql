@@ -20,8 +20,13 @@ create table if not exists public.bots (
   display_name     text,
   platform_account text,                                  -- e.g. tiktok handle
   persona_notes    text,
+  system_prompt    text,                                  -- full personality / brain (set via candace_prompt.sql)
+  model            text default 'gpt-4o',                 -- LLM model for this bot's replies
   created_at       timestamptz not null default now()
 );
+-- if upgrading an existing install, these add the new columns:
+alter table public.bots add column if not exists system_prompt text;
+alter table public.bots add column if not exists model text default 'gpt-4o';
 
 -- ---- one row per fan, per bot, per platform --------------------------------
 create table if not exists public.fans (
@@ -88,12 +93,15 @@ declare
   v_stage   text;
   v_count   int;
   v_recent  jsonb;
+  v_prompt  text;
+  v_model   text;
 begin
   -- bot (auto-create if new)
-  select id into v_bot_id from public.bots where slug = p_bot;
+  select id, system_prompt, model into v_bot_id, v_prompt, v_model
+    from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
-    returning id into v_bot_id;
+    returning id, system_prompt, model into v_bot_id, v_prompt, v_model;
   end if;
 
   -- fan (upsert)
@@ -132,12 +140,14 @@ begin
           jsonb_build_object('platform', p_platform, 'username', lower(p_username)));
 
   return jsonb_build_object(
-    'bot_id',  v_bot_id,
-    'fan_id',  v_fan_id,
-    'summary', coalesce(v_summary, ''),
-    'stage',   coalesce(v_stage, 'rapport'),
-    'count',   v_count,
-    'recent',  v_recent
+    'bot_id',        v_bot_id,
+    'fan_id',        v_fan_id,
+    'summary',       coalesce(v_summary, ''),
+    'stage',         coalesce(v_stage, 'rapport'),
+    'count',         v_count,
+    'recent',        v_recent,
+    'system_prompt', coalesce(v_prompt, ''),
+    'model',         coalesce(v_model, 'gpt-4o')
   );
 end;
 $$;
