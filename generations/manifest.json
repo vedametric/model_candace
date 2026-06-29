@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-29T05:19:19Z",
-  "count": 47,
-  "archived_cost_cr": 649.1,
+  "generated_at_utc": "2026-06-29T12:07:51Z",
+  "count": 48,
+  "archived_cost_cr": 651.1,
   "net_spent_cr": 1379.57,
   "balance_start_cr": 1688.55,
   "balance_now_cr": 308.98,
-  "non_archived_cr": 730.47,
-  "total_cost_cr": 649.1,
-  "total_size_bytes": 389235731,
-  "total_size_human": "371.2 MB",
+  "non_archived_cr": 728.47,
+  "total_cost_cr": 651.1,
+  "total_size_bytes": 399185764,
+  "total_size_human": "380.7 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -667,6 +667,20 @@
       "source_job": "8feaf367",
       "prompt": "Seedance 2.0 image-to-video (start_image = gym-mirror-A 8feaf367), silent, 8s, 720p. Prompt: keep holding phone in right hand the ENTIRE time taking a mirror selfie, phone stays firmly/naturally in grip, subtle posing (weight shift, hip turn, free hand touches hair, glance at reflection).",
       "notes": "PHONE FIX: switched from motion_control to Seedance i2v + prompt so the phone stays naturally held throughout"
+    },
+    {
+      "file": "2026-06-29_poolside-beauty-closeup_7f795549.png",
+      "type": "image",
+      "size_bytes": 9950033,
+      "size_human": "9.5 MB",
+      "model": "nano_banana_pro",
+      "job_id": "7f795549",
+      "cost_cr": 2,
+      "batch": "posted",
+      "generated_at": "2026-06-29T12:05Z",
+      "source_job": "",
+      "prompt": "close-up beauty shot of a 21-year-old petite blonde woman at an outdoor pool during golden hour, warm late-afternoon sunlight catching her bright blue eyes and fair skin, long blonde hair slightly wavy and sun-kissed, wearing a vibrant strappy bikini top, playful teasing smirk with parted lips, glancing slightly sideways as if caught mid-laugh, pool water glinting softly in the blurred background, shot on iPhone UGC style, handheld candid feel, natural imperfections visible \u2014 skin texture, slight grain \u2014 no studio lighting, not retouched, authentic everyday moment, petite hourglass figure, curvy busty build",
+      "notes": "POST #009 PENDING \u2014 generated OK; upload-post.com returned Instagram token-expired error, needs reconnect"
     }
   ]
 }
