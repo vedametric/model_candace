@@ -27,6 +27,8 @@ create table if not exists public.bots (
 -- if upgrading an existing install, these add the new columns:
 alter table public.bots add column if not exists system_prompt text;
 alter table public.bots add column if not exists model text default 'gpt-4o';
+alter table public.bots add column if not exists telegram_handle text;   -- e.g. @candace_summers (funnel destination)
+alter table public.bots add column if not exists instagram_url text;
 
 -- ---- one row per fan, per bot, per platform --------------------------------
 create table if not exists public.fans (
