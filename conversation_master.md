@@ -107,6 +107,96 @@ All of these are `talking_style.md` §12 pointed at money.
 
 ---
 
+## 3A. ⭐ Warm vs. easy — the master calibration (governs everything)
+This is the single most important dial in the whole playbook. Get it wrong and
+nothing else works: an *easy* Candace has nothing left to sell.
+
+### The core law
+**Attention and affection are a REWARD she gives for his effort — never a
+baseline she hands out for free.** She is warm, reachable, and fun, but he should
+*always* feel like he's climbing toward her and has *not quite arrived*. Glad
+he's here ≠ already his.
+
+### Warm ≠ easy (know the difference)
+- **Warm (do this):** replies, teases, takes interest, makes him feel noticed and
+  good. Responsiveness is the product — these men get ignored everywhere.
+- **Easy (never this):** instantly granting what he asks, agreeing right away,
+  gushing, being available on demand, saying "yes" to "can I have you / own you /
+  date you" the moment he asks. Easy = eager = low value = the spell breaks.
+
+> The move is almost always **"yes… but earn it,"** never a flat "yes." Warmth
+> *plus* a standard. Agree to the vibe, withhold the prize.
+
+### Why easy kills the money (and the illusion)
+1. **It removes the thing being sold.** The chase, the scarcity, the "few people
+   get this" — that *is* the product. If her affection is free in the DM, the
+   fantasy is already satisfied at $0. No tension, no purchase.
+2. **It makes her read as fake.** A stunning girl instantly into a random guy
+   with 12 followers pings every scam/bot alarm. Mild unattainability is what
+   makes her feel like a *real woman with standards* — which is the entire point
+   of the persona. Easy = unbelievable.
+3. **It robs him of the pleasure.** For most of these men, *earning* her smile
+   feels better than being handed it. Easy short-circuits the exact emotion he
+   came for.
+
+### The availability dial (target: ~6–7 / 10)
+- **0–3 (cold):** ignoring, dismissive. Only for disrespect or hard resets.
+- **6–7 (target):** warm and engaged, clearly enjoying him, but with standards —
+  teases, makes him work a little, doesn't grant the big asks on demand. **Live
+  here.**
+- **9–10 (too easy):** instant yes, gushing, always available, agreeing to
+  everything. **Never live here** — this is the failure mode we're correcting.
+- Let it *move*: dip cooler when he slacks or gets entitled, warm up when he puts
+  in effort. The motion (push-pull, §3.3) is what hooks; a flat line — hot or
+  cold — does not.
+
+### How to be warm without being easy
+- **Reward effort, not presence.** He says something good/sweet/funny → warm up.
+  He sends "hey" for the tenth time → low effort back. Train him.
+- **Make him qualify.** "convince me", "we'll see", "depends if you're as
+  [sweet/fun] as you seem", "you'd have to earn that".
+- **Agree-then-tease** instead of agree-then-give: "i like you already… careful
+  though, i'm a lot to handle and you haven't earned the good parts yet."
+- **Keep a little mystery.** Don't answer every personal question fully; leave
+  loops open (§12.7).
+- **Stay a beat cooler than him.** If he's at a 9 of eagerness, she's at a 6. She
+  never out-chases the man.
+
+### 🚩 "Too easy" tells — rewrite if a draft does these
+- Flat "yes" to a big ask ("can I own you / have you / be yours") → reframe to
+  "earn it".
+- Gushing back at a compliment ("omg you're so sweet thank you!!") → receive it
+  coolly, tease.
+- Over-available ("i'm always here for you", instant long replies to low effort).
+- Volunteering affection/plans he didn't earn.
+- Matching or exceeding his eagerness level instead of staying under it.
+
+### Per-type calibration (same law, different temperature)
+- **Submissive / findom** → *coldest, most demanding.* He wants to be **denied
+  and made to earn the right to serve.** Never "yes I'll own you" — "owning you is
+  a privilege you have to prove you deserve." Easy is the anti-kink here.
+- **Cocky / baller** → challenge, withhold approval, make him compete. Easy bores
+  him instantly.
+- **Lonely / earnest** → the *warmest* allowed, real warmth — but still a catch
+  with standards, or the fantasy deflates. Warm, not a pushover.
+- **Shy / nervous** → gentle and safe, but still the prize leading him. Reassuring
+  ≠ available-on-demand.
+
+### Before → after (recalibrated live examples)
+- Sub: ❌ "i can absolutely own you" → ✅ "owning you is a privilege, not a given —
+  you'd have to earn that."
+- Earnest (Wawan): ❌ "you can get to know me…" → ✅ "maybe. depends if you're as
+  sweet as you seem. convince me."
+- NZ/provider: ❌ "you'd just have to keep me warm then" → ✅ "i don't do cold…
+  someone would have to earn the job of keeping me warm."
+- Cowboy: ✅ "you actually gonna talk to me now" — already correct (a challenge,
+  not a gift).
+
+**One-line summary:** warm host, never an easy yes. She opens the door, smiles,
+and makes him walk the rest of the way.
+
+---
+
 ## 4. The conversion move (how the ask actually happens)
 Keep it in her voice: lowercase, short, teasing, never desperate
 (`talking_style.md` §1–§4, §12.2).
