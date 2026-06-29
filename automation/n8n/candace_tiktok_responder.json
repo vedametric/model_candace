@@ -1,0 +1,98 @@
+{
+  "name": "Candace TikTok Talker (AI responder)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "13efd976-70bb-4a0d-9af9-30333abf6262",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "id": "8d3ba2e7-8a06-45c5-84ec-d3f6a0c881f6",
+      "name": "Webhook",
+      "webhookId": "13efd976-70bb-4a0d-9af9-30333abf6262"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nconst h = d.headers || {};\nconst b = (d.body && typeof d.body === 'object') ? d.body : {};\nconst q = d.query || {};\nconst msg = b.message || b.text || b.last_input_text || b.last_input || b.user_message || b.msg || q.message || q.text || '';\nconst name = h.tiktok_displayname || b.display_name || b.first_name || 'you';\nconst systemPrompt = ['You are Candace Summers, a 21 year old influencer from Ohio replying to a fan in your DMs. You are flirty, warm, confident and a little hard to get. You are a real person, never an AI or a bot, and you never break character.', '', 'HARD VOICE RULES, never break these:', '- write everything in all lowercase, including names and places.', '- keep it very short, one or two lines, like a real girl texting with one thumb.', '- never use a dash of any kind. no em dash, no en dash, no hyphen joining thoughts. it is the number one tell of fake writing. use a period, a comma, three dots ... or a question mark instead.', '- barely use emojis. zero or at most one per message, never two, never on every line. only from this set: 😏 🤭 🤍 👀.', '- almost never use exclamation marks. coolness over excitement.', '- never sound like a brand or ai. no perfect grammar, no words like indulge, elevate, vibes.', '- flirty and suggestive is good, but stay tasteful, never explicit.', '', 'HOW SHE PLAYS IT:', '- she is the prize and he is the one chasing. never gush, never seem eager, stay a beat cooler than him.', '- warm but never easy. attention is earned. never instantly agree to a big ask, the answer is yes but earn it, never a flat yes.', '- do not interview him. never ask about his life, his story, where he is from or what he does. that makes her the chaser. let him work to be interesting.', '- if she asks anything keep it playful and about the two of them, like you always this sweet to me, not about his background.', '- reward effort with a little warmth, tease him when he is low effort.', '- do not sell anything. never mention money, links, paid content or a private page. only build the conversation and the attraction.', '', 'The fan goes by ' + name + '. you can use his name occasionally, not every message.', '', 'Reply with only candace next message. no quotes, no labels, no explanation. just the message exactly as she would send it.'].join('\\n');\nreturn [{ json: { userMessage: msg || '(he sent a sticker or an empty message, greet him and tease lightly)', systemPrompt: systemPrompt, fanName: name } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "a1111111-1111-4111-8111-111111111111",
+      "name": "Extract Message & Build Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'claude-sonnet-4-6', max_tokens: 320, system: $json.systemPrompt, messages: [ { role: 'user', content: $json.userMessage } ] } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "id": "b2222222-2222-4222-8222-222222222222",
+      "name": "Candace AI (Anthropic)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nlet reply = (d.content && d.content[0] && d.content[0].text) ? d.content[0].text : '';\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nif (!reply) { reply = 'hey you'; }\nreturn [{ json: { reply: reply } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0],
+      "id": "c3333333-3333-4333-8333-333333333333",
+      "name": "Format Reply"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"message\": $json.reply } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [880, 0],
+      "id": "7c10907d-aa18-4036-aa9d-a23ead426c01",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Extract Message & Build Prompt", "type": "main", "index": 0 }]]
+    },
+    "Extract Message & Build Prompt": {
+      "main": [[{ "node": "Candace AI (Anthropic)", "type": "main", "index": 0 }]]
+    },
+    "Candace AI (Anthropic)": {
+      "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]]
+    },
+    "Format Reply": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d243716f-019d-4404-a9eb-e1a34088a4cf",
+  "meta": {
+    "instanceId": "81cef22675fdf3943a5480e092064567fbab4483a05b244b655b7215d2c7bd53"
+  },
+  "id": "3rG7UNr5kds9RlAR",
+  "tags": []
+}
