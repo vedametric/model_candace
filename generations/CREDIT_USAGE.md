@@ -86,6 +86,13 @@ _(Also spent that day but NOT archived: a 720p beach-cinematic fallback dup
 | beach-walk2-motion_6ea7177a (8s, 1080p out) | motion_control | 15 |
 | **2026-06-28 subtotal** | | **130** |
 
+## Itemised — 2026-06-29
+
+| Asset | Model | Cost (cr) |
+|---|---|---|
+| gym-mirror-A-motion-v2_9d22a08f (13s, phone-in-hand re-render) | motion_control 720p | 23 |
+| **2026-06-29 subtotal** | | **23** |
+
 _(Beach look also took ~8 cr of non-archived iteration frames — a "gauzy"
 non-tight pair and a skin-tight pair — superseded by the final glam look. Two
 "sheer see-through" attempts were filter-flagged and auto-refunded, net 0.)_
@@ -95,7 +102,8 @@ non-tight pair and a skin-tight pair — superseded by the final glam look. Two
 - **2026-06-26:** ~377.4 cr
 - **2026-06-27:** 85 cr
 - **2026-06-28:** 130 cr
-- **Grand total (committed generations):** **588.1 cr**
+- **2026-06-29:** 23 cr
+- **Grand total (committed generations):** **611.1 cr**
 
 ## Reconciliation — archived vs. actually spent
 
@@ -105,10 +113,10 @@ folder**. The real credit burn on the account is higher:
 | | Credits |
 |---|---|
 | Balance before Candace's first generation | 1688.55 |
-| Balance now (2026-06-28) | 373.98 |
-| **Net actually spent on Candace** | **1314.57** |
-| — of which: archived assets (above) | 588.10 |
-| — of which: **non-archived** | **726.47** |
+| Balance now (2026-06-29) | 344.98 |
+| **Net actually spent on Candace** | **1343.57** |
+| — of which: archived assets (above) | 611.10 |
+| — of which: **non-archived** | **732.47** |
 
 **Non-archived spend (~588 cr)** = the automated 2×/day posting routine
 (Seedream 4.5, Wan 2.7), duplicate/fallback renders (e.g. the 720p beach

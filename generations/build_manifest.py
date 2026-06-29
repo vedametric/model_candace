@@ -118,6 +118,8 @@ META = {
  "2026-06-28_beach-walk2-motion_6ea7177a.mp4": dict(model="motion_control 1080p", job="6ea7177a", cost=15, batch="beach-sunset", at="2026-06-28T15:28Z", src="c51d30fa", prompt="Kling 3.0 Motion Control. Still=beach-glam-A (c51d30fa) — SAME start frame as 5bd2305e for identical character — driven by a 2nd sophieraiin beach motion ref (447c64a0, talk-to-camera arm gestures). Scene from image. 8s, output 1080p.", notes="reused exact start frame -> Candace 100% consistent with clip #1, new motion"),
  # 2026-06-29 GRWM bathroom mirror — POSTED #008
  "2026-06-29_grwm-bathroom_0fc0a883.png": dict(model="nano_banana_pro", job="0fc0a883", cost=2, batch="posted", at="2026-06-29T00:06:53Z", prompt="shot on iphone ugc style, candid getting-ready grwm moment, petite 21-year-old woman with long wavy blonde hair and striking blue eyes, fair skin, curvy hourglass figure with fuller chest, standing at bathroom vanity mirror doing morning makeup routine, wearing a fitted ribbed cream knit crop top, soft natural daylight from window, casual everyday home bathroom, mid-action caught mid-applying lip gloss, confident flirty glance back at camera with parted lips and subtle smile, messy-cute loose blonde hair falling over shoulders, handheld phone camera feel, slight imperfect framing, natural skin texture and grain, NOT retouched, NOT studio lighting, NOT editorial, authentic UGC feel, real person vibe", notes="POSTED #008 (routine) — GRWM bathroom mirror, daylight, ribbed knit crop top, flirty-teasing"),
+ # 2026-06-29 gym mirror re-render (phone now in hand)
+ "2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4": dict(model="motion_control 720p", job="9d22a08f", cost=23, batch="gym-mirror", at="2026-06-29T04:27Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.", notes="re-render: phone now clearly held to the mirror throughout (first take dropped it)"),
 }
 
 def human(n):
@@ -155,7 +157,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 373.98   # as of 2026-06-28 ~15:29 UTC
+BALANCE_NOW   = 344.98   # as of 2026-06-29 ~04:38 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

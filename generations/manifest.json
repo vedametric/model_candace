@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-29T00:10:19Z",
-  "count": 45,
-  "archived_cost_cr": 590.1,
-  "net_spent_cr": 1314.57,
+  "generated_at_utc": "2026-06-29T04:40:09Z",
+  "count": 46,
+  "archived_cost_cr": 613.1,
+  "net_spent_cr": 1343.57,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 373.98,
-  "non_archived_cr": 724.47,
-  "total_cost_cr": 590.1,
-  "total_size_bytes": 361696697,
-  "total_size_human": "344.9 MB",
+  "balance_now_cr": 344.98,
+  "non_archived_cr": 730.47,
+  "total_cost_cr": 613.1,
+  "total_size_bytes": 383422847,
+  "total_size_human": "365.7 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -639,6 +639,20 @@
       "source_job": "",
       "prompt": "shot on iphone ugc style, candid getting-ready grwm moment, petite 21-year-old woman with long wavy blonde hair and striking blue eyes, fair skin, curvy hourglass figure with fuller chest, standing at bathroom vanity mirror doing morning makeup routine, wearing a fitted ribbed cream knit crop top, soft natural daylight from window, casual everyday home bathroom, mid-action caught mid-applying lip gloss, confident flirty glance back at camera with parted lips and subtle smile, messy-cute loose blonde hair falling over shoulders, handheld phone camera feel, slight imperfect framing, natural skin texture and grain, NOT retouched, NOT studio lighting, NOT editorial, authentic UGC feel, real person vibe",
       "notes": "POSTED #008 (routine) \u2014 GRWM bathroom mirror, daylight, ribbed knit crop top, flirty-teasing"
+    },
+    {
+      "file": "2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4",
+      "type": "video",
+      "size_bytes": 21726150,
+      "size_human": "20.7 MB",
+      "model": "motion_control 720p",
+      "job_id": "9d22a08f",
+      "cost_cr": 23,
+      "batch": "gym-mirror",
+      "generated_at": "2026-06-29T04:27Z",
+      "source_job": "8feaf367",
+      "prompt": "Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.",
+      "notes": "re-render: phone now clearly held to the mirror throughout (first take dropped it)"
     }
   ]
 }

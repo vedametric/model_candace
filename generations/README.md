@@ -94,7 +94,8 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 |---|---|---|---|
 | `2026-06-28_gym-mirror-A_8feaf367.png` | image | `8feaf367` | full side-profile head-to-toe (best pose match to driving clip) |
 | `2026-06-28_gym-mirror-B_08048a91.png` | image | `08048a91` | 3/4 turn, face larger/clearer |
-| `2026-06-28_gym-mirror-A-motion_ca3df7db.mp4` | motion | `ca3df7db` | animated from gym-mirror-A + Ellie-hub gym ref (13s, 720p); identity held |
+| `2026-06-28_gym-mirror-A-motion_ca3df7db.mp4` | motion | `ca3df7db` | animated from gym-mirror-A + Ellie-hub gym ref (13s, 720p); identity held — but dropped the phone |
+| `2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4` | motion | `9d22a08f` | re-render of ca3df7db; phone now clearly in hand throughout (13s, 720p) |
 
 **Beach sunset walk** (hot-pink → iterated to skin-tight light-pink glam — native 2k, + motion control):
 
