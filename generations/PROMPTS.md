@@ -40,6 +40,14 @@ _Identity reference (`49aff4e5`). Built to match a TikTok birthday-selfie motion
 _Started with two sunset surf-walk frames (hot-pink hibiscus two-piece). User picked `c6c91485` and iterated the outfit: light-pink → skin-tight → more makeup + shorter shorts. Final `c51d30fa` animated. Each iteration passed identity (`49aff4e5`) + `c6c91485` as scene/pose ref. (Two "sheer see-through" attempts were filter-flagged → reworded to clear.)_
 > [final] Same golden-hour walk out of the surf, front-facing. Skin-tight light-pink fitted cropped tank over a light-pink bikini top, matching skin-tight SHORT light-pink booty shorts (higher on the thigh). Glam-but-natural beach makeup: defined eyes, mascara/lashes, bronzy eyeshadow, blush, glossy nude-pink lips. Fully covered, tasteful, no nudity. Candid mid-stride, face clear. Vertical 9:16. No text.
 
+### ref-pose A · `12b45f0a` (CHOSEN) · B · `c1ffad3c`  (dashboard job 3 · 2026-06-30 · native 2k)
+_Two references: identity (`49aff4e5`) + user-uploaded scene/pose reference (uploaded to Higgsfield as 2nd ref). User picked A as approved option._
+> Authentic UGC iPhone photo, candid and unposed, natural light (matching the reference), no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing.
+> Take the woman from the FIRST reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure — and place her into the SECOND reference image: recreate its scene, setting, pose, body position, outfit, camera angle and framing as if she were the person in it. Keep it tasteful and SFW, no nudity.
+> Vertical 9:16. No text.
+
+_(Note: earlier attempts for this job were NSFW-flagged and auto-refunded. The above hardened SFW wording cleared the filter.)_
+
 ### gym-mirror A/B · `8feaf367` · `08048a91`  (matches an Ellie-hub gym mirror-selfie motion ref · native 2k)
 _Identity reference (`49aff4e5`). A = full side-profile head-to-toe (best pose match to the driving clip); B = 3/4 turn, face larger._
 > Authentic UGC iPhone mirror selfie taken in a gym, candid and unposed, natural gym lighting, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing, phone visible held up to the mirror. The woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure. She stands side-on / side profile to a full-length gym mirror, taking a mirror selfie with her phone held up near her face, posing confidently. She wears a fitted black workout tank top and cute pink high-waisted gym shorts, with white sneakers and ankle socks. Behind her is a casual gym with equipment and dark mirrored walls. Her FACE is clear and in focus, fine facial detail. Candid cheeky-but-cute fitness vibe, tasteful, no nudity. Vertical 9:16. No text.

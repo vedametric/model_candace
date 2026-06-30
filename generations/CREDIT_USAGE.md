@@ -91,34 +91,46 @@ _(Also spent that day but NOT archived: a 720p beach-cinematic fallback dup
 | Asset | Model | Cost (cr) |
 |---|---|---|
 | grwm-bathroom_0fc0a883 (routine, POSTED #008) | nano_banana_pro | 2 |
+| poolside-beauty-closeup_7f795549 (routine, POST #009 pending) | nano_banana_pro | 2 |
 | gym-mirror-A-motion-v2_9d22a08f (13s, motion-control re-try, phone warped) | motion_control 720p | 23 |
 | gym-mirror-seedance-v3_09489cc6 (8s, Seedance i2v — phone fix) | seedance_2_0 720p | 36 |
-| **2026-06-29 subtotal** | | **61** |
+| **2026-06-29 subtotal** | | **63** |
 
 _(Beach look also took ~8 cr of non-archived iteration frames — a "gauzy"
 non-tight pair and a skin-tight pair — superseded by the final glam look. Two
 "sheer see-through" attempts were filter-flagged and auto-refunded, net 0.)_
+
+## Itemised — 2026-06-30
+
+| Asset | Model | Cost (cr) |
+|---|---|---|
+| ref-pose-A_12b45f0a (CHOSEN, dashboard job 3) | nano_banana_pro | 2 |
+| ref-pose-B_c1ffad3c (alt) | nano_banana_pro | 2 |
+| **2026-06-30 subtotal** | | **4** |
+
+_(Previous attempts for this job were all NSFW-flagged and auto-refunded, net 0.)_
 
 ## Totals (archived assets only)
 
 - **2026-06-26:** ~377.4 cr
 - **2026-06-27:** 85 cr
 - **2026-06-28:** 130 cr
-- **2026-06-29:** 61 cr
-- **Grand total (committed generations):** **649.1 cr**
+- **2026-06-29:** 63 cr
+- **2026-06-30:** 4 cr
+- **Grand total (committed generations):** **655.1 cr** _(cross-checked against `manifest.json`)_
 
 ## Reconciliation — archived vs. actually spent
 
-The figure above (649.1 cr) is **only the cost of the assets kept in this
+The figure above (655.1 cr) is **only the cost of the assets kept in this
 folder**. The real credit burn on the account is higher:
 
 | | Credits |
 |---|---|
 | Balance before Candace's first generation | 1688.55 |
-| Balance now (2026-06-29) | 308.98 |
-| **Net actually spent on Candace** | **1379.57** |
-| — of which: archived assets (above) | 649.10 |
-| — of which: **non-archived** | **730.47** |
+| Balance now (2026-06-30) | 286.98 |
+| **Net actually spent on Candace** | **1401.57** |
+| — of which: archived assets (above) | 655.10 |
+| — of which: **non-archived** | **746.47** |
 
 **Non-archived spend (~730 cr)** = the automated 2×/day posting routine
 (Seedream 4.5, Wan 2.7), duplicate/fallback renders (e.g. the 720p beach

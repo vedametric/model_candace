@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-29T12:07:51Z",
-  "count": 48,
-  "archived_cost_cr": 651.1,
-  "net_spent_cr": 1379.57,
+  "generated_at_utc": "2026-06-30T12:05:49Z",
+  "count": 50,
+  "archived_cost_cr": 655.1,
+  "net_spent_cr": 1401.57,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 308.98,
-  "non_archived_cr": 728.47,
-  "total_cost_cr": 651.1,
-  "total_size_bytes": 399185764,
-  "total_size_human": "380.7 MB",
+  "balance_now_cr": 286.98,
+  "non_archived_cr": 746.47,
+  "total_cost_cr": 655.1,
+  "total_size_bytes": 410979738,
+  "total_size_human": "391.9 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -681,6 +681,34 @@
       "source_job": "",
       "prompt": "close-up beauty shot of a 21-year-old petite blonde woman at an outdoor pool during golden hour, warm late-afternoon sunlight catching her bright blue eyes and fair skin, long blonde hair slightly wavy and sun-kissed, wearing a vibrant strappy bikini top, playful teasing smirk with parted lips, glancing slightly sideways as if caught mid-laugh, pool water glinting softly in the blurred background, shot on iPhone UGC style, handheld candid feel, natural imperfections visible \u2014 skin texture, slight grain \u2014 no studio lighting, not retouched, authentic everyday moment, petite hourglass figure, curvy busty build",
       "notes": "POST #009 PENDING \u2014 generated OK; upload-post.com returned Instagram token-expired error, needs reconnect"
+    },
+    {
+      "file": "2026-06-30_ref-pose-A_12b45f0a.png",
+      "type": "image",
+      "size_bytes": 5871417,
+      "size_human": "5.6 MB",
+      "model": "nano_banana_pro",
+      "job_id": "12b45f0a",
+      "cost_cr": 2,
+      "batch": "ref-pose",
+      "generated_at": "2026-06-30T10:17Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone photo, candid and unposed, natural light (matching the reference), no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing. Take the woman from the FIRST reference image \u2014 keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure \u2014 and place her into the SECOND reference image: recreate its scene, setting, pose, body position, outfit, camera angle and framing as if she were the person in it. Keep it tasteful and SFW, no nudity. Vertical 9:16. No text.",
+      "notes": "2k, CHOSEN (approved via dashboard; dashboard job id=3)"
+    },
+    {
+      "file": "2026-06-30_ref-pose-B_c1ffad3c.png",
+      "type": "image",
+      "size_bytes": 5922557,
+      "size_human": "5.6 MB",
+      "model": "nano_banana_pro",
+      "job_id": "c1ffad3c",
+      "cost_cr": 2,
+      "batch": "ref-pose",
+      "generated_at": "2026-06-30T10:17Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone photo, candid and unposed, natural light (matching the reference), no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing. Take the woman from the FIRST reference image \u2014 keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure \u2014 and place her into the SECOND reference image: recreate its scene, setting, pose, body position, outfit, camera angle and framing as if she were the person in it. Keep it tasteful and SFW, no nudity. Vertical 9:16. No text.",
+      "notes": "2k, alt"
     }
   ]
 }

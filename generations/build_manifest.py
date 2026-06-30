@@ -59,6 +59,12 @@ P_BEACHGLAM = ("Iterated from the beach-sunset frame (identity ref + c6c91485 as
     "bikini top, with matching skin-tight SHORT light-pink booty shorts (higher on the thigh). More makeup — glam "
     "but natural beach look: defined eyes, mascara/lashes, bronzy eyeshadow, blush, glossy nude-pink lips. Fully "
     "covered, tasteful, no nudity. Candid mid-stride, face clear. Vertical 9:16. No text.")
+P_REFPOSE = ("Authentic UGC iPhone photo, candid and unposed, natural light (matching the reference), no studio, "
+    "no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing. "
+    "Take the woman from the FIRST reference image — keep her EXACT same face, long blonde hair, blue eyes, "
+    "fair light skin and petite curvy figure — and place her into the SECOND reference image: recreate its "
+    "scene, setting, pose, body position, outfit, camera angle and framing as if she were the person in it. "
+    "Keep it tasteful and SFW, no nudity. Vertical 9:16. No text.")
 
 # filename -> metadata
 META = {
@@ -123,6 +129,9 @@ META = {
  # 2026-06-29 gym mirror re-render (phone now in hand)
  "2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4": dict(model="motion_control 720p", job="9d22a08f", cost=23, batch="gym-mirror", at="2026-06-29T04:27Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.", notes="re-render: motion control still warped the held phone — superseded by the Seedance v3 below"),
  "2026-06-29_gym-mirror-seedance-v3_09489cc6.mp4": dict(model="seedance_2_0 (720p)", job="09489cc6", cost=36, batch="gym-mirror", at="2026-06-29T04:44Z", src="8feaf367", prompt="Seedance 2.0 image-to-video (start_image = gym-mirror-A 8feaf367), silent, 8s, 720p. Prompt: keep holding phone in right hand the ENTIRE time taking a mirror selfie, phone stays firmly/naturally in grip, subtle posing (weight shift, hip turn, free hand touches hair, glance at reflection).", notes="PHONE FIX: switched from motion_control to Seedance i2v + prompt so the phone stays naturally held throughout"),
+ # 2026-06-30 user-ref-pose (dashboard job 3) — identity ref 49aff4e5 + user-uploaded scene/pose ref
+ "2026-06-30_ref-pose-A_12b45f0a.png": dict(model="nano_banana_pro", job="12b45f0a", cost=2, batch="ref-pose", at="2026-06-30T10:17Z", prompt=P_REFPOSE, notes="2k, CHOSEN (approved via dashboard; dashboard job id=3)"),
+ "2026-06-30_ref-pose-B_c1ffad3c.png": dict(model="nano_banana_pro", job="c1ffad3c", cost=2, batch="ref-pose", at="2026-06-30T10:17Z", prompt=P_REFPOSE, notes="2k, alt"),
 }
 
 def human(n):
@@ -160,7 +169,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 308.98   # as of 2026-06-29 ~05:18 UTC
+BALANCE_NOW   = 286.98   # as of 2026-06-30 (worker run)
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

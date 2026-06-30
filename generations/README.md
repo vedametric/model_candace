@@ -109,5 +109,16 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-28_beach-walk-motion_5bd2305e.mp4` | motion | `5bd2305e` | animated from beach-glam-A + sophieraiin beach-walk ref (9s, 1080p out) |
 | `2026-06-28_beach-walk2-motion_6ea7177a.mp4` | motion | `6ea7177a` | SAME start frame (c51d30fa) as #1 + 2nd TikTok motion ref → identical Candace, new motion (8s, 1080p out) |
 
+## 2026-06-30 — user-ref-pose (dashboard job 3)
+
+**Ref-pose** (identity + user-uploaded scene/pose reference → nano_banana_pro 2k):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-30_ref-pose-A_12b45f0a.png` | image | `12b45f0a` | ✅ CHOSEN (approved via dashboard) |
+| `2026-06-30_ref-pose-B_c1ffad3c.png` | image | `c1ffad3c` | alt |
+
+_Prompt: place Candace into the user-uploaded scene/pose reference, keeping her exact identity. Earlier attempts NSFW-flagged (auto-refunded, net 0); final prompt hardened to clear filter._
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._
