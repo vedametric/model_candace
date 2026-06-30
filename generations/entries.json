@@ -1,4 +1,27 @@
 {
   "_comment": "Dashboard content-worker appends generation entries here (no Python edits). Each entry: file, model, job, cost, batch, at, src, prompt, notes.",
-  "entries": []
+  "entries": [
+    {
+      "file": "2026-06-30_balcony-selfie-iced-coffee_d8d7110a.png",
+      "model": "nano_banana_pro",
+      "job": "d8d7110a",
+      "cost": 2,
+      "batch": "balcony-selfie",
+      "at": "2026-06-30T08:25:46Z",
+      "src": "",
+      "prompt": "Authentic UGC iPhone arm's-length selfie, candid and unposed, natural soft morning daylight, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing.\nThe woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure — sipping iced coffee on a balcony in a sunny apartment balcony. She wears an oversized knit sweater. sleepy soft smile.\nCLOSE waist-up selfie framing with her FACE LARGE, SHARP and clearly in focus. Vertical 9:16. No text.",
+      "notes": "dashboard queue row #1; 1k (resolution param not passed, defaulted); awaiting approval"
+    },
+    {
+      "file": "2026-06-30_balcony-selfie-iced-coffee_6db768ac.png",
+      "model": "nano_banana_pro",
+      "job": "6db768ac",
+      "cost": 2,
+      "batch": "balcony-selfie",
+      "at": "2026-06-30T08:25:46Z",
+      "src": "",
+      "prompt": "Authentic UGC iPhone arm's-length selfie, candid and unposed, natural soft morning daylight, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing.\nThe woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure — sipping iced coffee on a balcony in a sunny apartment balcony. She wears an oversized knit sweater. sleepy soft smile.\nCLOSE waist-up selfie framing with her FACE LARGE, SHARP and clearly in focus. Vertical 9:16. No text.",
+      "notes": "dashboard queue row #1; 1k (resolution param not passed, defaulted); awaiting approval"
+    }
+  ]
 }

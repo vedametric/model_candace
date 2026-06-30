@@ -44,6 +44,10 @@ _Started with two sunset surf-walk frames (hot-pink hibiscus two-piece). User pi
 _Identity reference (`49aff4e5`). A = full side-profile head-to-toe (best pose match to the driving clip); B = 3/4 turn, face larger._
 > Authentic UGC iPhone mirror selfie taken in a gym, candid and unposed, natural gym lighting, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing, phone visible held up to the mirror. The woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure. She stands side-on / side profile to a full-length gym mirror, taking a mirror selfie with her phone held up near her face, posing confidently. She wears a fitted black workout tank top and cute pink high-waisted gym shorts, with white sneakers and ankle socks. Behind her is a casual gym with equipment and dark mirrored walls. Her FACE is clear and in focus, fine facial detail. Candid cheeky-but-cute fitness vibe, tasteful, no nudity. Vertical 9:16. No text.
 
+### balcony-selfie-iced-coffee · `d8d7110a` · `6db768ac`  (dashboard queue row #1 — awaiting approval · 1k)
+_Identity reference (`49aff4e5`). Two options for human approval via dashboard. Generated 2026-06-30 by content worker. Note: resolution param not explicitly set — jobs rendered at 1k (2 cr each, same cost as 2k on nano_banana_pro)._
+> Authentic UGC iPhone arm's-length selfie, candid and unposed, natural soft morning daylight, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing. The woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure — sipping iced coffee on a balcony in a sunny apartment balcony. She wears an oversized knit sweater. sleepy soft smile. CLOSE waist-up selfie framing with her FACE LARGE, SHARP and clearly in focus. Vertical 9:16. No text.
+
 ---
 
 ## Videos — seedance_2_0 (silent, 9:16)

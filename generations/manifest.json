@@ -1,14 +1,14 @@
 {
-  "generated_at_utc": "2026-06-30T08:09:30Z",
-  "count": 48,
-  "archived_cost_cr": 651.1,
-  "net_spent_cr": 1389.57,
+  "generated_at_utc": "2026-06-30T08:32:26Z",
+  "count": 50,
+  "archived_cost_cr": 655.1,
+  "net_spent_cr": 1393.57,
   "balance_start_cr": 1688.55,
-  "balance_now_cr": 298.98,
+  "balance_now_cr": 294.98,
   "non_archived_cr": 738.47,
-  "total_cost_cr": 651.1,
-  "total_size_bytes": 399185764,
-  "total_size_human": "380.7 MB",
+  "total_cost_cr": 655.1,
+  "total_size_bytes": 404099879,
+  "total_size_human": "385.4 MB",
   "items": [
     {
       "file": "2026-06-26_beach-cinematic_15s.mp4",
@@ -681,6 +681,34 @@
       "source_job": "",
       "prompt": "close-up beauty shot of a 21-year-old petite blonde woman at an outdoor pool during golden hour, warm late-afternoon sunlight catching her bright blue eyes and fair skin, long blonde hair slightly wavy and sun-kissed, wearing a vibrant strappy bikini top, playful teasing smirk with parted lips, glancing slightly sideways as if caught mid-laugh, pool water glinting softly in the blurred background, shot on iPhone UGC style, handheld candid feel, natural imperfections visible \u2014 skin texture, slight grain \u2014 no studio lighting, not retouched, authentic everyday moment, petite hourglass figure, curvy busty build",
       "notes": "POST #009 PENDING \u2014 generated OK; upload-post.com returned Instagram token-expired error, needs reconnect"
+    },
+    {
+      "file": "2026-06-30_balcony-selfie-iced-coffee_6db768ac.png",
+      "type": "image",
+      "size_bytes": 2904448,
+      "size_human": "2.8 MB",
+      "model": "nano_banana_pro",
+      "job_id": "6db768ac",
+      "cost_cr": 2,
+      "batch": "balcony-selfie",
+      "generated_at": "2026-06-30T08:25:46Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone arm's-length selfie, candid and unposed, natural soft morning daylight, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing.\nThe woman from the reference image \u2014 keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure \u2014 sipping iced coffee on a balcony in a sunny apartment balcony. She wears an oversized knit sweater. sleepy soft smile.\nCLOSE waist-up selfie framing with her FACE LARGE, SHARP and clearly in focus. Vertical 9:16. No text.",
+      "notes": "dashboard queue row #1; 1k (resolution param not passed, defaulted); awaiting approval"
+    },
+    {
+      "file": "2026-06-30_balcony-selfie-iced-coffee_d8d7110a.png",
+      "type": "image",
+      "size_bytes": 2009667,
+      "size_human": "1.9 MB",
+      "model": "nano_banana_pro",
+      "job_id": "d8d7110a",
+      "cost_cr": 2,
+      "batch": "balcony-selfie",
+      "generated_at": "2026-06-30T08:25:46Z",
+      "source_job": "",
+      "prompt": "Authentic UGC iPhone arm's-length selfie, candid and unposed, natural soft morning daylight, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing.\nThe woman from the reference image \u2014 keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure \u2014 sipping iced coffee on a balcony in a sunny apartment balcony. She wears an oversized knit sweater. sleepy soft smile.\nCLOSE waist-up selfie framing with her FACE LARGE, SHARP and clearly in focus. Vertical 9:16. No text.",
+      "notes": "dashboard queue row #1; 1k (resolution param not passed, defaulted); awaiting approval"
     }
   ]
 }

@@ -109,5 +109,14 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-28_beach-walk-motion_5bd2305e.mp4` | motion | `5bd2305e` | animated from beach-glam-A + sophieraiin beach-walk ref (9s, 1080p out) |
 | `2026-06-28_beach-walk2-motion_6ea7177a.mp4` | motion | `6ea7177a` | SAME start frame (c51d30fa) as #1 + 2nd TikTok motion ref → identical Candace, new motion (8s, 1080p out) |
 
+## 2026-06-30 — dashboard queue (content worker)
+
+**Balcony selfie — iced coffee** (nano_banana_pro, 1k, 2×, awaiting approval):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-30_balcony-selfie-iced-coffee_d8d7110a.png` | image | `d8d7110a` | option A — awaiting human approval in dashboard |
+| `2026-06-30_balcony-selfie-iced-coffee_6db768ac.png` | image | `6db768ac` | option B — awaiting human approval in dashboard |
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._

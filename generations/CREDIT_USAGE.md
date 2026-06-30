@@ -99,26 +99,35 @@ _(Beach look also took ~8 cr of non-archived iteration frames — a "gauzy"
 non-tight pair and a skin-tight pair — superseded by the final glam look. Two
 "sheer see-through" attempts were filter-flagged and auto-refunded, net 0.)_
 
+## Itemised — 2026-06-30
+
+| Asset | Model | Cost (cr) |
+|---|---|---|
+| balcony-selfie-iced-coffee_d8d7110a (1k, dashboard queue #1 option A) | nano_banana_pro | 2 |
+| balcony-selfie-iced-coffee_6db768ac (1k, dashboard queue #1 option B) | nano_banana_pro | 2 |
+| **2026-06-30 subtotal** | | **4** |
+
 ## Totals (archived assets only)
 
 - **2026-06-26:** ~377.4 cr
 - **2026-06-27:** 85 cr
 - **2026-06-28:** 130 cr
-- **2026-06-29:** 61 cr
-- **Grand total (committed generations):** **649.1 cr**
+- **2026-06-29:** 59 cr (incl. poolside-beauty-closeup)
+- **2026-06-30:** 4 cr
+- **Grand total (committed generations):** **655.1 cr** _(authoritative: `python3 build_manifest.py`)_
 
 ## Reconciliation — archived vs. actually spent
 
-The figure above (649.1 cr) is **only the cost of the assets kept in this
+The figure above (655.1 cr) is **only the cost of the assets kept in this
 folder**. The real credit burn on the account is higher:
 
 | | Credits |
 |---|---|
 | Balance before Candace's first generation | 1688.55 |
-| Balance now (2026-06-29) | 308.98 |
-| **Net actually spent on Candace** | **1379.57** |
-| — of which: archived assets (above) | 649.10 |
-| — of which: **non-archived** | **730.47** |
+| Balance now (2026-06-30) | 294.98 |
+| **Net actually spent on Candace** | **1393.57** |
+| — of which: archived assets (above) | 655.10 |
+| — of which: **non-archived** | **738.47** |
 
 **Non-archived spend (~730 cr)** = the automated 2×/day posting routine
 (Seedream 4.5, Wan 2.7), duplicate/fallback renders (e.g. the 720p beach
