@@ -152,7 +152,7 @@
           "string": [
             {
               "value1": "={{ $('Format').first().json.platform }}",
-              "operation": "equals",
+              "operation": "equal",
               "value2": "telegram"
             }
           ]
