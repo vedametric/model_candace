@@ -66,6 +66,11 @@ export async function listBots({ force = false } = {}) {
   return rows;
 }
 
+// Drop the cached bot registry so the next read reflects a just-written change.
+export function invalidateBots() {
+  _cache = { at: 0, rows: null };
+}
+
 export async function getBot(slug) {
   const rows = await listBots();
   const hit = rows.find((b) => b.slug === slug);

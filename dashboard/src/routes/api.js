@@ -2,7 +2,7 @@
 // Reads fuse Supabase (live) + filesystem (git content); writes are strictly scoped.
 
 import express from 'express';
-import { listBots, getBot, hasContent, contentPath } from '../accounts.js';
+import { listBots, getBot, hasContent, contentPath, invalidateBots } from '../accounts.js';
 import { select, patch, rpc, hasKey } from '../supabase.js';
 import {
   readManifest,
@@ -200,6 +200,7 @@ router.patch('/accounts/:slug', wrap(async (req, res) => {
   if ('reply_delay' in (req.body || {})) body.reply_delay = validateDelay(req.body.reply_delay);
   if (!Object.keys(body).length) throw Object.assign(new Error('no editable fields supplied'), { status: 400 });
   const updated = await patch('bots', `id=eq.${bot.id}`, body);
+  invalidateBots();
   res.json({ ok: true, bot: updated[0] });
 }));
 
@@ -248,6 +249,7 @@ router.post('/accounts/:slug/automation', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
   const paused = !!(req.body && req.body.paused);
   await rpc('set_automation_paused', { p_slug: bot.slug, p_paused: paused });
+  invalidateBots();
   res.json({ ok: true, automation_paused: paused });
 }));
 
