@@ -637,35 +637,49 @@ let F = { rows: [], stage: 'all', buyer: 'all', q: '' };
 async function fans(slug) {
   loading();
   let d; try { d = await api('/accounts/' + slug + '/fans'); } catch (e) { view.innerHTML = errBox(e); return; }
-  F = { rows: d.fans || [], stage: 'all', buyer: 'all', q: '', slug };
+  F = { rows: d.fans || [], stage: 'all', buyer: 'all', source: 'all', q: '', slug };
   const stages = [...new Set(F.rows.map(r => r.stage).filter(Boolean))];
   const buyers = [...new Set(F.rows.map(r => r.buyer_type).filter(Boolean))];
+  // sources Candace will integrate (always show all three, even if 0 fans yet)
+  const SOURCES = ['instagram', 'tiktok', 'telegram'];
+  const counts = {}; F.rows.forEach(r => { const p = (r.platform || 'tiktok').toLowerCase(); counts[p] = (counts[p] || 0) + 1; });
   view.innerHTML = `
     <div class="panel">
       <div class="row" style="margin-bottom:8px"><input type="search" id="f-q" placeholder="search fans…">
+        <select id="f-source"><option value="all">All sources</option>${SOURCES.map(s => `<option value="${s}">${sourceLabel(s)} (${counts[s] || 0})</option>`).join('')}</select>
         <select id="f-stage"><option value="all">All stages</option>${stages.map(s => `<option>${esc(s)}</option>`).join('')}</select>
         <select id="f-buyer"><option value="all">All buyer types</option>${buyers.map(b => `<option>${esc(b)}</option>`).join('')}</select>
         <span class="dim">${F.rows.length} fans</span></div>
+      <div class="row" style="gap:8px">${SOURCES.map(s => `<span class="tag">${sourceLabel(s)}: <b>${counts[s] || 0}</b></span>`).join('')}</div>
     </div>
-    <div class="panel"><table><thead><tr><th>Fan</th><th>Stage</th><th>Buyer</th><th>Intent</th><th>Msgs</th><th>Last seen</th><th>Summary</th></tr></thead>
+    <div class="panel"><table><thead><tr><th>Fan</th><th>Source</th><th>Stage</th><th>Buyer</th><th>Intent</th><th>Msgs</th><th>Last seen</th><th>Summary</th></tr></thead>
     <tbody id="f-body"></tbody></table></div>`;
   $('#f-q').oninput = e => { F.q = e.target.value.toLowerCase(); fBody(); };
+  $('#f-source').onchange = e => { F.source = e.target.value; fBody(); };
   $('#f-stage').onchange = e => { F.stage = e.target.value; fBody(); };
   $('#f-buyer').onchange = e => { F.buyer = e.target.value; fBody(); };
   fBody();
 }
+function sourceLabel(p) { return ({ instagram: '📸 Instagram', tiktok: '🎵 TikTok', telegram: '✈️ Telegram' }[p] || p); }
+function sourceBadge(p) {
+  const key = (p || 'tiktok').toLowerCase();
+  const cls = { instagram: 'bad', tiktok: 'buyer', telegram: 'stage' }[key] || '';
+  return `<span class="tag ${cls}">${sourceLabel(key)}</span>`;
+}
 function fBody() {
-  let rows = F.rows.filter(r => (F.stage === 'all' || r.stage === F.stage) && (F.buyer === 'all' || r.buyer_type === F.buyer));
-  if (F.q) rows = rows.filter(r => (r.username + ' ' + (r.display_name || '') + ' ' + (r.summary || '')).toLowerCase().includes(F.q));
+  let rows = F.rows.filter(r => (F.stage === 'all' || r.stage === F.stage) && (F.buyer === 'all' || r.buyer_type === F.buyer)
+    && (F.source === 'all' || (r.platform || 'tiktok').toLowerCase() === F.source));
+  if (F.q) rows = rows.filter(r => (r.username + ' ' + (r.display_name || '') + ' ' + (r.summary || '') + ' ' + (r.platform || '')).toLowerCase().includes(F.q));
   $('#f-body').innerHTML = rows.map(r => {
     const sc = r.intent_score == null ? '' : `<div class="ibar"><i style="width:${Math.min(100, r.intent_score)}%"></i></div> <span class="mono">${r.intent_score}</span>`;
     return `<tr data-id="${r.id}">
-      <td><b>${esc(r.username)}</b><div class="dim">${esc(r.display_name || '')}</div></td>
+      <td><b>${esc(r.username)}</b>${r.display_name ? `<div class="dim">${esc(r.display_name)}</div>` : ''}</td>
+      <td>${sourceBadge(r.platform)}</td>
       <td>${r.stage ? `<span class="tag stage">${esc(r.stage)}</span>` : '—'}</td>
       <td>${r.buyer_type ? `<span class="tag buyer">${esc(r.buyer_type)}</span>` : '—'}</td>
       <td>${sc}</td><td class="mono">${r.msg_count}</td><td class="dim">${fmtDateTime(r.last_seen)}</td>
       <td class="truncate dim">${esc(r.summary || '')}</td></tr>`;
-  }).join('') || '<tr><td colspan="7" class="muted">no fans</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="muted">no fans</td></tr>';
   $('#f-body').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => location.hash = `#/a/${F.slug}/fans/${tr.dataset.id}`);
 }
 
