@@ -158,15 +158,33 @@ index.html               generations dashboard (GitHub Pages)
 
 ---
 
+## Branches — where to work
+
+`main` is the **default branch and source of truth**. If a session starts on
+`main`, use this map to decide which branch a change belongs on. Always sync the
+target branch with `main` before starting, and merge back into `main` when done.
+
+| Branch | Purpose | Deploy | Work here when… |
+|---|---|---|---|
+| **`main`** | Source of truth: persona docs, the `candace-voice` skill, content (`generations/`, `posted images/`, `reference/`), and the **conversation backend** in `automation/` — TikTok + Telegram brains, Supabase SQL, n8n workflow JSON. | n8n workflows + Supabase are pushed from here by hand (import the JSON / run the SQL via MCP); GitHub Pages serves `index.html` (generations gallery). | Editing persona/voice, content, or the DM automation (brains, prompts, workflows, schema, memory/profiler). |
+| **`claude/admin-dashboard-multi-account-i2zcpq`** | The **admin control panel** app — `dashboard/` (Node/Express + vanilla SPA): accounts, fans, queue, persona editor, cross-platform linking, mobile UI. | **Auto-deploys to the droplet** (`http://134.199.145.47`) via GitHub Actions on every push to this branch. | Any dashboard UI/API change. (This app is **not** on `main`; edit it here.) |
+| `claude/candace-telegram-bot-lma1fh` | Original Telegram build branch — **already merged into `main`**. | — | Historical only. New automation work goes on `main`. |
+
+**Runtime sources of truth** (live, not in git): the **n8n** instance
+(`automations.vedametric.com.au`) runs the workflows, **Supabase** (project
+`vvnefkexzhfgvuusavvl`) holds bots/fans/memory, and the **droplet** runs the
+dashboard (+ optional Telegram bridge). After changing a workflow, re-import it
+or update via the n8n API and keep the committed JSON in `automation/n8n/` in
+sync. Secrets live in n8n credentials / the server `.env` / GitHub Actions
+secrets — **never commit them**.
+
+---
+
 ## Conventions
 
-- **Branching:** **`main` is the single source of truth** (and the GitHub default).
-  Each parallel work-stream runs on its own branch and merges back into `main`:
-  - 🖼️ **Images** → works in `generations/`, `posted images/`, `reference/`
-  - 💬 **Talking / DMs** → works in `automation/`
-  These touch different folders, so multiple sessions can run at once without
-  conflicts. Start a session by syncing its branch with `main`; finish a chunk
-  by merging back into `main`.
+- **Branching:** `main` is the single source of truth and the GitHub default.
+  See **[Branches — where to work](#branches--where-to-work)** above for which
+  branch to use; sync with `main` before starting and merge back when done.
 - **Approved examples are sacred:** never add to `approved_examples.md` without
   explicit human approval.
 - **Log every generation** (file + manifest entry) before ending a task — see
