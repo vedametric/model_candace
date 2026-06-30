@@ -50,6 +50,32 @@ come from a brand, a marketer, or an AI, it's wrong.
 
 ---
 
+## The live auto-DM system
+
+Candace replies to her TikTok DMs automatically, in her own voice, and funnels
+interested men toward her private Telegram. Full node-by-node docs in
+[`automation/README.md`](./automation/README.md).
+
+```
+fan DMs Candace on TikTok
+  -> ManyChat -> n8n webhook (responds instantly)
+     -> dedup re-deliveries -> log to Supabase
+     -> pick a random human delay (2-10 min) and wait
+     -> debounce: only his LAST message in a burst replies (with full context)
+     -> classify -> OpenAI (gpt-4o) reply in her voice -> send via ManyChat API
+     -> update his buyer profile / funnel stage
+```
+
+- **Personality lives in the database** (`bots.system_prompt`) — edit
+  `automation/supabase/candace_prompt.sql` to change how she talks, no workflow
+  change needed.
+- **Human, not botty:** random aloof delay, rapid-message debouncing, and
+  duplicate-delivery protection so she never double-texts.
+- **Live queue dashboard** to watch what's come in, the delay she picked, and
+  when it sent: `https://automations.vedametric.com.au/webhook/candace-queue-page`.
+
+---
+
 ## Content generation & publishing
 
 - **Generation:** Higgsfield MCP — `nano_banana_pro` (image, always 2K),
@@ -74,6 +100,7 @@ talking_style.md         how she talks (public voice + seduction engine)
 conversation_master.md   DM -> paid conversion playbook + gold arcs
 approved_examples.md     human-approved gold-standard lines (vault)
 .claude/skills/          the candace-voice skill
+automation/              the live auto-DM system (ManyChat -> n8n -> Supabase -> OpenAI)
 reference/               locked face/figure identity references
 generations/             every generated asset + manifest/logs
 posted images/           archive of everything published + logs
@@ -84,7 +111,13 @@ index.html               generations dashboard (GitHub Pages)
 
 ## Conventions
 
-- **Branch:** active development is on `claude/candace-talking-style-xontsl`.
+- **Branching:** **`main` is the single source of truth** (and the GitHub default).
+  Each parallel work-stream runs on its own branch and merges back into `main`:
+  - 🖼️ **Images** → works in `generations/`, `posted images/`, `reference/`
+  - 💬 **Talking / DMs** → works in `automation/`
+  These touch different folders, so multiple sessions can run at once without
+  conflicts. Start a session by syncing its branch with `main`; finish a chunk
+  by merging back into `main`.
 - **Approved examples are sacred:** never add to `approved_examples.md` without
   explicit human approval.
 - **Log every generation** (file + manifest entry) before ending a task — see
