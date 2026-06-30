@@ -30,6 +30,7 @@ function fmtDur(sec) { sec = Math.max(0, Math.round(sec)); const m = Math.floor(
 
 const TABS = [
   { id: 'persona', label: 'Persona' },
+  { id: 'studio', label: 'Studio' },
   { id: 'generations', label: 'Generations' },
   { id: 'posts', label: 'Posts' },
   { id: 'fans', label: 'Fans' },
@@ -95,7 +96,7 @@ async function route(force) {
   if (r.slug) {
     setActive(r.slug, r.tab);
     if (r.tab === 'fans' && r.sub) return fanDetail(r.slug, r.sub);
-    const fn = { persona: persona, generations: generations, posts: posts, fans: fans, queue: queue }[r.tab] || persona;
+    const fn = { persona: persona, studio: studio, generations: generations, posts: posts, fans: fans, queue: queue }[r.tab] || persona;
     return fn(r.slug);
   }
   setActive(null);
@@ -265,6 +266,161 @@ view.addEventListener('click', async (e) => {
   } catch (err) { stat.textContent = 'error: ' + err.message; }
   b.disabled = false;
 });
+
+// ---------------- STUDIO (content generation) ----------------
+const STATUS_TAG = {
+  queued: 'pend', generating: 'pend', awaiting_approval: 'pend', approved: 'ok',
+  running_video: 'pend', done: 'ok', rejected: 'bad', failed: 'bad', canceled: 'bad',
+};
+async function studio(slug) {
+  loading();
+  view.innerHTML = `
+    <div class="warn-banner" style="background:rgba(71,110,102,.08);border-color:var(--secondary);color:var(--text)">
+      🔒 <b>Locked rules apply to every generation</b> — shot on iPhone, natural light only, candid &amp; unposed,
+      NOT retouched, no studio/pro polish. Tasteful &amp; SFW (suggestive, no nudity). The identity reference
+      <code>49aff4e5</code> is attached to every job. Filter-risky wording is auto-reworded.
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>New content brief</h3>
+        <div class="field"><label>Type</label>
+          <select id="s-kind"><option value="image">Image (still)</option><option value="video">Video</option></select></div>
+        <div class="field"><label>Shot type</label><input id="s-shot" placeholder="arm's-length selfie / mirror selfie / over-the-shoulder"></div>
+        <div class="field"><label>What she's doing</label><input id="s-action" placeholder="sipping iced coffee, glancing back over her shoulder…"></div>
+        <div class="field"><label>Setting</label><input id="s-setting" placeholder="a sunlit kitchen / rooftop at golden hour / her car"></div>
+        <div class="field"><label>Outfit (tasteful)</label><input id="s-outfit" placeholder="oversized knit sweater / fitted gym set — kept covered"></div>
+        <div class="row" style="gap:12px">
+          <div class="field" style="flex:1"><label>Lighting</label><input id="s-light" placeholder="soft window daylight / golden-hour sun"></div>
+          <div class="field" style="flex:1"><label>Mood / expression</label><input id="s-mood" placeholder="soft confident flirty"></div>
+        </div>
+        <div class="field"><label>Framing (optional)</label><input id="s-framing" placeholder="leave blank for a face-prominent default"></div>
+        <div id="s-img-only" class="field"><label>How many options</label>
+          <select id="s-count"><option value="2">2 (recommended)</option><option value="1">1</option><option value="3">3</option></select></div>
+        <div id="s-vid-only" style="display:none">
+          <div class="row" style="gap:12px">
+            <div class="field" style="flex:1"><label>Method</label>
+              <select id="s-method"><option value="">Auto (recommended)</option><option value="seedance">Seedance (described motion / held object)</option><option value="motion_control">Motion Control (copy a clip)</option></select></div>
+            <div class="field" style="flex:1"><label>Duration (s)</label><input id="s-dur" type="number" min="4" max="15" value="8"></div>
+            <div class="field" style="flex:1"><label>Resolution</label><select id="s-res"><option>720p</option><option>1080p</option></select></div>
+          </div>
+          <div class="field"><label>Driving video (TikTok/IG link or note) — for Motion Control</label><input id="s-driving" placeholder="https://vt.tiktok.com/…"></div>
+          <div class="muted" style="font-size:12px;margin-top:-6px">Start frame is generated and <b>shown for approval before any video spend</b>.</div>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <button id="s-preview" class="btn">Preview prompt</button>
+          <button id="s-submit" class="btn primary">Queue generation</button>
+          <span class="muted" id="s-balance"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Compliant prompt preview</h3>
+        <div id="s-preview-box"><div class="muted">Fill the brief and hit <b>Preview prompt</b> — the locked rules, identity restatement, 2K/9:16/"No text" and filter-safe wording are baked in automatically.</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row between"><h3 style="margin:0">Generation queue</h3><button id="s-refresh" class="btn ghost sm">⟳ refresh</button></div>
+      <div id="s-queue"><div class="loading">loading…</div></div>
+    </div>`;
+
+  const kindSel = $('#s-kind');
+  const toggleKind = () => {
+    const v = kindSel.value;
+    $('#s-vid-only').style.display = v === 'video' ? 'block' : 'none';
+    $('#s-img-only').style.display = v === 'video' ? 'none' : 'block';
+  };
+  kindSel.onchange = toggleKind; toggleKind();
+
+  function readBrief() {
+    const kind = kindSel.value;
+    const brief = {
+      kind, shot: $('#s-shot').value, action: $('#s-action').value, setting: $('#s-setting').value,
+      outfit: $('#s-outfit').value, light: $('#s-light').value, mood: $('#s-mood').value,
+      framing: $('#s-framing').value,
+    };
+    if (kind === 'image') brief.count = +$('#s-count').value;
+    else {
+      brief.video_method = $('#s-method').value || undefined;
+      brief.duration = +$('#s-dur').value; brief.resolution = $('#s-res').value;
+      const link = $('#s-driving').value.trim();
+      if (link) brief.driving_video = { link };
+    }
+    return brief;
+  }
+  async function doPreview() {
+    try {
+      const p = await api(`/accounts/${slug}/gen/preview`, { method: 'POST', body: JSON.stringify(readBrief()) });
+      $('#s-preview-box').innerHTML = `
+        <div class="row" style="margin-bottom:8px">
+          <span class="tag ok">~${p.est_cost_cr} cr</span>
+          <span class="muted">${esc(p.cost_basis)}</span>
+          ${p.method ? `<span class="tag buyer">${esc(p.method.method)}</span>` : ''}
+        </div>
+        <textarea id="s-prompt" rows="9">${esc(p.prompt)}</textarea>
+        ${p.method ? `<div class="muted" style="font-size:12px;margin-top:4px">method: ${esc(p.method.reason)}</div>` : ''}
+        ${p.reworded ? `<div class="warn-banner" style="margin-top:8px;font-size:12px">filter-safe reword applied: ${esc(p.notes.join('; '))}</div>` : ''}`;
+    } catch (e) { $('#s-preview-box').innerHTML = errBox(e); }
+  }
+  $('#s-preview').onclick = doPreview;
+  $('#s-submit').onclick = async () => {
+    const brief = readBrief();
+    const promptEl = $('#s-prompt'); if (promptEl) brief.prompt = promptEl.value; // honor edits
+    try {
+      await api(`/accounts/${slug}/gen`, { method: 'POST', body: JSON.stringify(brief) });
+      toast('queued — the content worker will pick it up'); loadQueue();
+    } catch (e) { toast('error: ' + e.message); }
+  };
+  $('#s-refresh').onclick = loadQueue;
+
+  // show current balance from the manifest ledger
+  api(`/accounts/${slug}/generations`).then(d => { $('#s-balance').innerHTML = `balance ~<b>${d.balance_now_cr ?? '?'}</b> cr`; }).catch(() => {});
+
+  async function loadQueue() {
+    try {
+      const d = await api(`/accounts/${slug}/gen`);
+      const rows = d.requests || [];
+      $('#s-queue').innerHTML = rows.length ? rows.map(r => genRow(r, slug)).join('') : '<div class="muted">nothing queued yet</div>';
+      wireQueue(slug);
+    } catch (e) { $('#s-queue').innerHTML = errBox(e); }
+  }
+  loadQueue();
+}
+function genRow(r, slug) {
+  const opts = Array.isArray(r.options) ? r.options : [];
+  const optsHtml = (r.status === 'awaiting_approval' && opts.length) ? `
+    <div class="row" style="gap:10px;margin-top:8px">${opts.map(o => `
+      <div style="text-align:center">
+        <img src="${esc(o.url)}" style="width:120px;height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="">
+        <div><button class="btn primary sm" data-approve="${r.id}" data-job="${esc(o.job_id)}">approve</button></div>
+      </div>`).join('')}</div>` : '';
+  const result = r.result && r.result.file ? `<a href="/content/${encodeURIComponent(slug)}/generations/${encodeURIComponent(r.result.file)}" target="_blank">view asset ↗</a>` : '';
+  return `<div class="panel" style="box-shadow:none;border-radius:9px;margin:10px 0">
+    <div class="row between">
+      <div class="row"><span class="tag ${STATUS_TAG[r.status] || ''}">${esc(r.status)}</span>
+        <span class="tag">${esc(r.kind)}${r.video_method ? ' · ' + esc(r.video_method) : ''}</span>
+        <span class="muted">#${r.id} · ~${r.est_cost_cr ?? '?'} cr · ${fmtDateTime(r.created_at)}</span></div>
+      <div class="row">${result}
+        ${['queued','awaiting_approval','generating'].includes(r.status) ? `<button class="btn ghost sm" data-cancel="${r.id}">cancel</button>` : ''}
+        ${r.status === 'awaiting_approval' ? `<button class="btn ghost sm" data-reject="${r.id}">reject all</button>` : ''}
+      </div>
+    </div>
+    <details class="prompt" style="margin-top:8px"><summary>prompt</summary><p>${esc(r.prompt || '')}</p></details>
+    ${optsHtml}
+    ${r.error ? `<div class="warn-banner" style="margin-top:8px">${esc(r.error)}</div>` : ''}
+  </div>`;
+}
+function wireQueue(slug) {
+  const post = (path, body) => api(`/accounts/${slug}/gen/${path}`, { method: 'POST', body: JSON.stringify(body || {}) });
+  view.querySelectorAll('[data-approve]').forEach(b => b.onclick = async () => {
+    try { await post(`${b.dataset.approve}/approve`, { job_id: b.dataset.job }); toast('approved — worker will finish it'); studio(slug); }
+    catch (e) { toast('error: ' + e.message); }
+  });
+  view.querySelectorAll('[data-reject]').forEach(b => b.onclick = async () => {
+    try { await post(`${b.dataset.reject}/reject`); toast('rejected'); studio(slug); } catch (e) { toast('error: ' + e.message); }
+  });
+  view.querySelectorAll('[data-cancel]').forEach(b => b.onclick = async () => {
+    try { await post(`${b.dataset.cancel}/cancel`); toast('canceled'); studio(slug); } catch (e) { toast('error: ' + e.message); }
+  });
+}
 
 // ---------------- GENERATIONS ----------------
 let G = { items: [], fType: 'all', fBatch: 'all', fModel: 'all', q: '', sort: 'new' };

@@ -3,7 +3,8 @@
 
 import express from 'express';
 import { listBots, getBot, hasContent, contentPath, invalidateBots } from '../accounts.js';
-import { select, patch, rpc, hasKey } from '../supabase.js';
+import { select, patch, rpc, insert, hasKey } from '../supabase.js';
+import { buildPrompt, estimateCost, suggestMethod, filterSafe, IDENTITY_REF } from '../content-gen.js';
 import {
   readManifest,
   readPostedLog,
@@ -252,5 +253,108 @@ router.post('/accounts/:slug/automation', wrap(async (req, res) => {
   invalidateBots();
   res.json({ ok: true, automation_paused: paused });
 }));
+
+// ============================ CONTENT GENERATION ============================
+
+// live prompt preview (no insert) — drives the Studio form
+router.post('/accounts/:slug/gen/preview', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const brief = req.body || {};
+  const built = buildPrompt(brief);
+  const est = estimateCost(brief);
+  const method = brief.kind === 'video' ? suggestMethod(brief) : null;
+  res.json({ prompt: built.prompt, identity_ref: built.identity_ref, params: built.params,
+    reworded: built.reworded, notes: built.notes, est_cost_cr: est.credits, cost_basis: est.basis, method });
+}));
+
+// queue a generation request (server builds the compliant prompt)
+router.post('/accounts/:slug/gen', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const brief = req.body && typeof req.body === 'object' ? req.body : {};
+  const kind = brief.kind === 'video' ? 'video' : 'image';
+  const built = buildPrompt(brief);
+  const est = estimateCost(brief);
+  const method = kind === 'video' ? (brief.video_method || suggestMethod(brief).method) : null;
+  // The prompt the user previewed/edited wins if supplied; else use the freshly built one.
+  const prompt = (typeof brief.prompt === 'string' && brief.prompt.trim()) ? brief.prompt.trim() : built.prompt;
+  const row = {
+    bot_id: bot.id, slug: bot.slug, kind, video_method: method, status: 'queued',
+    brief, prompt, parent_id: brief.parent_id || null,
+    driving_video: brief.driving_video || null,
+    est_cost_cr: est.credits, created_by: 'dashboard',
+  };
+  const inserted = await insert('gen_requests', row);
+  res.json({ ok: true, request: inserted[0], reworded: built.reworded, notes: built.notes });
+}));
+
+// list queue + history for an account
+router.get('/accounts/:slug/gen', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const rows = await select('gen_requests', `bot_id=eq.${bot.id}&order=created_at.desc&limit=100`);
+  res.json({ requests: rows });
+}));
+
+router.get('/accounts/:slug/gen/:id', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const rows = await select('gen_requests', `id=eq.${idNum(req.params.id)}&bot_id=eq.${bot.id}&limit=1`);
+  if (!rows[0]) throw Object.assign(new Error('request not found'), { status: 404 });
+  res.json(rows[0]);
+}));
+
+// approve a generated option (the start-frame approval gate). For video, this is
+// what unblocks the (expensive) video step the worker performs next.
+router.post('/accounts/:slug/gen/:id/approve', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const reqRow = await getGen(bot.id, req.params.id);
+  const jobId = req.body && req.body.job_id;
+  if (!jobId) throw Object.assign(new Error('job_id of the chosen option is required'), { status: 400 });
+  const options = Array.isArray(reqRow.options) ? reqRow.options.map((o) => ({ ...o, picked: o.job_id === jobId })) : [];
+  const updated = await patch('gen_requests', `id=eq.${reqRow.id}`,
+    { status: 'approved', approved_job: jobId, options });
+  res.json({ ok: true, request: updated[0] });
+}));
+
+router.post('/accounts/:slug/gen/:id/reject', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const reqRow = await getGen(bot.id, req.params.id);
+  const updated = await patch('gen_requests', `id=eq.${reqRow.id}`, { status: 'rejected' });
+  res.json({ ok: true, request: updated[0] });
+}));
+
+router.post('/accounts/:slug/gen/:id/cancel', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const reqRow = await getGen(bot.id, req.params.id);
+  const updated = await patch('gen_requests', `id=eq.${reqRow.id}`, { status: 'canceled' });
+  res.json({ ok: true, request: updated[0] });
+}));
+
+// iterate wardrobe (§7.3): new request reusing the chosen frame as a composition
+// reference, describing only what changes.
+router.post('/accounts/:slug/gen/:id/iterate', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const parent = await getGen(bot.id, req.params.id);
+  const changes = (req.body && req.body.changes) || {};
+  const brief = { ...(parent.brief || {}), ...changes, parent_id: parent.id, compose_from_job: parent.approved_job };
+  const built = buildPrompt(brief);
+  const est = estimateCost(brief);
+  const inserted = await insert('gen_requests', {
+    bot_id: bot.id, slug: bot.slug, kind: brief.kind === 'video' ? 'video' : 'image',
+    video_method: brief.kind === 'video' ? (brief.video_method || suggestMethod(brief).method) : null,
+    status: 'queued', brief, prompt: built.prompt, parent_id: parent.id,
+    est_cost_cr: est.credits, created_by: 'dashboard',
+  });
+  res.json({ ok: true, request: inserted[0] });
+}));
+
+function idNum(v) {
+  const n = Number(v);
+  if (!Number.isInteger(n)) throw Object.assign(new Error('bad id'), { status: 400 });
+  return n;
+}
+async function getGen(botId, id) {
+  const rows = await select('gen_requests', `id=eq.${idNum(id)}&bot_id=eq.${botId}&limit=1`);
+  if (!rows[0]) throw Object.assign(new Error('request not found'), { status: 404 });
+  return rows[0];
+}
 
 export default router;

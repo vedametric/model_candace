@@ -74,6 +74,32 @@ create table if not exists public.events (
 );
 create index if not exists idx_events_time on public.events(created_at);
 
+-- ---- content-generation request queue (admin dashboard Studio) --------------
+-- The dashboard inserts compliant briefs/prompts; a Claude/MCP worker drains the
+-- queue. The status machine enforces the start-frame approval gate before any video
+-- spend. See generations/WORKER_RUNBOOK.md.
+create table if not exists public.gen_requests (
+  id            bigint generated always as identity primary key,
+  bot_id        bigint references public.bots(id) on delete cascade,
+  slug          text not null,
+  kind          text not null default 'image',     -- 'image' | 'video'
+  video_method  text,                               -- 'seedance' | 'motion_control' | null
+  status        text not null default 'queued',     -- queued|generating|awaiting_approval|approved|running_video|done|rejected|failed|canceled
+  brief         jsonb not null default '{}'::jsonb,
+  prompt        text,
+  parent_id     bigint references public.gen_requests(id) on delete set null,
+  options       jsonb not null default '[]'::jsonb, -- count:2 results [{job_id,url,picked}]
+  approved_job  text,
+  driving_video jsonb,
+  result        jsonb,
+  est_cost_cr   numeric,
+  error         text,
+  created_by    text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists idx_gen_requests_bot_status on public.gen_requests(bot_id, status, created_at desc);
+
 -- ============================================================================
 --  RPCs used by the n8n workflow
 -- ============================================================================

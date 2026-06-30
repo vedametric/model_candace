@@ -1,0 +1,4 @@
+{
+  "_comment": "Dashboard content-worker appends generation entries here (no Python edits). Each entry: file, model, job, cost, batch, at, src, prompt, notes.",
+  "entries": []
+}

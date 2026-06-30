@@ -125,6 +125,22 @@ META = {
  "2026-06-29_gym-mirror-seedance-v3_09489cc6.mp4": dict(model="seedance_2_0 (720p)", job="09489cc6", cost=36, batch="gym-mirror", at="2026-06-29T04:44Z", src="8feaf367", prompt="Seedance 2.0 image-to-video (start_image = gym-mirror-A 8feaf367), silent, 8s, 720p. Prompt: keep holding phone in right hand the ENTIRE time taking a mirror selfie, phone stays firmly/naturally in grip, subtle posing (weight shift, hip turn, free hand touches hair, glance at reflection).", notes="PHONE FIX: switched from motion_control to Seedance i2v + prompt so the phone stays naturally held throughout"),
 }
 
+# --- Dashboard-appended entries (JSON sidecar) -------------------------------
+# The admin dashboard's content worker appends generation entries here instead of
+# editing this file. Each entry mirrors a META value: file, model, job, cost,
+# batch, at, src, prompt, notes. Sidecar entries override hardcoded META on
+# filename collision (so a re-log can correct an entry).
+_entries_path = os.path.join(HERE, "entries.json")
+if os.path.exists(_entries_path):
+    try:
+        _sidecar = json.load(open(_entries_path))
+        for _e in _sidecar.get("entries", []):
+            fn = _e.get("file")
+            if fn:
+                META[fn] = {k: _e[k] for k in ("model","job","cost","batch","at","src","prompt","notes") if k in _e}
+    except Exception as _ex:
+        print(f"warning: could not merge entries.json: {_ex}")
+
 def human(n):
     for u in ("B","KB","MB","GB"):
         if n < 1024: return f"{n:.0f} {u}" if u=="B" else f"{n:.1f} {u}"
@@ -161,6 +177,16 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
 BALANCE_NOW   = 308.98   # as of 2026-06-29 ~05:18 UTC
+# The content worker updates the live balance in balance.json (from the Higgsfield
+# `balance` tool) so it can refresh the ledger without editing this file.
+_balance_path = os.path.join(HERE, "balance.json")
+if os.path.exists(_balance_path):
+    try:
+        _bal = json.load(open(_balance_path))
+        if isinstance(_bal.get("balance_start_cr"), (int, float)): BALANCE_START = _bal["balance_start_cr"]
+        if isinstance(_bal.get("balance_now_cr"), (int, float)):   BALANCE_NOW   = _bal["balance_now_cr"]
+    except Exception as _ex:
+        print(f"warning: could not read balance.json: {_ex}")
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {

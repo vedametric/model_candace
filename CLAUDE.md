@@ -24,6 +24,14 @@ Supabase data (fans, funnel stage, transcripts, message queue) with git content
   (each a clone of this master repo; Candace = `/opt/accounts/candace_summers`).
 - **Add an account (no code change):** clone the master repo to `/opt/accounts/<slug>`,
   swap in that persona's content, ensure a Supabase `bots` row with that `slug`.
+- **Content generation from the dashboard:** the **Studio** tab queues compliant briefs
+  into Supabase `gen_requests` (server bakes in the locked rules / identity ref / 2k /
+  filter-safe wording). A Claude/MCP **worker** drains the queue per
+  [`generations/WORKER_RUNBOOK.md`](./generations/WORKER_RUNBOOK.md) (full pipeline in
+  [`GENERATE_CONTENT.md`](./GENERATE_CONTENT.md)) — on-demand by default. The worker logs
+  via the `generations/entries.json` + `generations/balance.json` sidecars (no
+  `build_manifest.py` edits) then commits. **The start-frame approval gate is enforced by
+  the status machine — video never spends before a human approves a frame in the dashboard.**
 - Supabase project `vvnefkexzhfgvuusavvl`; the dashboard's pause toggle uses
   `bots.automation_paused` and reply timing uses `bots.reply_delay`. **Both are
   already wired into the live n8n flow** (the `Set Delay` node in `Candace ManyChat

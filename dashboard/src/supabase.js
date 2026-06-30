@@ -69,6 +69,22 @@ export async function patch(table, filterQuery, body) {
   return res.json();
 }
 
+// POST /rest/v1/<table> with a row (or rows); returns the inserted rows.
+export async function insert(table, row) {
+  ensureKey();
+  const url = `${REST_BASE}/${table}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: headers({ Prefer: 'return=representation' }),
+    body: JSON.stringify(row),
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new SupabaseError(`Supabase insert ${table} failed (${res.status}): ${t.slice(0, 300)}`, 502);
+  }
+  return res.json();
+}
+
 // POST /rest/v1/rpc/<fn> with a JSON body of named args.
 export async function rpc(fn, args = {}) {
   ensureKey();
