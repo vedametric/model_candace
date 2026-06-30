@@ -673,7 +673,7 @@ function fBody() {
   $('#f-body').innerHTML = rows.map(r => {
     const sc = r.intent_score == null ? '' : `<div class="ibar"><i style="width:${Math.min(100, r.intent_score)}%"></i></div> <span class="mono">${r.intent_score}</span>`;
     return `<tr data-id="${r.id}">
-      <td><b>${esc(r.username)}</b>${r.display_name ? `<div class="dim">${esc(r.display_name)}</div>` : ''}</td>
+      <td><b>${esc(r.username)}</b>${r.person_id ? ' <span title="linked across platforms">🔗</span>' : ''}${r.display_name ? `<div class="dim">${esc(r.display_name)}</div>` : ''}</td>
       <td>${sourceBadge(r.platform)}</td>
       <td>${r.stage ? `<span class="tag stage">${esc(r.stage)}</span>` : '—'}</td>
       <td>${r.buyer_type ? `<span class="tag buyer">${esc(r.buyer_type)}</span>` : '—'}</td>
@@ -702,8 +702,12 @@ function contactPanel(f) {
 async function fanDetail(slug, id) {
   loading();
   setActive(slug, 'fans');
-  let f, m;
-  try { [f, m] = await Promise.all([api(`/accounts/${slug}/fans/${id}`), api(`/accounts/${slug}/fans/${id}/messages`)]); }
+  let f, m, links;
+  try { [f, m, links] = await Promise.all([
+    api(`/accounts/${slug}/fans/${id}`),
+    api(`/accounts/${slug}/fans/${id}/messages`),
+    api(`/accounts/${slug}/fans/${id}/links`).catch(() => ({ linked: [], person_id: null })),
+  ]); }
   catch (e) { view.innerHTML = errBox(e); return; }
   const md = f.metadata || {};
   const signals = (md.signals || []).map(s => `<span class="tag">${esc(s)}</span>`).join(' ');
@@ -732,12 +736,67 @@ async function fanDetail(slug, id) {
           ${md.next_move ? `<div class="field"><label>Next move</label><div>${esc(md.next_move)}</div></div>` : ''}
           ${signals ? `<div class="field"><label>Signals</label><div class="row">${signals}</div></div>` : ''}
         </div>
+        ${linkPanel(slug, f, links)}
       </div>
     </div>`;
   const chat = $('#chat'); if (chat) chat.scrollTop = chat.scrollHeight;
   $('#d-save').onclick = async () => {
     try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ stage: $('#d-stage').value, buyer_type: $('#d-buyer').value }) }); toast('funnel updated'); }
     catch (e) { toast('error: ' + e.message); }
+  };
+  wireLinks(slug, id);
+}
+
+// cross-platform identity panel — shows linked profiles (click through to them)
+// and a search to link this fan to the same person on another platform.
+function linkPanel(slug, f, links) {
+  const linked = (links && links.linked) || [];
+  const pid = links && links.person_id;
+  const chips = linked.length
+    ? linked.map(l => {
+        const bslug = (l.bots && l.bots.slug) || slug;
+        return `<a class="tag" style="text-decoration:none" href="#/a/${bslug}/fans/${l.id}">${esc(sourceLabel((l.platform || '').toLowerCase()))} @${esc(l.username)}${l.display_name ? ` · ${esc(l.display_name)}` : ''}</a>`;
+      }).join(' ')
+    : '<span class="dim">not linked to anyone yet</span>';
+  return `<div class="panel"><h3>Cross-platform identity${pid ? ` · person #${pid}` : ''}</h3>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">${chips}</div>
+    ${linked.length ? `<button id="lnk-unlink" class="btn sm">Unlink this profile</button>` : ''}
+    <div class="field" style="margin-top:12px"><label>Link to the same person on another platform</label>
+      <input type="search" id="lnk-q" placeholder="search every account by name or @handle…"></div>
+    <div id="lnk-results" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>`;
+}
+function wireLinks(slug, id) {
+  const un = $('#lnk-unlink');
+  if (un) un.onclick = async () => {
+    if (!confirm('Unlink this profile from its shared identity? Their memory stops being shared.')) return;
+    try { await api(`/accounts/${slug}/fans/${id}/unlink`, { method: 'POST' }); toast('unlinked'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); }
+  };
+  const q = $('#lnk-q'), out = $('#lnk-results');
+  if (!q) return;
+  let t;
+  q.oninput = () => {
+    clearTimeout(t);
+    t = setTimeout(async () => {
+      const term = q.value.trim();
+      if (term.length < 1) { out.innerHTML = ''; return; }
+      let d;
+      try { d = await api(`/fan-search?q=${encodeURIComponent(term)}&exclude_fan=${id}`); }
+      catch (e) { out.innerHTML = `<div class="dim">${esc(e.message)}</div>`; return; }
+      const rows = d.results || [];
+      out.innerHTML = rows.length ? rows.map(r => {
+        const note = r.person_id ? ` <span class="dim">(person #${r.person_id})</span>` : '';
+        return `<div class="row between" style="border:1px solid var(--line,#26262e);border-radius:8px;padding:6px 10px">
+          <span>${esc(sourceLabel((r.platform || '').toLowerCase()))} <b>@${esc(r.username)}</b>${r.display_name ? ` <span class="dim">${esc(r.display_name)}</span>` : ''}${note}</span>
+          <button class="btn sm primary" data-link="${r.id}">Link</button></div>`;
+      }).join('') : '<div class="dim">no matches</div>';
+      out.querySelectorAll('button[data-link]').forEach(b => b.onclick = async () => {
+        b.disabled = true; b.textContent = 'linking…';
+        try { await api(`/accounts/${slug}/fans/${id}/link`, { method: 'POST', body: JSON.stringify({ other_fan_id: Number(b.dataset.link) }) }); toast('linked — memory now shared'); fanDetail(slug, id); }
+        catch (e) { toast('error: ' + e.message); b.disabled = false; b.textContent = 'Link'; }
+      });
+    }, 250);
   };
 }
 

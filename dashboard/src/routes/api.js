@@ -90,6 +90,7 @@ function liftIntent(f) {
     first_name: f.first_name,
     last_name: f.last_name,
     email: f.email,
+    person_id: f.person_id ?? null,
     intent_score: m.intent_score ?? null,
     temperature: m.temperature ?? null,
   };
@@ -171,7 +172,7 @@ router.get('/accounts/:slug/fans', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
   const rows = await select(
     'fans',
-    `bot_id=eq.${bot.id}&select=id,username,display_name,platform,stage,buyer_type,msg_count,first_seen,last_seen,summary,metadata,first_name,last_name,email&order=last_seen.desc`,
+    `bot_id=eq.${bot.id}&select=id,username,display_name,platform,stage,buyer_type,msg_count,first_seen,last_seen,summary,metadata,first_name,last_name,email,person_id&order=last_seen.desc`,
   );
   res.json({ fans: rows.map(liftIntent) });
 }));
@@ -190,6 +191,58 @@ router.get('/accounts/:slug/fans/:id/messages', wrap(async (req, res) => {
     `fan_id=eq.${req.params.id}&bot_id=eq.${bot.id}&select=role,content,created_at&order=created_at.asc&limit=1000`,
   );
   res.json({ messages: rows });
+}));
+
+// cross-platform identity: who is this fan linked to (same person, any platform)?
+router.get('/accounts/:slug/fans/:id/links', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const fanId = idNum(req.params.id);
+  const me = await select('fans', `id=eq.${fanId}&select=id,person_id&limit=1`);
+  if (!me[0]) throw Object.assign(new Error('fan not found'), { status: 404 });
+  const personId = me[0].person_id;
+  let linked = [];
+  if (personId != null) {
+    const rows = await select(
+      'fans',
+      `person_id=eq.${personId}&select=id,username,display_name,platform,bots(slug,display_name)&order=platform.asc`,
+    );
+    linked = rows.filter((r) => r.id !== fanId);
+  }
+  res.json({ fan_id: fanId, person_id: personId ?? null, linked });
+}));
+
+// search fans across ALL accounts/platforms (to pick a link target). q matches
+// username/display_name. Returns the bot slug so the UI can deep-link to it.
+router.get('/fan-search', wrap(async (req, res) => {
+  const q = String(req.query.q || '').trim();
+  const exclude = Number(req.query.exclude_fan) || 0;
+  if (q.length < 1) return res.json({ results: [] });
+  const pat = encodeURIComponent('*' + q.replace(/[(),]/g, ' ') + '*');
+  const rows = await select(
+    'fans',
+    `or=(username.ilike.${pat},display_name.ilike.${pat})&select=id,username,display_name,platform,person_id,bots(slug,display_name)&order=last_seen.desc&limit=25`,
+  );
+  res.json({ results: rows.filter((r) => r.id !== exclude) });
+}));
+
+// link this fan to another fan (same human, other platform): merges memory and
+// refreshes the shared cross-platform summary.
+router.post('/accounts/:slug/fans/:id/link', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const fanId = idNum(req.params.id);
+  const other = Number(req.body && req.body.other_fan_id);
+  if (!Number.isInteger(other)) throw Object.assign(new Error('other_fan_id required'), { status: 400 });
+  if (other === fanId) throw Object.assign(new Error('cannot link a fan to itself'), { status: 400 });
+  const result = await rpc('dm_link_person', { p_fan_id: fanId, p_other_fan_id: other });
+  await rpc('dm_refresh_person', { p_fan_id: fanId });
+  res.json({ ok: true, result });
+}));
+
+// unlink this fan from its shared identity
+router.post('/accounts/:slug/fans/:id/unlink', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  await rpc('dm_unlink_fan', { p_fan_id: idNum(req.params.id) });
+  res.json({ ok: true });
 }));
 
 // ---- queue -----------------------------------------------------------------
