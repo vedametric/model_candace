@@ -73,6 +73,7 @@
     },
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "candace-admin-link",
         "responseMode": "responseNode",
         "options": {}
@@ -133,6 +134,7 @@
     },
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "candace-admin-unlink",
         "responseMode": "responseNode",
         "options": {}

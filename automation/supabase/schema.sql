@@ -29,8 +29,12 @@ alter table public.bots add column if not exists system_prompt text;
 alter table public.bots add column if not exists model text default 'gpt-4o';
 alter table public.bots add column if not exists telegram_handle text;   -- e.g. @candace_summers (funnel destination)
 alter table public.bots add column if not exists instagram_url text;
--- per-bot/per-platform settings (delay pacing, spice level, etc). data, not code,
--- so each surface (tiktok vs telegram) can be tuned without editing the workflow.
+-- per-bot reply pacing + pause toggle (set from the admin dashboard, returned by
+-- dm_ingest). data, not code, so each bot/surface is tuned without editing n8n.
+alter table public.bots add column if not exists automation_paused boolean not null default false;
+alter table public.bots add column if not exists reply_delay jsonb not null default
+  '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb;
+-- misc per-bot settings (e.g. telegram spice level).
 alter table public.bots add column if not exists settings jsonb not null default '{}'::jsonb;
 
 -- ---- one row per fan, per bot, per platform --------------------------------
@@ -67,6 +71,14 @@ create table if not exists public.persons (
 alter table public.fans add column if not exists person_id bigint references public.persons(id);
 create index if not exists idx_fans_person on public.fans(person_id);
 
+-- extra contact fields captured from the source platform (e.g. ManyChat on tiktok).
+alter table public.fans add column if not exists first_name   text;
+alter table public.fans add column if not exists last_name    text;
+alter table public.fans add column if not exists email        text;
+alter table public.fans add column if not exists phone        text;
+alter table public.fans add column if not exists subscribed_at text;
+alter table public.fans add column if not exists manychat_id  text;
+
 -- ---- full, permanent message log -------------------------------------------
 create table if not exists public.messages (
   id          bigint generated always as identity primary key,
@@ -96,43 +108,49 @@ create index if not exists idx_events_time on public.events(created_at);
 -- Upsert the bot+fan, log the inbound user message, bump counters, and return
 -- the conversation context (summary, stage, count, and the last p_window turns
 -- in chronological order) in one call.
+-- NOTE: the canonical production signature is the 12-arg one below. It reads the
+-- per-bot automation_paused + reply_delay (the n8n Set Delay node uses them),
+-- captures the source-platform contact fields (ManyChat), and returns the linked
+-- person's cross-platform summary. n8n calls it by NAME with whichever params it
+-- has, so the extra 6 default to null. Do NOT add a second (e.g. 6-arg) overload
+-- with these same names or PostgREST can't disambiguate (PGRST203).
 create or replace function public.dm_ingest(
-  p_bot      text,
-  p_platform text,
-  p_username text,
-  p_display  text,
-  p_user_msg text,
-  p_window   int default 10
+  p_bot text, p_platform text, p_username text, p_display text, p_user_msg text,
+  p_window integer default 10,
+  p_first_name text default null, p_last_name text default null, p_email text default null,
+  p_phone text default null, p_subscribed text default null, p_subscriber_id text default null
 ) returns jsonb
 language plpgsql
 as $$
 declare
-  v_bot_id  bigint;
-  v_fan_id  bigint;
-  v_summary text;
-  v_stage   text;
-  v_count   int;
-  v_recent  jsonb;
-  v_prompt  text;
-  v_model   text;
-  v_settings        jsonb;
-  v_person_id       bigint;
-  v_person_summary  text;
+  v_bot_id bigint; v_fan_id bigint; v_summary text; v_stage text; v_count int;
+  v_recent jsonb; v_prompt text; v_model text; v_paused boolean; v_delay jsonb;
+  v_person_id bigint; v_person_summary text;
 begin
   -- bot (auto-create if new)
-  select id, system_prompt, model, settings into v_bot_id, v_prompt, v_model, v_settings
+  select id, system_prompt, model, automation_paused, reply_delay
+    into v_bot_id, v_prompt, v_model, v_paused, v_delay
     from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
-    returning id, system_prompt, model into v_bot_id, v_prompt, v_model;
+    returning id, system_prompt, model, automation_paused, reply_delay
+      into v_bot_id, v_prompt, v_model, v_paused, v_delay;
   end if;
 
-  -- fan (upsert)
-  insert into public.fans(bot_id, platform, username, display_name)
-  values (v_bot_id, p_platform, lower(p_username), p_display)
+  -- fan (upsert) + source-platform contact fields
+  insert into public.fans(bot_id, platform, username, display_name, first_name, last_name, email, phone, subscribed_at, manychat_id)
+  values (v_bot_id, p_platform, lower(p_username), nullif(p_display,''), nullif(p_first_name,''),
+          nullif(p_last_name,''), nullif(p_email,''), nullif(p_phone,''), nullif(p_subscribed,''), nullif(p_subscriber_id,''))
   on conflict (bot_id, platform, username)
-    do update set display_name = coalesce(excluded.display_name, public.fans.display_name),
-                  last_seen = now()
+    do update set
+      display_name = coalesce(nullif(excluded.display_name,''), public.fans.display_name),
+      first_name   = coalesce(nullif(excluded.first_name,''),   public.fans.first_name),
+      last_name    = coalesce(nullif(excluded.last_name,''),    public.fans.last_name),
+      email        = coalesce(nullif(excluded.email,''),        public.fans.email),
+      phone        = coalesce(nullif(excluded.phone,''),        public.fans.phone),
+      subscribed_at= coalesce(nullif(excluded.subscribed_at,''),public.fans.subscribed_at),
+      manychat_id  = coalesce(nullif(excluded.manychat_id,''),  public.fans.manychat_id),
+      last_seen    = now()
   returning id into v_fan_id;
 
   -- log inbound message
@@ -140,25 +158,15 @@ begin
   values (v_fan_id, v_bot_id, 'user', p_user_msg);
 
   -- counters
-  update public.fans
-     set msg_count = msg_count + 1, last_seen = now()
-   where id = v_fan_id
-   returning summary, stage, msg_count into v_summary, v_stage, v_count;
+  update public.fans set msg_count = msg_count + 1, last_seen = now()
+   where id = v_fan_id returning summary, stage, msg_count into v_summary, v_stage, v_count;
 
   -- recent window, chronological
-  select coalesce(jsonb_agg(jsonb_build_object('role', role, 'content', content)
-                            order by created_at), '[]'::jsonb)
+  select coalesce(jsonb_agg(jsonb_build_object('role', role, 'content', content) order by created_at), '[]'::jsonb)
     into v_recent
-  from (
-    select role, content, created_at
-    from public.messages
-    where fan_id = v_fan_id
-    order by created_at desc
-    limit p_window
-  ) t;
+  from (select role, content, created_at from public.messages where fan_id = v_fan_id order by created_at desc limit p_window) t;
 
-  -- cross-platform memory: if this fan is linked to a person, surface that
-  -- person's running summary so the bot remembers conversations from other platforms.
+  -- cross-platform memory: linked person's running summary (manual links)
   select person_id into v_person_id from public.fans where id = v_fan_id;
   if v_person_id is not null then
     select summary into v_person_summary from public.persons where id = v_person_id;
@@ -170,16 +178,13 @@ begin
           jsonb_build_object('platform', p_platform, 'username', lower(p_username)));
 
   return jsonb_build_object(
-    'bot_id',         v_bot_id,
-    'fan_id',         v_fan_id,
-    'summary',        coalesce(v_summary, ''),
-    'stage',          coalesce(v_stage, 'rapport'),
-    'count',          v_count,
-    'recent',         v_recent,
-    'system_prompt',  coalesce(v_prompt, ''),
-    'model',          coalesce(v_model, 'gpt-4o'),
-    'settings',       coalesce(v_settings, '{}'::jsonb),
-    'person_id',      v_person_id,
+    'bot_id', v_bot_id, 'fan_id', v_fan_id,
+    'summary', coalesce(v_summary, ''), 'stage', coalesce(v_stage, 'rapport'),
+    'count', v_count, 'recent', v_recent,
+    'system_prompt', coalesce(v_prompt, ''), 'model', coalesce(v_model, 'gpt-4o'),
+    'automation_paused', coalesce(v_paused, false),
+    'reply_delay', coalesce(v_delay, '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb),
+    'person_id', v_person_id,
     'person_summary', coalesce(v_person_summary, '')
   );
 end;
@@ -324,13 +329,9 @@ insert into public.bots(slug, display_name, platform_account)
 values ('candace_summers', 'Candace Summers', 'candace_summers')
 on conflict (slug) do nothing;
 
--- record TikTok's current aloof pacing as data (matches the values currently
--- hard-coded in the TikTok workflow's Set Delay node). only seeds if unset, so
--- it never clobbers a value you've tuned. the TikTok workflow is unchanged.
-update public.bots
-   set settings = jsonb_build_object(
-     'delay', jsonb_build_object('min_s',120,'max_s',600,'fast_pct',0.15,'fast_min_s',45,'fast_max_s',120))
- where slug = 'candace_summers' and settings = '{}'::jsonb;
+-- candace_summers reply pacing comes from the bots.reply_delay column default
+-- (120-600s, ~15% quick 45-120s) — the same values the TikTok workflow uses.
+-- Telegram overrides its own reply_delay in candace_telegram.sql.
 
 -- ---- convenience view: just Candace's fans ---------------------------------
 create or replace view public.candace_fans as

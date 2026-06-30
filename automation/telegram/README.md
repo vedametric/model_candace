@@ -26,11 +26,27 @@ Everything between `dm_ingest` and the send is the **same engine** as TikTok
   no "bot" badge. (TikTok uses ManyChat.)
 - **Separate bot row** `candace_telegram` with its own `system_prompt` — TikTok
   stays locked. Funnel removed; objective re-aimed at **retention / attachment**.
-- **Per-platform delay** — pacing comes from `bots.settings.delay`, so Telegram is
-  more present than TikTok's aloof 2–10 min, without editing the workflow.
+- **Per-bot delay + pause** — pacing comes from `bots.reply_delay` and the pause
+  gate from `bots.automation_paused` (same convention as the live TikTok flow), so
+  Telegram is more present than TikTok's aloof 2–10 min, tuned from the dashboard.
 - **Cross-platform memory** — `persons` table links a Telegram fan to their TikTok
   history; the bot is fed that shared memory. Linking is **manual** in the admin
   console (v1).
+
+## ✅ Live status (deployed)
+- **Supabase:** `schema.sql` + `candace_telegram.sql` applied. Both bots present
+  (`candace_summers` untouched, `candace_telegram` brain 8.8k chars, spice
+  `tasteful`, its own `reply_delay`). `persons` + link/unlink RPCs live. The
+  `dm_ingest` overload was de-duped (only the canonical 12-arg remains).
+- **n8n (all active):** `Candace Telegram ASYNC` (`/webhook/candace-telegram-async`,
+  POST), `Candace Admin API` (`/webhook/candace-admin-fans|link|unlink`), and the
+  dashboard page now serves the new admin console at
+  `/webhook/candace-queue-page`. Credentials bound (Supabase, OpenAI, bridge
+  secret). Verified end-to-end: a test inbound produced an on-voice reply and
+  logged it; only the final *send* needs the bridge online.
+- **⏳ Remaining (your move):** stand up the **bridge** on the droplet (SSH is
+  blocked from the build env, so I couldn't). Once it's up and reachable at
+  `http://134.199.145.47:8081/send`, the loop is closed.
 
 ## Files
 | File | What |

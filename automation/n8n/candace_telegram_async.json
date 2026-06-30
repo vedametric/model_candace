@@ -3,6 +3,7 @@
   "nodes": [
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "candace-telegram-async",
         "responseMode": "onReceived",
         "responseData": "allEntries",
@@ -37,7 +38,8 @@
       "typeVersion": 4.2,
       "position": [-1860, 240],
       "id": "tgdd0001-0001-4001-8001-000000000001",
-      "name": "Dedup: read fan"
+      "name": "Dedup: read fan",
+      "alwaysOutputData": true
     },
     {
       "parameters": {
@@ -57,7 +59,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { p_bot: 'candace_telegram', p_platform: 'telegram', p_username: $json.username, p_display: $json.display, p_user_msg: $json.msg, p_window: 12 } }}",
+        "jsonBody": "={{ { p_bot: 'candace_telegram', p_platform: 'telegram', p_username: $json.username, p_display: $json.display, p_user_msg: $json.msg, p_window: 12, p_subscriber_id: $json.telegram_user_id } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -68,7 +70,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// random, human-feeling delay before she replies. pacing comes from the bot's\n// settings.delay (set per-platform in candace_telegram.sql), so telegram can be\n// more present than the aloof tiktok pacing without editing this workflow.\nconst ctx = $('DB: ingest').first().json || {};\nconst s = (ctx.settings && ctx.settings.delay) ? ctx.settings.delay : {};\nconst min_s = (typeof s.min_s === 'number') ? s.min_s : 45;\nconst max_s = (typeof s.max_s === 'number') ? s.max_s : 240;\nconst fast_pct = (typeof s.fast_pct === 'number') ? s.fast_pct : 0.30;\nconst fast_min = (typeof s.fast_min_s === 'number') ? s.fast_min_s : 15;\nconst fast_max = (typeof s.fast_max_s === 'number') ? s.fast_max_s : 60;\nconst r = Math.random();\nlet sec;\nif (r < fast_pct) { sec = fast_min + Math.floor(Math.random() * Math.max(1, fast_max - fast_min)); }\nelse { sec = min_s + Math.floor(Math.random() * Math.max(1, max_s - min_s)); }\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, telegram_user_id: ex.telegram_user_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
+        "jsCode": "// human-feeling delay + pause gate, PER-PERSONA. timing comes from\n// bots.reply_delay and the pause from bots.automation_paused (admin dashboard),\n// both returned by dm_ingest. Telegram has its own reply_delay (more present\n// than tiktok). Same convention as the live ManyChat workflow.\nconst ctx = $('DB: ingest').first().json || {};\n// pause: dashboard toggled this bot off -> inbound already logged, don't queue/reply.\nif (ctx.automation_paused === true) { return []; }\nconst d = ctx.reply_delay || {};\nconst num = (v, dft) => (Number.isFinite(Number(v)) ? Number(v) : dft);\nconst minS = num(d.min_sec, 45);\nconst maxS = num(d.max_sec, 240);\nconst qP   = num(d.quick_chance, 0.30);\nconst qMin = num(d.quick_min_sec, 15);\nconst qMax = num(d.quick_max_sec, 60);\nlet sec;\nif (Math.random() < qP) { sec = Math.round(qMin + Math.random() * Math.max(0, qMax - qMin)); }\nelse { sec = Math.round(minS + Math.random() * Math.max(0, maxS - minS)); }\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, telegram_user_id: ex.telegram_user_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

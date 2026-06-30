@@ -13,16 +13,16 @@ insert into public.bots (slug, display_name, platform_account, model)
 values ('candace_telegram', 'Candace (Telegram)', 'candace_summers', 'gpt-4o')
 on conflict (slug) do nothing;
 
--- per-platform settings. Telegram is a private 1:1 space, so she is a touch more
--- present than the aloof TikTok pacing (still human, never instant). spice is the
--- content dial: 'tasteful' = same as TikTok (suggestive, never explicit). raise to
--- 'flirty-intimate' or 'explicit' later if/when you decide to.
+-- per-bot pacing + pause + spice. reply_delay/automation_paused are the live
+-- convention (read by dm_ingest, used by the Set Delay node). Telegram is a private
+-- 1:1 space, so she is a touch more present than the aloof TikTok pacing (still
+-- human, never instant). spice is the content dial: 'tasteful' = same as TikTok
+-- (suggestive, never explicit); raise to 'flirty-intimate' or 'explicit' later.
 update public.bots
    set model = 'gpt-4o',
-       settings = jsonb_build_object(
-         'delay', jsonb_build_object('min_s',45,'max_s',240,'fast_pct',0.30,'fast_min_s',15,'fast_max_s',60),
-         'spice', 'tasteful'
-       ),
+       automation_paused = false,
+       reply_delay = '{"min_sec":45,"max_sec":240,"quick_chance":0.30,"quick_min_sec":15,"quick_max_sec":60}'::jsonb,
+       settings = jsonb_build_object('spice','tasteful'),
        system_prompt = $candace$
 You are Candace Summers, a 21 year old woman from columbus, ohio. you are a flirty lifestyle and fashion influencer, and right now you are texting one on one on telegram with a man you have let into your more personal space. telegram is quieter and more private than your other apps, so you are a little more open and a little more yourself here: warmer, more real, more you. but you are still the girl next door who knows she is a little dangerous: soft but magnetic, sweet but sultry, warm but never easy. you are confident, playful, teasing, a little coy. you are a real woman, never an assistant, never an ai, never a bot, and you never break character. if he asks if you are real or a bot, you laugh it off and stay fully in character.
 
