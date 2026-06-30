@@ -44,7 +44,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// random, human-feeling delay before she replies. she is the prize, a little\n// aloof, not glued to her phone. most replies take 2-10 min; ~15% of the time\n// she happens to be around and fires back quicker (45-120s).\nconst r = Math.random();\nlet sec;\nif (r < 0.15) { sec = 45 + Math.floor(Math.random() * 75); }\nelse { sec = 120 + Math.floor(Math.random() * 480); }\nconst ctx = $('DB: ingest').first().json || {};\nconst ex = $('Extract Inbound').first().json || {};\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, subscriber_id: ex.subscriber_id } }];"
+        "jsCode": "// random, human-feeling delay before she replies. she is the prize, a little\n// aloof, not glued to her phone. most replies take 2-10 min; ~15% of the time\n// she happens to be around and fires back quicker (45-120s).\nconst r = Math.random();\nlet sec;\nif (r < 0.15) { sec = 45 + Math.floor(Math.random() * 75); }\nelse { sec = 120 + Math.floor(Math.random() * 480); }\nconst ctx = $('DB: ingest').first().json || {};\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, subscriber_id: ex.subscriber_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -54,7 +54,24 @@
     },
     {
       "parameters": {
-        "amount": "={{ $json.delaySec }}",
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { bot_id: $json.bot_id, fan_id: $json.fan_id, type: 'dm_queued', payload: { username: $json.username, display: $json.display, msg: $json.msg, msg_count: $json.myCount, delay_sec: $json.delaySec, queued_at: $json.queued_at, scheduled_for: $json.scheduled_for } } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1460, 80],
+      "id": "qe000001-0001-4001-8001-000000000001",
+      "name": "Q: enqueue"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Set Delay').first().json.delaySec }}",
         "unit": "seconds"
       },
       "type": "n8n-nodes-base.wait",
@@ -245,13 +262,31 @@
       "position": [1040, 200],
       "id": "pa000001-0001-4001-8001-000000000001",
       "name": "DB: patch fan"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { bot_id: $('Set Delay').first().json.bot_id, fan_id: $('Set Delay').first().json.fan_id, type: 'dm_sent', payload: { username: $('Set Delay').first().json.username, msg_count: $('Set Delay').first().json.myCount, reply: $('Format Reply').first().json.reply, sent_at: $now.toISO() } } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [640, 0],
+      "id": "qs000001-0001-4001-8001-000000000001",
+      "name": "Q: sent"
     }
   ],
   "connections": {
     "Webhook (ManyChat)": { "main": [[{ "node": "Extract Inbound", "type": "main", "index": 0 }]] },
     "Extract Inbound": { "main": [[{ "node": "DB: ingest", "type": "main", "index": 0 }]] },
     "DB: ingest": { "main": [[{ "node": "Set Delay", "type": "main", "index": 0 }]] },
-    "Set Delay": { "main": [[{ "node": "Wait (human delay)", "type": "main", "index": 0 }]] },
+    "Set Delay": { "main": [[{ "node": "Q: enqueue", "type": "main", "index": 0 }]] },
+    "Q: enqueue": { "main": [[{ "node": "Wait (human delay)", "type": "main", "index": 0 }]] },
     "Wait (human delay)": { "main": [[{ "node": "DB: get fan", "type": "main", "index": 0 }]] },
     "DB: get fan": { "main": [[{ "node": "Check Latest", "type": "main", "index": 0 }]] },
     "Check Latest": { "main": [[{ "node": "Build Classify Request", "type": "main", "index": 0 }]] },
@@ -261,6 +296,7 @@
     "Candace AI (OpenAI)": { "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]] },
     "Format Reply": { "main": [[{ "node": "DB: log reply", "type": "main", "index": 0 }]] },
     "DB: log reply": { "main": [[{ "node": "ManyChat: send reply", "type": "main", "index": 0 }, { "node": "Build Profile Request", "type": "main", "index": 0 }]] },
+    "ManyChat: send reply": { "main": [[{ "node": "Q: sent", "type": "main", "index": 0 }]] },
     "Build Profile Request": { "main": [[{ "node": "Profiler (OpenAI)", "type": "main", "index": 0 }]] },
     "Profiler (OpenAI)": { "main": [[{ "node": "Apply Profile", "type": "main", "index": 0 }]] },
     "Apply Profile": { "main": [[{ "node": "DB: patch fan", "type": "main", "index": 0 }]] }

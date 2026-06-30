@@ -1,0 +1,70 @@
+{
+  "name": "Candace Queue API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "candace-queue",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-600, 0],
+      "id": "qa000001-0001-4001-8001-000000000001",
+      "name": "Webhook",
+      "webhookId": "candace-queue"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/events?type=in.(dm_queued,dm_sent)&select=type,fan_id,payload,created_at&order=created_at.desc&limit=200",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-400, 0],
+      "id": "qa000002-0002-4002-8002-000000000002",
+      "name": "Supabase: events"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet events = [];\nif (items.length === 1 && Array.isArray(items[0].json)) { events = items[0].json; }\nelse { events = items.map(function (i) { return i.json; }); }\nreturn [{ json: { events: events } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-200, 0],
+      "id": "qa000003-0003-4003-8003-000000000003",
+      "name": "Collect"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { events: $json.events } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [0, 0],
+      "id": "qa000004-0004-4004-8004-000000000004",
+      "name": "Respond"
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Supabase: events", "type": "main", "index": 0 }]] },
+    "Supabase: events": { "main": [[{ "node": "Collect", "type": "main", "index": 0 }]] },
+    "Collect": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": {},
+  "tags": []
+}
