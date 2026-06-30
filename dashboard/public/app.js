@@ -80,51 +80,105 @@ async function boot() {
   route();
 }
 
+// ---------------- identities (one person = many platform bots) ----------------
+// bots that share platform_account are the same identity (e.g. candace_summers +
+// candace_telegram). The sidebar shows one entry per identity; Persona/Studio/
+// Generations/Posts switch platform within it; Fans/Queue merge across members.
+function botPlatform(b) {
+  const s = (b.slug || '').toLowerCase(), d = (b.display_name || '').toLowerCase();
+  if (s.includes('telegram') || d.includes('telegram')) return 'telegram';
+  if (s.includes('instagram') || d.includes('instagram')) return 'instagram';
+  return 'tiktok';
+}
+const PLAT_ORDER = { tiktok: 0, instagram: 1, telegram: 2 };
+function identityKey(b) { return b.platform_account || b.slug; }
+function identities() {
+  const map = new Map();
+  ACCOUNTS.forEach(b => {
+    const k = identityKey(b);
+    if (!map.has(k)) map.set(k, { key: k, members: [] });
+    map.get(k).members.push(b);
+  });
+  for (const idn of map.values()) {
+    idn.members.sort((a, b) => (PLAT_ORDER[botPlatform(a)] ?? 9) - (PLAT_ORDER[botPlatform(b)] ?? 9));
+    idn.byPlatform = {};
+    idn.members.forEach(m => { idn.byPlatform[botPlatform(m)] = m; });
+    const primary = idn.members.find(m => m.slug === idn.key) || idn.members[0];
+    idn.label = (primary.display_name || idn.key).replace(/\s*\(telegram\)\s*/i, '').trim();
+    idn.fans = idn.members.reduce((s, m) => s + ((m.counts && m.counts.fans) || 0), 0);
+    idn.paused = idn.members.some(m => m.automation_paused);
+  }
+  return [...map.values()];
+}
+function getIdentity(key) { return identities().find(i => i.key === key) || null; }
+function identityKeyForSlug(slug) { const b = ACCOUNTS.find(a => a.slug === slug); return b ? identityKey(b) : slug; }
+function membersOf(key) { const i = getIdentity(key); return i ? i.members : []; }
+
 function renderSidebar() {
   const list = $('#account-list');
-  if (!ACCOUNTS.length) { list.innerHTML = '<div class="loading">no accounts</div>'; return; }
-  list.innerHTML = ACCOUNTS.map(a => {
-    const fans = a.counts && a.counts.fans != null ? a.counts.fans : '';
-    return `<div class="acct ${a.hasContent ? '' : 'ghost'}" data-slug="${esc(a.slug)}">
-      <div class="av">${esc(initials(a.display_name))}</div>
-      <div class="nm"><b>${esc(a.display_name)}</b><span>${esc(a.platform_account || a.slug)}</span></div>
-      ${a.automation_paused ? '<span class="dot-pause" title="automation paused"></span>' : ''}
-      ${fans !== '' ? `<span class="badge-fans">${fans}</span>` : ''}
-    </div>`;
-  }).join('');
-  list.querySelectorAll('.acct').forEach(el => el.onclick = () => { location.hash = `#/a/${el.dataset.slug}/persona`; });
-  $('#side-foot').innerHTML = `${ACCOUNTS.length} account${ACCOUNTS.length === 1 ? '' : 's'}${LIVE ? '' : ' · <span style="color:#c9a">live data off</span>'}`;
+  const idns = identities();
+  if (!idns.length) { list.innerHTML = '<div class="loading">no accounts</div>'; return; }
+  list.innerHTML = idns.map(a => `<div class="acct" data-key="${esc(a.key)}">
+      <div class="av">${esc(initials(a.label))}</div>
+      <div class="nm"><b>${esc(a.label)}</b><span>${a.members.map(m => sourceLabel(botPlatform(m))).join(' · ')}</span></div>
+      ${a.paused ? '<span class="dot-pause" title="automation paused"></span>' : ''}
+      ${a.fans ? `<span class="badge-fans">${a.fans}</span>` : ''}
+    </div>`).join('');
+  list.querySelectorAll('.acct').forEach(el => el.onclick = () => { location.hash = `#/a/${el.dataset.key}/persona`; });
+  $('#side-foot').innerHTML = `${idns.length} identit${idns.length === 1 ? 'y' : 'ies'}${LIVE ? '' : ' · <span style="color:#c9a">live data off</span>'}`;
 }
 
-function setActive(slug, tab) {
-  document.querySelectorAll('.acct').forEach(e => e.classList.toggle('active', e.dataset.slug === slug));
-  $('.nav-overview').classList.toggle('active', !slug);
+function setActive(key, tab) {
+  document.querySelectorAll('.acct').forEach(e => e.classList.toggle('active', e.dataset.key === key));
+  $('.nav-overview').classList.toggle('active', !key);
   const tabsEl = $('#tabs');
-  if (slug) {
-    $('#crumb').textContent = (ACCOUNTS.find(a => a.slug === slug) || {}).display_name || slug;
+  if (key) {
+    const idn = getIdentity(key);
+    $('#crumb').textContent = (idn && idn.label) || key;
     tabsEl.innerHTML = TABS.map(t => `<div class="tab ${t.id === tab ? 'active' : ''}" data-tab="${t.id}">${t.label}</div>`).join('');
-    tabsEl.querySelectorAll('.tab').forEach(el => el.onclick = () => { location.hash = `#/a/${slug}/${el.dataset.tab}`; });
+    tabsEl.querySelectorAll('.tab').forEach(el => el.onclick = () => { location.hash = `#/a/${key}/${el.dataset.tab}`; });
   } else {
     $('#crumb').textContent = 'Global Overview'; tabsEl.innerHTML = '';
   }
+}
+
+// Wraps Persona/Studio/Generations/Posts with a TikTok⇄Telegram platform switch,
+// routing to the right member bot (each may use a different model).
+async function contentView(key, tab, platform) {
+  const idn = getIdentity(key);
+  if (!idn) { view.innerHTML = errBox('unknown identity'); return; }
+  const plats = idn.members.map(botPlatform);
+  platform = plats.includes(platform) ? platform : plats[0];
+  const member = idn.byPlatform[platform] || idn.members[0];
+  setActive(key, tab);
+  const fn = { persona, studio, generations, posts }[tab] || persona;
+  await fn(member.slug);
+  const bar = `<div class="row" style="gap:8px;margin:0 0 14px;align-items:center">
+    <span class="dim" style="font-size:12px">View</span>
+    ${plats.map(p => `<button class="btn sm ${p === platform ? 'primary' : ''}" data-plat="${p}">${esc(sourceLabel(p))}</button>`).join('')}
+    ${member.model ? `<span class="dim" style="font-size:12px;margin-left:6px">model: ${esc(member.model)}</span>` : ''}</div>`;
+  view.insertAdjacentHTML('afterbegin', bar);
+  view.querySelectorAll('button[data-plat]').forEach(b => b.onclick = () => { location.hash = `#/a/${key}/${tab}/${b.dataset.plat}`; });
 }
 
 // ---------------- router ----------------
 function parseHash() {
   const h = location.hash.replace(/^#\/?/, '');
   const p = h.split('/').filter(Boolean);
-  if (p[0] === 'a') return { slug: p[1], tab: p[2] || 'persona', sub: p[3] };
+  if (p[0] === 'a') return { key: p[1], tab: p[2] || 'persona', sub: p[3] };
   return { route: p[0] || 'overview' };
 }
 
 async function route(force) {
   clearTimers();
   const r = parseHash();
-  if (r.slug) {
-    setActive(r.slug, r.tab);
-    if (r.tab === 'fans' && r.sub) return fanDetail(r.slug, r.sub);
-    const fn = { persona: persona, studio: studio, generations: generations, posts: posts, fans: fans, queue: queue }[r.tab] || persona;
-    return fn(r.slug);
+  if (r.key) {
+    setActive(r.key, r.tab);
+    if (r.tab === 'fans' && r.sub) { const [slug, id] = String(r.sub).split('.'); return fanDetail(slug, id); }
+    if (['persona', 'studio', 'generations', 'posts'].includes(r.tab)) return contentView(r.key, r.tab, r.sub);
+    if (r.tab === 'fans') return fansForIdentity(r.key);
+    if (r.tab === 'queue') return queueForIdentity(r.key);
+    return contentView(r.key, 'persona', r.sub);
   }
   setActive(null);
   return overview();
@@ -165,7 +219,7 @@ async function overview() {
         <td>${a.automation_paused ? '<span class="tag pend">paused</span>' : '<span class="tag ok">active</span>'}</td></tr>`).join('')}
       </tbody></table>
     </div>`;
-  view.querySelectorAll('tr[data-slug]').forEach(tr => tr.onclick = () => location.hash = `#/a/${tr.dataset.slug}/persona`);
+  view.querySelectorAll('tr[data-slug]').forEach(tr => tr.onclick = () => location.hash = `#/a/${identityKeyForSlug(tr.dataset.slug)}/persona`);
 }
 function fmtPacing(d) {
   if (!d) return '—';
@@ -634,10 +688,16 @@ function postCard(p, slug) {
 
 // ---------------- FANS ----------------
 let F = { rows: [], stage: 'all', buyer: 'all', q: '' };
-async function fans(slug) {
+async function fansForIdentity(key) {
   loading();
-  let d; try { d = await api('/accounts/' + slug + '/fans'); } catch (e) { view.innerHTML = errBox(e); return; }
-  F = { rows: d.fans || [], stage: 'all', buyer: 'all', source: 'all', q: '', slug };
+  const members = membersOf(key);
+  let merged = [];
+  try {
+    const res = await Promise.all(members.map(m => api('/accounts/' + m.slug + '/fans')
+      .then(d => (d.fans || []).map(f => ({ ...f, _slug: m.slug }))).catch(() => [])));
+    merged = res.flat();
+  } catch (e) { view.innerHTML = errBox(e); return; }
+  F = { rows: merged, stage: 'all', buyer: 'all', source: 'all', q: '', key };
   const stages = [...new Set(F.rows.map(r => r.stage).filter(Boolean))];
   const buyers = [...new Set(F.rows.map(r => r.buyer_type).filter(Boolean))];
   // sources Candace will integrate (always show all three, even if 0 fans yet)
@@ -672,7 +732,7 @@ function fBody() {
   if (F.q) rows = rows.filter(r => (r.username + ' ' + (r.display_name || '') + ' ' + (r.first_name || '') + ' ' + (r.last_name || '') + ' ' + (r.email || '') + ' ' + (r.summary || '') + ' ' + (r.platform || '')).toLowerCase().includes(F.q));
   $('#f-body').innerHTML = rows.map(r => {
     const sc = r.intent_score == null ? '' : `<div class="ibar"><i style="width:${Math.min(100, r.intent_score)}%"></i></div> <span class="mono">${r.intent_score}</span>`;
-    return `<tr data-id="${r.id}">
+    return `<tr data-id="${r.id}" data-slug="${esc(r._slug || '')}">
       <td><b>${esc(r.username)}</b>${r.person_id ? ' <span title="linked across platforms">🔗</span>' : ''}${r.display_name ? `<div class="dim">${esc(r.display_name)}</div>` : ''}</td>
       <td>${sourceBadge(r.platform)}</td>
       <td>${r.stage ? `<span class="tag stage">${esc(r.stage)}</span>` : '—'}</td>
@@ -680,7 +740,7 @@ function fBody() {
       <td>${sc}</td><td class="mono">${r.msg_count}</td><td class="dim">${fmtDateTime(r.last_seen)}</td>
       <td class="truncate dim">${esc(r.summary || '')}</td></tr>`;
   }).join('') || '<tr><td colspan="8" class="muted">no fans</td></tr>';
-  $('#f-body').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => location.hash = `#/a/${F.slug}/fans/${tr.dataset.id}`);
+  $('#f-body').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => location.hash = `#/a/${F.key}/fans/${tr.dataset.slug}.${tr.dataset.id}`);
 }
 
 function contactPanel(f) {
@@ -701,7 +761,7 @@ function contactPanel(f) {
 }
 async function fanDetail(slug, id) {
   loading();
-  setActive(slug, 'fans');
+  setActive(identityKeyForSlug(slug), 'fans');
   let f, m, links;
   try { [f, m, links] = await Promise.all([
     api(`/accounts/${slug}/fans/${id}`),
@@ -713,7 +773,7 @@ async function fanDetail(slug, id) {
   const signals = (md.signals || []).map(s => `<span class="tag">${esc(s)}</span>`).join(' ');
   view.innerHTML = `
     <div class="row between" style="margin-bottom:14px">
-      <div><a href="#/a/${slug}/fans">← all fans</a> <b style="font-size:17px;margin-left:8px">${esc(f.username)}</b> <span class="dim">${esc(f.display_name || '')}</span></div>
+      <div><a href="#/a/${identityKeyForSlug(slug)}/fans">← all fans</a> <b style="font-size:17px;margin-left:8px">${esc(f.username)}</b> <span class="dim">${esc(f.display_name || '')}</span></div>
     </div>
     <div class="grid2">
       <div class="panel"><h3>Conversation (${(m.messages || []).length})</h3>
@@ -755,7 +815,7 @@ function linkPanel(slug, f, links) {
   const chips = linked.length
     ? linked.map(l => {
         const bslug = (l.bots && l.bots.slug) || slug;
-        return `<a class="tag" style="text-decoration:none" href="#/a/${bslug}/fans/${l.id}">${esc(sourceLabel((l.platform || '').toLowerCase()))} @${esc(l.username)}${l.display_name ? ` · ${esc(l.display_name)}` : ''}</a>`;
+        return `<a class="tag" style="text-decoration:none" href="#/a/${identityKeyForSlug(bslug)}/fans/${bslug}.${l.id}">${esc(sourceLabel((l.platform || '').toLowerCase()))} @${esc(l.username)}${l.display_name ? ` · ${esc(l.display_name)}` : ''}</a>`;
       }).join(' ')
     : '<span class="dim">not linked to anyone yet</span>';
   return `<div class="panel"><h3>Cross-platform identity${pid ? ` · person #${pid}` : ''}</h3>
@@ -803,28 +863,39 @@ function wireLinks(slug, id) {
 // ---------------- QUEUE ----------------
 let Q = [];
 let Q_FIRED = new Set(); // event_ids the user hit "send now" on (optimistic, until server confirms)
-async function queue(slug) {
+let QP = 'all';          // queue platform filter
+async function queueForIdentity(key) {
   loading();
-  Q_FIRED = new Set();
+  Q_FIRED = new Set(); QP = 'all';
+  const members = membersOf(key);
+  const plats = [...new Set(members.map(botPlatform))];
   view.innerHTML = `
     <div class="row between" style="margin-bottom:12px">
       <div><span class="live-dot"></span><b>Live message queue</b> <span class="dim">— incoming DMs, the delay she picked, and when they send</span></div>
-      <div class="row"><span class="pill b-wait">waiting <b id="q-w">0</b></span><span class="pill b-sent">sent <b id="q-s">0</b></span><span class="pill b-super">debounced <b id="q-x">0</b></span></div>
+      <div class="row" style="gap:8px">
+        ${plats.length > 1 ? `<select id="q-plat"><option value="all">All platforms</option>${plats.map(p => `<option value="${p}">${sourceLabel(p)}</option>`).join('')}</select>` : ''}
+        <span class="pill b-wait">waiting <b id="q-w">0</b></span><span class="pill b-sent">sent <b id="q-s">0</b></span><span class="pill b-super">debounced <b id="q-x">0</b></span></div>
     </div>
-    <div class="panel"><table><thead><tr><th>Queued</th><th>User</th><th>Incoming</th><th>Delay</th><th>Status</th><th>Sends in / reply</th></tr></thead>
-    <tbody id="q-body"><tr><td colspan="6" class="loading">loading…</td></tr></tbody></table></div>`;
+    <div class="panel"><table><thead><tr><th>Queued</th><th>Platform</th><th>User</th><th>Incoming</th><th>Delay</th><th>Status</th><th>Sends in / reply</th></tr></thead>
+    <tbody id="q-body"><tr><td colspan="7" class="loading">loading…</td></tr></tbody></table></div>`;
+  const sel = $('#q-plat'); if (sel) sel.onchange = e => { QP = e.target.value; qRender(key); };
   async function poll() {
-    try { const d = await api('/accounts/' + slug + '/queue'); Q = d.rows || []; qRender(slug); }
-    catch (e) { $('#q-body').innerHTML = `<tr><td colspan="6" class="err-banner">${esc(e.message)}</td></tr>`; }
+    try {
+      const res = await Promise.all(members.map(m => api('/accounts/' + m.slug + '/queue')
+        .then(d => (d.rows || []).map(r => ({ ...r, _slug: m.slug, _platform: botPlatform(m) }))).catch(() => [])));
+      Q = res.flat().sort((a, b) => new Date(b.queued_at) - new Date(a.queued_at));
+      qRender(key);
+    } catch (e) { $('#q-body').innerHTML = `<tr><td colspan="7" class="err-banner">${esc(e.message)}</td></tr>`; }
   }
   await poll();
   timers.push(setInterval(poll, 3000));
-  timers.push(setInterval(() => qRender(slug), 1000));
+  timers.push(setInterval(() => qRender(key), 1000));
 }
-function qRender(slug) {
+function qRender(key) {
   if (!$('#q-body')) return;
   const now = Date.now(); let cw = 0, cs = 0, cx = 0;
-  const html = Q.map(r => {
+  const rows = Q.filter(r => QP === 'all' || r._platform === QP);
+  const html = rows.map(r => {
     let badge, last;
     const eid = String(r.event_id);
     if (r.status === 'sent') { cs++; Q_FIRED.delete(eid); badge = '<span class="tag b-sent">sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
@@ -833,21 +904,21 @@ function qRender(slug) {
     else {
       const sched = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
       const ms = sched - now;
-      if (ms > 0) { cw++; badge = '<span class="tag b-wait">waiting</span>'; last = `<b class="mono">${fmtDur(ms / 1000)}</b>${r.resume_url ? ` <button class="btn sm" data-send="${r.event_id}">send now</button>` : ''}`; }
+      if (ms > 0) { cw++; badge = '<span class="tag b-wait">waiting</span>'; last = `<b class="mono">${fmtDur(ms / 1000)}</b>${r.resume_url ? ` <button class="btn sm" data-send="${r.event_id}" data-slug="${esc(r._slug)}">send now</button>` : ''}`; }
       else if (now - sched < 90000) { cw++; badge = '<span class="tag b-flight">generating…</span>'; last = '<span class="dim mono">any second</span>'; }
       else { cx++; badge = '<span class="tag b-super">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
     }
-    return `<tr><td class="mono dim">${fmtClock(r.queued_at)}</td><td><b>${esc(r.user)}</b></td>
+    return `<tr><td class="mono dim">${fmtClock(r.queued_at)}</td><td>${sourceBadge(r._platform)}</td><td><b>${esc(r.user)}</b></td>
       <td class="truncate">${esc(r.msg)}</td><td class="mono">${fmtDur(r.delay || 0)}</td><td>${badge}</td><td>${last}</td></tr>`;
-  }).join('') || '<tr><td colspan="6" class="muted">no messages yet</td></tr>';
+  }).join('') || '<tr><td colspan="7" class="muted">no messages yet</td></tr>';
   $('#q-body').innerHTML = html;
   $('#q-w').textContent = cw; $('#q-s').textContent = cs; $('#q-x').textContent = cx;
   $('#q-body').querySelectorAll('[data-send]').forEach(b => b.onclick = async (e) => {
     e.stopPropagation();
-    const ev = String(b.dataset.send);
-    Q_FIRED.add(ev); qRender(slug); // optimistic: flip to "sending…" and drop the button now
-    try { await api(`/accounts/${slug}/queue/${ev}/send-now`, { method: 'POST', body: '{}' }); toast('sent now'); }
-    catch (err) { Q_FIRED.delete(ev); toast('error: ' + err.message); qRender(slug); }
+    const ev = String(b.dataset.send); const sl = b.dataset.slug;
+    Q_FIRED.add(ev); qRender(key); // optimistic: flip to "sending…" and drop the button now
+    try { await api(`/accounts/${sl}/queue/${ev}/send-now`, { method: 'POST', body: '{}' }); toast('sent now'); }
+    catch (err) { Q_FIRED.delete(ev); toast('error: ' + err.message); qRender(key); }
   });
 }
 
