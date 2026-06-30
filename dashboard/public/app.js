@@ -669,7 +669,7 @@ function sourceBadge(p) {
 function fBody() {
   let rows = F.rows.filter(r => (F.stage === 'all' || r.stage === F.stage) && (F.buyer === 'all' || r.buyer_type === F.buyer)
     && (F.source === 'all' || (r.platform || 'tiktok').toLowerCase() === F.source));
-  if (F.q) rows = rows.filter(r => (r.username + ' ' + (r.display_name || '') + ' ' + (r.summary || '') + ' ' + (r.platform || '')).toLowerCase().includes(F.q));
+  if (F.q) rows = rows.filter(r => (r.username + ' ' + (r.display_name || '') + ' ' + (r.first_name || '') + ' ' + (r.last_name || '') + ' ' + (r.email || '') + ' ' + (r.summary || '') + ' ' + (r.platform || '')).toLowerCase().includes(F.q));
   $('#f-body').innerHTML = rows.map(r => {
     const sc = r.intent_score == null ? '' : `<div class="ibar"><i style="width:${Math.min(100, r.intent_score)}%"></i></div> <span class="mono">${r.intent_score}</span>`;
     return `<tr data-id="${r.id}">
@@ -683,6 +683,22 @@ function fBody() {
   $('#f-body').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => location.hash = `#/a/${F.slug}/fans/${tr.dataset.id}`);
 }
 
+function contactPanel(f) {
+  const name = [f.first_name, f.last_name].filter(Boolean).join(' ');
+  const rows = [
+    ['Source', sourceLabel((f.platform || 'tiktok').toLowerCase())],
+    ['Name', name],
+    ['Email', f.email],
+    ['Phone', f.phone],
+    ['Subscribed', f.subscribed_at],
+    ['ManyChat id', f.manychat_id],
+  ].filter(([, v]) => v);
+  if (rows.length <= 1) return ''; // nothing beyond source → skip the panel
+  return `<div class="panel"><h3>Contact</h3>
+    <div class="meta" style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px">
+      ${rows.map(([k, v]) => `<span class="dim">${esc(k)}</span><b>${k === 'Source' ? v : esc(v)}</b>`).join('')}
+    </div></div>`;
+}
 async function fanDetail(slug, id) {
   loading();
   setActive(slug, 'fans');
@@ -700,6 +716,7 @@ async function fanDetail(slug, id) {
         <div class="chat" id="chat">${(m.messages || []).map(x => `<div class="bubble ${x.role === 'assistant' ? 'assistant' : 'user'}">${esc(x.content)}<span class="ts">${fmtClock(x.created_at)}</span></div>`).join('')}</div>
       </div>
       <div>
+        ${contactPanel(f)}
         <div class="panel"><h3>Funnel</h3>
           <div class="field"><label>Stage</label><input id="d-stage" value="${esc(f.stage || '')}"></div>
           <div class="field"><label>Buyer type</label><input id="d-buyer" value="${esc(f.buyer_type || '')}"></div>

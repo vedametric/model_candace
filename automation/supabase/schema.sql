@@ -47,8 +47,22 @@ create table if not exists public.fans (
   first_seen    timestamptz not null default now(),
   last_seen     timestamptz not null default now(),
   metadata      jsonb  not null default '{}'::jsonb,
+  -- contact fields captured from ManyChat (system_firstname/lastname/email/phone, etc.)
+  first_name    text,
+  last_name     text,
+  email         text,
+  phone         text,
+  subscribed_at text,
+  manychat_id   text,                                     -- ManyChat subscriber/contact id
   unique (bot_id, platform, username)
 );
+-- upgrades:
+alter table public.fans add column if not exists first_name text;
+alter table public.fans add column if not exists last_name text;
+alter table public.fans add column if not exists email text;
+alter table public.fans add column if not exists phone text;
+alter table public.fans add column if not exists subscribed_at text;
+alter table public.fans add column if not exists manychat_id text;
 create index if not exists idx_fans_bot          on public.fans(bot_id);
 create index if not exists idx_fans_lookup        on public.fans(bot_id, platform, username);
 
@@ -124,7 +138,9 @@ create or replace function public.dm_ingest(
   p_username text,
   p_display  text,
   p_user_msg text,
-  p_window   int default 10
+  p_window   int default 10,
+  p_first_name text default null, p_last_name text default null, p_email text default null,
+  p_phone text default null, p_subscribed text default null, p_subscriber_id text default null
 ) returns jsonb
 language plpgsql
 as $$
@@ -150,12 +166,20 @@ begin
       into v_bot_id, v_prompt, v_model, v_paused, v_delay;
   end if;
 
-  -- fan (upsert)
-  insert into public.fans(bot_id, platform, username, display_name)
-  values (v_bot_id, p_platform, lower(p_username), p_display)
+  -- fan (upsert + contact fields from ManyChat; coalesce so a later blank never wipes)
+  insert into public.fans(bot_id, platform, username, display_name, first_name, last_name, email, phone, subscribed_at, manychat_id)
+  values (v_bot_id, p_platform, lower(p_username), nullif(p_display,''), nullif(p_first_name,''),
+          nullif(p_last_name,''), nullif(p_email,''), nullif(p_phone,''), nullif(p_subscribed,''), nullif(p_subscriber_id,''))
   on conflict (bot_id, platform, username)
-    do update set display_name = coalesce(excluded.display_name, public.fans.display_name),
-                  last_seen = now()
+    do update set
+      display_name  = coalesce(nullif(excluded.display_name,''),  public.fans.display_name),
+      first_name    = coalesce(nullif(excluded.first_name,''),    public.fans.first_name),
+      last_name     = coalesce(nullif(excluded.last_name,''),     public.fans.last_name),
+      email         = coalesce(nullif(excluded.email,''),         public.fans.email),
+      phone         = coalesce(nullif(excluded.phone,''),         public.fans.phone),
+      subscribed_at = coalesce(nullif(excluded.subscribed_at,''), public.fans.subscribed_at),
+      manychat_id   = coalesce(nullif(excluded.manychat_id,''),   public.fans.manychat_id),
+      last_seen     = now()
   returning id into v_fan_id;
 
   -- log inbound message

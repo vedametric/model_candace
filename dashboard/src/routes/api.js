@@ -87,6 +87,9 @@ function liftIntent(f) {
     first_seen: f.first_seen,
     last_seen: f.last_seen,
     summary: f.summary,
+    first_name: f.first_name,
+    last_name: f.last_name,
+    email: f.email,
     intent_score: m.intent_score ?? null,
     temperature: m.temperature ?? null,
   };
@@ -168,7 +171,7 @@ router.get('/accounts/:slug/fans', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
   const rows = await select(
     'fans',
-    `bot_id=eq.${bot.id}&select=id,username,display_name,platform,stage,buyer_type,msg_count,first_seen,last_seen,summary,metadata&order=last_seen.desc`,
+    `bot_id=eq.${bot.id}&select=id,username,display_name,platform,stage,buyer_type,msg_count,first_seen,last_seen,summary,metadata,first_name,last_name,email&order=last_seen.desc`,
   );
   res.json({ fans: rows.map(liftIntent) });
 }));
