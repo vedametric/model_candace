@@ -21,7 +21,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Telegram Business: a connected bot answers in the real account's DMs.\n// updates arrive as business_message; replies must carry business_connection_id.\nconst u = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst bm = u.business_message || u.edited_business_message || u.message || {};\nconst from = bm.from || {}; const chat = bm.chat || {};\nconst text = (bm.text || bm.caption || '').toString().trim();\nconst bcid = bm.business_connection_id || '';\n// only the chat partner in a private business chat: skips the owner's own outgoing\n// messages and the bot's own sends (both have from.id != chat.id) -> no loops.\nif (!bcid) return [];\nif (chat.type && chat.type !== 'private') return [];\nif (from.is_bot) return [];\nif (String(from.id || '') !== String(chat.id || '')) return [];\nconst display = [from.first_name, from.last_name].filter(Boolean).join(' ') || from.username || 'him';\nconst username = (from.username || String(from.id || '') || display || 'unknown').toString().toLowerCase();\nconst chat_id = String(chat.id || from.id || '');\nconst interaction = String(bm.message_id || '');\nconst photos = Array.isArray(bm.photo) ? bm.photo : null;\nconst photo_file_id = (photos && photos.length) ? photos[photos.length - 1].file_id : '';\nconst media = photo_file_id ? 'photo' : bm.video ? 'video' : bm.voice ? 'voice note' : bm.video_note ? 'video note' : bm.animation ? 'gif' : bm.document ? 'file' : bm.sticker ? 'sticker' : '';\nlet msg = text;\nif (!msg) {\n  if (photo_file_id) msg = '[he just sent you a photo]';\n  else if (media) msg = '[he just sent you a ' + media + ']';\n  else msg = '(he sent an empty message, greet him and tease him lightly)';\n}\nreturn [{ json: { username: username, display: display, chat_id: chat_id, business_connection_id: bcid, photo_file_id: photo_file_id, msg: msg, interaction: interaction } }];"
+        "jsCode": "// Telegram Business: a connected bot answers in the real account's DMs.\n// updates arrive as business_message; replies must carry business_connection_id.\nconst u = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst bm = u.business_message || u.edited_business_message || u.message || {};\nconst from = bm.from || {}; const chat = bm.chat || {};\nconst text = (bm.text || bm.caption || '').toString().trim();\nconst bcid = bm.business_connection_id || '';\n// only the chat partner in a private business chat: skips the owner's own outgoing\n// messages and the bot's own sends (both have from.id != chat.id) -> no loops.\nif (!bcid) return [];\nif (chat.type && chat.type !== 'private') return [];\nif (from.is_bot) return [];\nif (String(from.id || '') !== String(chat.id || '')) return [];\nconst display = [from.first_name, from.last_name].filter(Boolean).join(' ') || from.username || 'him';\nconst username = (from.username || String(from.id || '') || display || 'unknown').toString().toLowerCase();\nconst chat_id = String(chat.id || from.id || '');\nconst interaction = String(bm.message_id || '');\nconst photos = Array.isArray(bm.photo) ? bm.photo : null;\nconst photo_file_id = (photos && photos.length) ? photos[photos.length - 1].file_id : '';\nconst voice_file_id = (bm.voice && bm.voice.file_id) || (bm.audio && bm.audio.file_id) || '';\nlet mediaMarker = '';\nif (bm.video || bm.video_note) mediaMarker = '[he just sent you a video]';\nelse if (bm.animation) mediaMarker = '[he just sent you a gif]';\nelse if (bm.sticker) mediaMarker = '[he just sent you a sticker' + (bm.sticker.emoji ? ' ' + bm.sticker.emoji : '') + ']';\nelse if (bm.document) mediaMarker = '[he just sent you a file' + (bm.document.file_name ? ': ' + bm.document.file_name : '') + ']';\nelse if (bm.location) mediaMarker = '[he just shared his location]';\nelse if (bm.contact) mediaMarker = '[he just shared a contact]';\nlet msg = text;\nif (!msg) {\n  if (photo_file_id) msg = '[he just sent you a photo]';\n  else if (voice_file_id) msg = '[he just sent you a voice note]';\n  else if (mediaMarker) msg = mediaMarker;\n  else msg = '(he sent an empty message, greet him and tease him lightly)';\n}\nreturn [{ json: { username: username, display: display, chat_id: chat_id, business_connection_id: bcid, photo_file_id: photo_file_id, voice_file_id: voice_file_id, msg: msg, interaction: interaction } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// human-feeling delay + pause gate, PER-PERSONA. timing comes from\n// bots.reply_delay and the pause from bots.automation_paused (admin dashboard),\n// both returned by dm_ingest. Telegram has its own reply_delay (more present\n// than tiktok). Same convention as the live ManyChat workflow.\nconst ctx = $('DB: ingest').first().json || {};\n// pause: dashboard toggled this bot off -> inbound already logged, don't queue/reply.\nif (ctx.automation_paused === true) { return []; }\nconst d = ctx.reply_delay || {};\nconst num = (v, dft) => (Number.isFinite(Number(v)) ? Number(v) : dft);\nconst minS = num(d.min_sec, 45);\nconst maxS = num(d.max_sec, 240);\nconst qP   = num(d.quick_chance, 0.30);\nconst qMin = num(d.quick_min_sec, 15);\nconst qMax = num(d.quick_max_sec, 60);\nlet sec;\nif (Math.random() < qP) { sec = Math.round(qMin + Math.random() * Math.max(0, qMax - qMin)); }\nelse { sec = Math.round(minS + Math.random() * Math.max(0, maxS - minS)); }\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, chat_id: ex.chat_id, business_connection_id: ex.business_connection_id, photo_file_id: ex.photo_file_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
+        "jsCode": "// human-feeling delay + pause gate, PER-PERSONA. timing comes from\n// bots.reply_delay and the pause from bots.automation_paused (admin dashboard),\n// both returned by dm_ingest. Telegram has its own reply_delay (more present\n// than tiktok). Same convention as the live ManyChat workflow.\nconst ctx = $('DB: ingest').first().json || {};\n// pause: dashboard toggled this bot off -> inbound already logged, don't queue/reply.\nif (ctx.automation_paused === true) { return []; }\nconst d = ctx.reply_delay || {};\nconst num = (v, dft) => (Number.isFinite(Number(v)) ? Number(v) : dft);\nconst minS = num(d.min_sec, 45);\nconst maxS = num(d.max_sec, 240);\nconst qP   = num(d.quick_chance, 0.30);\nconst qMin = num(d.quick_min_sec, 15);\nconst qMax = num(d.quick_max_sec, 60);\nlet sec;\nif (Math.random() < qP) { sec = Math.round(qMin + Math.random() * Math.max(0, qMax - qMin)); }\nelse { sec = Math.round(minS + Math.random() * Math.max(0, maxS - minS)); }\nconst ex = $('Extract Inbound').first().json || {};\nlet _dmsg = ex.msg;\ntry { const _a=$('Photo: describe apply').first().json; if (_a && _a.msg) _dmsg = _a.msg; } catch (e) {}\ntry { const _v=$('Voice: apply').first().json; if (_v && _v.msg) _dmsg = _v.msg; } catch (e) {}\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, chat_id: ex.chat_id, business_connection_id: ex.business_connection_id, photo_file_id: ex.photo_file_id, username: ex.username, display: ex.display, msg: _dmsg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -387,6 +387,182 @@
       ],
       "id": "tgrp0001-0001-4001-8001-000000000001",
       "name": "DB: refresh person"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.photo_file_id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1660,
+        -120
+      ],
+      "id": "tgif0001-0001-4001-8001-000000000001",
+      "name": "Has photo?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.telegram.org/bot__BOT_TOKEN__/getFile?file_id={{ $json.photo_file_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1660,
+        -300
+      ],
+      "id": "tggf0002-0002-4002-8002-000000000002",
+      "name": "Photo: getFile",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'gpt-4o', max_tokens: 120, messages: [ { role: 'user', content: [ { type: 'text', text: 'A man sent this photo in a flirty DM. In ONE vivid, factual sentence describe exactly what is in it (subject, setting, notable details; say if it is a selfie, a drawing, a screenshot, a meme, etc). No preamble, no quotes.' }, { type: 'image_url', image_url: { url: 'https://api.telegram.org/file/bot__BOT_TOKEN__/' + $('Photo: getFile').first().json.result.file_path } } ] } ] } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1460,
+        -300
+      ],
+      "id": "tgvd0001-0001-4001-8001-000000000001",
+      "name": "Photo: describe",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Dedup: gate').first().json || {};\nlet desc='';\ntry { const d=$json; desc=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||''; } catch(e){}\ndesc=(desc||'').toString().trim().replace(/\\s+/g,' ');\nconst msg = desc ? ('[photo he sent: ' + desc + ']') : (base.msg || '[he just sent you a photo]');\nreturn [{ json: Object.assign({}, base, { msg: msg }) }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1260,
+        -300
+      ],
+      "id": "tgad0001-0001-4001-8001-000000000001",
+      "name": "Photo: describe apply"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.voice_file_id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1460,
+        40
+      ],
+      "id": "tgifv001-0001-4001-8001-000000000001",
+      "name": "Has voice?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.telegram.org/bot__BOT_TOKEN__/getFile?file_id={{ $json.voice_file_id }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1260,
+        40
+      ],
+      "id": "tgvgf001-0001-4001-8001-000000000001",
+      "name": "Voice: getFile"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.telegram.org/file/bot__BOT_TOKEN__/{{ $('Voice: getFile').first().json.result.file_path }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1060,
+        40
+      ],
+      "id": "tgvdl001-0001-4001-8001-000000000001",
+      "name": "Voice: download"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "parameterType": "formData",
+              "name": "model",
+              "value": "whisper-1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        40
+      ],
+      "id": "tgvtr001-0001-4001-8001-000000000001",
+      "name": "Voice: transcribe"
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Dedup: gate').first().json || {};\nlet text='';\ntry { text = ($json && $json.text) ? $json.text : ''; } catch(e){}\ntext=(text||'').toString().trim().replace(/\\s+/g,' ');\nconst msg = text ? ('[voice note he sent, transcript: ' + text + ']') : (base.msg || '[he just sent you a voice note]');\nreturn [{ json: Object.assign({}, base, { msg: msg }) }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        40
+      ],
+      "id": "tgvap001-0001-4001-8001-000000000001",
+      "name": "Voice: apply"
     }
   ],
   "connections": {
@@ -416,7 +592,7 @@
       "main": [
         [
           {
-            "node": "DB: ingest",
+            "node": "Has photo?",
             "type": "main",
             "index": 0
           }
@@ -620,6 +796,119 @@
         [
           {
             "node": "Q: sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has photo?": {
+      "main": [
+        [
+          {
+            "node": "Photo: getFile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has voice?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Photo: getFile": {
+      "main": [
+        [
+          {
+            "node": "Photo: describe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Photo: describe": {
+      "main": [
+        [
+          {
+            "node": "Photo: describe apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Photo: describe apply": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has voice?": {
+      "main": [
+        [
+          {
+            "node": "Voice: getFile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice: getFile": {
+      "main": [
+        [
+          {
+            "node": "Voice: download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice: download": {
+      "main": [
+        [
+          {
+            "node": "Voice: transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice: transcribe": {
+      "main": [
+        [
+          {
+            "node": "Voice: apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice: apply": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
             "type": "main",
             "index": 0
           }
