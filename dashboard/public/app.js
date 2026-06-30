@@ -743,8 +743,10 @@ async function fanDetail(slug, id) {
 
 // ---------------- QUEUE ----------------
 let Q = [];
+let Q_FIRED = new Set(); // event_ids the user hit "send now" on (optimistic, until server confirms)
 async function queue(slug) {
   loading();
+  Q_FIRED = new Set();
   view.innerHTML = `
     <div class="row between" style="margin-bottom:12px">
       <div><span class="live-dot"></span><b>Live message queue</b> <span class="dim">— incoming DMs, the delay she picked, and when they send</span></div>
@@ -765,8 +767,10 @@ function qRender(slug) {
   const now = Date.now(); let cw = 0, cs = 0, cx = 0;
   const html = Q.map(r => {
     let badge, last;
-    if (r.status === 'sent') { cs++; badge = '<span class="tag b-sent">sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
-    else if (r.status === 'superseded') { cx++; badge = '<span class="tag b-super">debounced</span>'; last = '<span class="dim">newer message replaced this</span>'; }
+    const eid = String(r.event_id);
+    if (r.status === 'sent') { cs++; Q_FIRED.delete(eid); badge = '<span class="tag b-sent">sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
+    else if (r.status === 'superseded') { cx++; Q_FIRED.delete(eid); badge = '<span class="tag b-super">debounced</span>'; last = '<span class="dim">newer message replaced this</span>'; }
+    else if (Q_FIRED.has(eid)) { cw++; badge = '<span class="tag b-flight">sending…</span>'; last = '<span class="dim mono">fired — generating reply</span>'; }
     else {
       const sched = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
       const ms = sched - now;
@@ -780,9 +784,11 @@ function qRender(slug) {
   $('#q-body').innerHTML = html;
   $('#q-w').textContent = cw; $('#q-s').textContent = cs; $('#q-x').textContent = cx;
   $('#q-body').querySelectorAll('[data-send]').forEach(b => b.onclick = async (e) => {
-    e.stopPropagation(); b.disabled = true; b.textContent = 'sending…';
-    try { await api(`/accounts/${slug}/queue/${b.dataset.send}/send-now`, { method: 'POST', body: '{}' }); toast('sent now'); }
-    catch (err) { toast('error: ' + err.message); }
+    e.stopPropagation();
+    const ev = String(b.dataset.send);
+    Q_FIRED.add(ev); qRender(slug); // optimistic: flip to "sending…" and drop the button now
+    try { await api(`/accounts/${slug}/queue/${ev}/send-now`, { method: 'POST', body: '{}' }); toast('sent now'); }
+    catch (err) { Q_FIRED.delete(ev); toast('error: ' + err.message); qRender(slug); }
   });
 }
 
