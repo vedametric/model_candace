@@ -60,7 +60,7 @@ export async function listBots({ force = false } = {}) {
   if (!force && _cache.rows && now - _cache.at < TTL_MS) return _cache.rows;
   const rows = await select(
     'bots',
-    'select=id,slug,display_name,platform_account,persona_notes,model,created_at,automation_paused&order=id',
+    'select=id,slug,display_name,platform_account,persona_notes,model,created_at,automation_paused,reply_delay&order=id',
   );
   _cache = { at: now, rows };
   return rows;

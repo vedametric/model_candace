@@ -30,6 +30,8 @@ alter table public.bots add column if not exists model text default 'gpt-4o';
 alter table public.bots add column if not exists telegram_handle text;   -- e.g. @candace_summers (funnel destination)
 alter table public.bots add column if not exists instagram_url text;
 alter table public.bots add column if not exists automation_paused boolean not null default false;  -- admin dashboard pause toggle
+alter table public.bots add column if not exists reply_delay jsonb not null default
+  '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb;  -- per-persona reply timing (see automation/n8n/REPLY_TIMING.md)
 
 -- ---- one row per fan, per bot, per platform --------------------------------
 create table if not exists public.fans (
@@ -99,13 +101,16 @@ declare
   v_prompt  text;
   v_model   text;
   v_paused  boolean;
+  v_delay   jsonb;
 begin
   -- bot (auto-create if new)
-  select id, system_prompt, model, automation_paused into v_bot_id, v_prompt, v_model, v_paused
+  select id, system_prompt, model, automation_paused, reply_delay
+    into v_bot_id, v_prompt, v_model, v_paused, v_delay
     from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
-    returning id, system_prompt, model, automation_paused into v_bot_id, v_prompt, v_model, v_paused;
+    returning id, system_prompt, model, automation_paused, reply_delay
+      into v_bot_id, v_prompt, v_model, v_paused, v_delay;
   end if;
 
   -- fan (upsert)
@@ -152,7 +157,8 @@ begin
     'recent',        v_recent,
     'system_prompt', coalesce(v_prompt, ''),
     'model',         coalesce(v_model, 'gpt-4o'),
-    'automation_paused', coalesce(v_paused, false)   -- admin dashboard pause flag (see automation/n8n/PAUSE_GATE.md)
+    'automation_paused', coalesce(v_paused, false),  -- admin dashboard pause flag (see automation/n8n/PAUSE_GATE.md)
+    'reply_delay', coalesce(v_delay, '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb)  -- per-persona timing (see automation/n8n/REPLY_TIMING.md)
   );
 end;
 $$;

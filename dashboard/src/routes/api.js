@@ -36,6 +36,38 @@ async function requireBot(slug) {
   return bot;
 }
 
+const DELAY_DEFAULT = { min_sec: 120, max_sec: 600, quick_chance: 0.15, quick_min_sec: 45, quick_max_sec: 120 };
+
+// Coerce a stored reply_delay into a clean, bounded shape for the UI.
+function normalizeDelay(d) {
+  const o = d && typeof d === 'object' ? d : {};
+  return {
+    min_sec: numOr(o.min_sec, DELAY_DEFAULT.min_sec),
+    max_sec: numOr(o.max_sec, DELAY_DEFAULT.max_sec),
+    quick_chance: numOr(o.quick_chance, DELAY_DEFAULT.quick_chance),
+    quick_min_sec: numOr(o.quick_min_sec, DELAY_DEFAULT.quick_min_sec),
+    quick_max_sec: numOr(o.quick_max_sec, DELAY_DEFAULT.quick_max_sec),
+  };
+}
+function numOr(v, d) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : d;
+}
+// Validate + clamp an incoming reply_delay edit. Throws on nonsense.
+function validateDelay(input) {
+  const d = normalizeDelay(input);
+  const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(v)));
+  d.min_sec = clampInt(d.min_sec, 0, 86400);
+  d.max_sec = clampInt(d.max_sec, 0, 86400);
+  d.quick_min_sec = clampInt(d.quick_min_sec, 0, 86400);
+  d.quick_max_sec = clampInt(d.quick_max_sec, 0, 86400);
+  d.quick_chance = Math.max(0, Math.min(1, Number(d.quick_chance)));
+  if (!Number.isFinite(d.quick_chance)) d.quick_chance = DELAY_DEFAULT.quick_chance;
+  if (d.max_sec < d.min_sec) throw Object.assign(new Error('max_sec must be ≥ min_sec'), { status: 400 });
+  if (d.quick_max_sec < d.quick_min_sec) throw Object.assign(new Error('quick_max_sec must be ≥ quick_min_sec'), { status: 400 });
+  return d;
+}
+
 function liftIntent(f) {
   const m = f.metadata || {};
   return {
@@ -104,6 +136,7 @@ router.get('/accounts/:slug', wrap(async (req, res) => {
     persona_notes: bot.persona_notes,
     model: bot.model,
     automation_paused: !!bot.automation_paused,
+    reply_delay: normalizeDelay(bot.reply_delay),
     system_prompt,
     hasContent: hasContent(bot.slug),
     socials: parseSocials(bot.slug),
@@ -164,6 +197,7 @@ router.patch('/accounts/:slug', wrap(async (req, res) => {
   const allow = ['display_name', 'model', 'persona_notes', 'system_prompt'];
   const body = {};
   for (const k of allow) if (k in (req.body || {})) body[k] = req.body[k];
+  if ('reply_delay' in (req.body || {})) body.reply_delay = validateDelay(req.body.reply_delay);
   if (!Object.keys(body).length) throw Object.assign(new Error('no editable fields supplied'), { status: 400 });
   const updated = await patch('bots', `id=eq.${bot.id}`, body);
   res.json({ ok: true, bot: updated[0] });

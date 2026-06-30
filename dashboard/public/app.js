@@ -170,6 +170,7 @@ async function persona(slug) {
       </div>
       <div class="panel"><h3>Reference images</h3><div class="ref-imgs">${refs}</div></div>
     </div>
+    ${timingPanel(d.reply_delay || {})}
     <div class="panel">
       <div class="row between"><h3 style="margin:0">System prompt (live DM brain)</h3>
         <button id="save-prompt" class="btn primary sm">Save system prompt</button></div>
@@ -193,7 +194,40 @@ async function persona(slug) {
     try { await api('/accounts/' + slug + '/automation', { method: 'POST', body: JSON.stringify({ paused }) }); toast(paused ? 'automation paused' : 'automation resumed'); persona(slug); }
     catch (e) { toast('error: ' + e.message); }
   };
+  const saveTiming = $('#save-timing');
+  if (saveTiming) saveTiming.onclick = async () => {
+    const rd = {
+      min_sec: +$('#t-min').value, max_sec: +$('#t-max').value,
+      quick_chance: +$('#t-qchance').value,
+      quick_min_sec: +$('#t-qmin').value, quick_max_sec: +$('#t-qmax').value,
+    };
+    try {
+      await api('/accounts/' + slug, { method: 'PATCH', body: JSON.stringify({ reply_delay: rd }) });
+      toast('reply timing saved'); persona(slug);
+    } catch (e) { toast('error: ' + e.message); }
+  };
   view.querySelectorAll('[data-doc]').forEach(wireDoc(slug));
+}
+function timingPanel(d) {
+  const mins = (s) => (s == null ? '' : (s / 60).toFixed(s % 60 ? 1 : 0) + 'm');
+  const v = {
+    min_sec: d.min_sec ?? 120, max_sec: d.max_sec ?? 600,
+    quick_chance: d.quick_chance ?? 0.15,
+    quick_min_sec: d.quick_min_sec ?? 45, quick_max_sec: d.quick_max_sec ?? 120,
+  };
+  const pct = Math.round(v.quick_chance * 100);
+  return `<div class="panel">
+    <div class="row between"><h3 style="margin:0">Reply timing (per persona)</h3>
+      <button id="save-timing" class="btn primary sm">Save timing</button></div>
+    <p class="muted" style="font-size:12.5px;margin:8px 0 14px">How long she waits before replying to a DM. Most replies use the normal window; <b>${pct}%</b> of the time she fires back quicker. Read live by the n8n flow (see <code>automation/n8n/REPLY_TIMING.md</code>).</p>
+    <div class="row" style="gap:22px;flex-wrap:wrap;align-items:flex-end">
+      <div class="field" style="margin:0"><label>Normal delay — min (sec)</label><input id="t-min" type="number" min="0" value="${v.min_sec}" style="width:120px"><div class="muted" style="font-size:11px;margin-top:3px">${mins(v.min_sec)}</div></div>
+      <div class="field" style="margin:0"><label>Normal delay — max (sec)</label><input id="t-max" type="number" min="0" value="${v.max_sec}" style="width:120px"><div class="muted" style="font-size:11px;margin-top:3px">${mins(v.max_sec)}</div></div>
+      <div class="field" style="margin:0"><label>Quick-reply chance (0–1)</label><input id="t-qchance" type="number" min="0" max="1" step="0.05" value="${v.quick_chance}" style="width:120px"><div class="muted" style="font-size:11px;margin-top:3px">${pct}% of replies</div></div>
+      <div class="field" style="margin:0"><label>Quick delay — min (sec)</label><input id="t-qmin" type="number" min="0" value="${v.quick_min_sec}" style="width:120px"></div>
+      <div class="field" style="margin:0"><label>Quick delay — max (sec)</label><input id="t-qmax" type="number" min="0" value="${v.quick_max_sec}" style="width:120px"></div>
+    </div>
+  </div>`;
 }
 function docBlock(slug, doc) {
   return `<details class="prompt" style="margin-bottom:10px" data-docwrap="${esc(doc.name)}">
