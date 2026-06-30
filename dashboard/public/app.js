@@ -75,6 +75,9 @@ async function boot() {
   }
   renderSidebar();
   $('#refresh').onclick = () => route(true);
+  // mobile: hamburger opens the off-canvas sidebar; scrim closes it
+  const tgl = $('#navtoggle'); if (tgl) tgl.onclick = () => $('#app').classList.toggle('nav-open');
+  const scrim = $('#nav-scrim'); if (scrim) scrim.onclick = () => $('#app').classList.remove('nav-open');
   window.addEventListener('hashchange', () => route());
   if (!location.hash) location.hash = '#/overview';
   route();
@@ -171,6 +174,7 @@ function parseHash() {
 
 async function route(force) {
   clearTimers();
+  const appEl = $('#app'); if (appEl) appEl.classList.remove('nav-open'); // close mobile drawer on nav
   const r = parseHash();
   if (r.key) {
     setActive(r.key, r.tab);
