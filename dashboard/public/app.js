@@ -908,11 +908,16 @@ function qRender(key) {
       else if (now - sched < 90000) { cw++; badge = '<span class="tag b-flight">generating…</span>'; last = '<span class="dim mono">any second</span>'; }
       else { cx++; badge = '<span class="tag b-super">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
     }
-    return `<tr><td class="mono dim">${fmtClock(r.queued_at)}</td><td>${sourceBadge(r._platform)}</td><td><b>${esc(r.user)}</b></td>
+    const uname = (r.fan_id != null) ? `<a class="lnk" style="cursor:pointer" data-fan="${r.fan_id}" data-fslug="${esc(r._slug || '')}"><b>${esc(r.user)}</b></a>` : `<b>${esc(r.user)}</b>`;
+    return `<tr><td class="mono dim">${fmtClock(r.queued_at)}</td><td>${sourceBadge(r._platform)}</td><td>${uname}</td>
       <td class="truncate">${esc(r.msg)}</td><td class="mono">${fmtDur(r.delay || 0)}</td><td>${badge}</td><td>${last}</td></tr>`;
   }).join('') || '<tr><td colspan="7" class="muted">no messages yet</td></tr>';
   $('#q-body').innerHTML = html;
   $('#q-w').textContent = cw; $('#q-s').textContent = cs; $('#q-x').textContent = cx;
+  $('#q-body').querySelectorAll('[data-fan]').forEach(a => a.onclick = () => {
+    const fan = a.dataset.fan, sl = a.dataset.fslug;
+    if (fan && fan !== 'undefined' && sl) location.hash = `#/a/${key}/fans/${sl}.${fan}`;
+  });
   $('#q-body').querySelectorAll('[data-send]').forEach(b => b.onclick = async (e) => {
     e.stopPropagation();
     const ev = String(b.dataset.send); const sl = b.dataset.slug;
