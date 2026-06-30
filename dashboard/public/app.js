@@ -351,7 +351,7 @@ async function studio(slug) {
     </div>
 
     <div class="panel">
-      <div class="row between"><h3 style="margin:0">Generation queue</h3><button id="s-refresh" class="btn ghost sm">⟳ refresh</button></div>
+      <div class="row between"><h3 style="margin:0"><span class="live-dot"></span>Generation queue</h3><button id="s-refresh" class="btn ghost sm">⟳ refresh</button></div>
       <div id="s-queue"><div class="loading">loading…</div></div>
     </div>`;
 
@@ -432,6 +432,7 @@ async function studio(slug) {
     } catch (e) { $('#s-queue').innerHTML = errBox(e); }
   }
   loadQueue();
+  timers.push(setInterval(loadQueue, 5000)); // auto-refresh; cleared by clearTimers() on nav
 }
 function genRow(r, slug) {
   const opts = Array.isArray(r.options) ? r.options : [];
