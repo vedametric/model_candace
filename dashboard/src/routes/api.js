@@ -288,7 +288,8 @@ router.post('/accounts/:slug/gen/preview', wrap(async (req, res) => {
   const est = estimateCost(brief);
   const method = brief.kind === 'video' ? suggestMethod(brief) : null;
   res.json({ prompt: built.prompt, identity_ref: built.identity_ref, params: built.params,
-    reworded: built.reworded, notes: built.notes, est_cost_cr: est.credits, cost_basis: est.basis, method });
+    reworded: built.reworded, notes: built.notes, reference_driven: !!built.reference_driven,
+    est_cost_cr: est.credits, cost_basis: est.basis, method });
 }));
 
 // queue a generation request (server builds the compliant prompt)

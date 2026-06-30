@@ -95,6 +95,12 @@ export function estimateCost(brief = {}) {
 
 // Build the compliant prompt from a brief. Returns { prompt, reworded, notes, identity_ref, params }.
 export function buildPrompt(brief = {}) {
+  // Reference-driven mode: a picture was uploaded ("put Candace in THIS picture") or
+  // we're iterating from a chosen frame. Don't inject generic defaults — recreate the
+  // reference's scene/pose/outfit and only apply explicit overrides.
+  if (brief.reference_image || brief.has_reference || brief.compose_from_job) {
+    return buildReferencePrompt(brief);
+  }
   const b = { ...DEFAULTS, ...sanitizeBrief(brief) };
   const isVideoFrame = (brief.kind === 'video');
   // For a video start frame, force tight face framing (§5/§7.2) unless the user was explicit.
@@ -116,6 +122,34 @@ export function buildPrompt(brief = {}) {
     reworded: notes.length > 0,
     notes,
     identity_ref: IDENTITY_REF,
+    params: { model: 'nano_banana_pro', resolution: '2k', aspect_ratio: '9:16', count: clampInt(brief.count, 1, 4, 2) },
+  };
+}
+
+// Reference-driven prompt: keep Candace's identity (first ref), recreate the uploaded
+// picture / chosen frame (second ref). Only user-filled fields become overrides.
+function buildReferencePrompt(brief) {
+  const s = sanitizeBrief(brief);
+  const notes = [];
+  const light = s.light || 'matching the reference';
+  const prefix =
+    `Authentic UGC iPhone photo, candid and unposed, natural light (${light}), no studio, ` +
+    `no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing.`;
+  let body =
+    `Take the woman from the FIRST reference image — keep her EXACT same face, long blonde hair, ` +
+    `blue eyes, fair light skin and petite curvy figure — and place her into the SECOND reference image: ` +
+    `recreate its scene, setting, pose, body position, outfit, camera angle and framing as if she were ` +
+    `the person in it. Keep it tasteful and SFW, no nudity.`;
+  const adj = [];
+  if (s.outfit) { const o = filterSafe(s.outfit); notes.push(...o.notes); adj.push(`outfit: ${o.text}`); }
+  if (s.action) { const a = filterSafe(s.action); notes.push(...a.notes); adj.push(a.text); }
+  if (s.setting) adj.push(`setting: ${s.setting}`);
+  if (s.mood) adj.push(s.mood);
+  if (s.framing) adj.push(`framing: ${s.framing}`);
+  if (adj.length) body += `\nAdjustments (override the reference only where these conflict): ${adj.join('; ')}.`;
+  const prompt = `${prefix}\n${body}\nVertical 9:16. No text.`;
+  return {
+    prompt, reworded: notes.length > 0, notes, identity_ref: IDENTITY_REF, reference_driven: true,
     params: { model: 'nano_banana_pro', resolution: '2k', aspect_ratio: '9:16', count: clampInt(brief.count, 1, 4, 2) },
   };
 }

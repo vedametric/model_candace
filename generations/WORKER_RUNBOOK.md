@@ -57,6 +57,11 @@ Keep messages short and concrete (model, job id, what's happening, credits if kn
        face/identity from the first ref; let the second ref drive scene/pose/outfit. Word the
        prompt as "place the woman from the first reference into the scene/pose/outfit of the
        second reference, keeping her exact face…".
+     - **Enrich from what you SEE:** open the reference (Read it; if moderation blocks it,
+       SendUserFile). The dashboard's prompt now says "recreate the second reference"
+       generically — ADD the concrete scene/pose/outfit/props you actually see (e.g.
+       "holding a fishing rod, standing in a sunlit living room with a bookshelf behind
+       her") so banana reproduces it faithfully, while keeping Candace's identity.
    - Use the row's `prompt` (already compliant). If it still reads filter-risky, reword
      per §4.4 before spending.
    - Poll `job_display`. For each completed option, get its CloudFront URL. Write them to

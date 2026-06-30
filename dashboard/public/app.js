@@ -377,6 +377,7 @@ async function studio(slug) {
       const link = $('#s-driving').value.trim();
       if (link) brief.driving_video = { link };
     }
+    if ($('#s-ref') && $('#s-ref').files && $('#s-ref').files.length) brief.has_reference = true;
     return brief;
   }
   async function doPreview() {
@@ -389,6 +390,7 @@ async function studio(slug) {
           <span class="tag ok">~${p.est_cost_cr} cr</span>
           <span class="muted">${esc(p.cost_basis)}</span>
           ${p.method ? `<span class="tag buyer">${esc(p.method.method)}</span>` : ''}
+          ${p.reference_driven ? '<span class="tag stage">📎 reference-driven — recreates your uploaded picture</span>' : ''}
         </div>
         <textarea id="s-prompt" rows="9">${esc(p.prompt)}</textarea>
         ${p.method ? `<div class="muted" style="font-size:12px;margin-top:4px">method: ${esc(p.method.reason)}</div>` : ''}
