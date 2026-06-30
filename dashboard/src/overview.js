@@ -56,6 +56,8 @@ export async function buildOverview() {
       net_spent_cr: cc.net_spent_cr || 0,
       generations: cc.generations || 0,
       posts: cc.posts || 0,
+      automation_paused: !!b.automation_paused,
+      reply_delay: b.reply_delay || null,
     });
   }
 

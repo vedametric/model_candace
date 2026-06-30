@@ -127,15 +127,23 @@ async function overview() {
       <div class="panel"><h3>Fans by buyer type</h3>${buyer || '<div class="muted">no fan data</div>'}</div>
     </div>
     <div class="panel"><h3>Accounts</h3>
-      <table><thead><tr><th>Account</th><th>Platform</th><th>Fans</th><th>Generations</th><th>Posts</th><th>Spend</th><th>Model</th></tr></thead>
+      <table><thead><tr><th>Account</th><th>Platform</th><th>Fans</th><th>Generations</th><th>Posts</th><th>Spend</th><th>Pacing</th><th>Automation</th></tr></thead>
       <tbody>${d.accounts.map(a => `<tr data-slug="${esc(a.slug)}">
         <td><b>${esc(a.display_name)}</b>${a.hasContent ? '' : ' <span class="tag">no content</span>'}</td>
         <td class="dim">${esc(a.platform_account || '—')}</td>
         <td>${a.fans}</td><td>${a.generations}</td><td>${a.posts}</td>
-        <td>${a.net_spent_cr} cr</td><td class="dim">${esc(a.model || '—')}</td></tr>`).join('')}
+        <td>${a.net_spent_cr} cr</td>
+        <td class="dim">${fmtPacing(a.reply_delay)}</td>
+        <td>${a.automation_paused ? '<span class="tag pend">paused</span>' : '<span class="tag ok">active</span>'}</td></tr>`).join('')}
       </tbody></table>
     </div>`;
   view.querySelectorAll('tr[data-slug]').forEach(tr => tr.onclick = () => location.hash = `#/a/${tr.dataset.slug}/persona`);
+}
+function fmtPacing(d) {
+  if (!d) return '—';
+  const m = (s) => (s == null ? '?' : s >= 90 ? (s / 60).toFixed(s % 60 ? 1 : 0) + 'm' : s + 's');
+  const pct = Math.round((d.quick_chance ?? 0) * 100);
+  return `${m(d.min_sec)}–${m(d.max_sec)}<span class="muted"> · ${pct}% quick ${m(d.quick_min_sec)}–${m(d.quick_max_sec)}</span>`;
 }
 function barList(obj) {
   const ents = Object.entries(obj || {}).sort((a, b) => b[1] - a[1]);
