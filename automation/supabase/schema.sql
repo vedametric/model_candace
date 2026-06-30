@@ -324,6 +324,28 @@ begin
 end;
 $$;
 
+-- Rebuild a linked person's cross-platform memory from all their fan rows'
+-- current summaries. Called by the responders after each profile update so the
+-- shared memory (incl. accumulated raw facts) stays fresh, not frozen at link
+-- time. No-op if the fan isn't linked.
+create or replace function public.dm_refresh_person(p_fan_id bigint)
+returns void
+language plpgsql
+as $$
+declare
+  v_person_id bigint;
+  v_merged    text;
+begin
+  select person_id into v_person_id from public.fans where id = p_fan_id;
+  if v_person_id is null then return; end if;
+  select string_agg('[' || platform || ' @' || username || '] ' || summary, E'\n' order by platform, username)
+    into v_merged
+    from public.fans
+   where person_id = v_person_id and coalesce(btrim(summary), '') <> '';
+  update public.persons set summary = coalesce(v_merged, '') where id = v_person_id;
+end;
+$$;
+
 -- ---- seed the Candace bot ---------------------------------------------------
 insert into public.bots(slug, display_name, platform_account)
 values ('candace_summers', 'Candace Summers', 'candace_summers')

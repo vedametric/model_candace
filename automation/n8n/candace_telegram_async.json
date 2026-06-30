@@ -11,7 +11,10 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-2160, 80],
+      "position": [
+        -2160,
+        80
+      ],
       "id": "tgwh0001-0001-4001-8001-000000000001",
       "name": "Webhook (Telegram bridge)",
       "webhookId": "candace-telegram-async"
@@ -22,7 +25,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1960, 80],
+      "position": [
+        -1960,
+        80
+      ],
       "id": "tgex0001-0001-4001-8001-000000000001",
       "name": "Extract Inbound"
     },
@@ -36,7 +42,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1860, 240],
+      "position": [
+        -1860,
+        240
+      ],
       "id": "tgdd0001-0001-4001-8001-000000000001",
       "name": "Dedup: read fan",
       "alwaysOutputData": true
@@ -47,7 +56,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1810, 80],
+      "position": [
+        -1810,
+        80
+      ],
       "id": "tgdd0002-0002-4002-8002-000000000002",
       "name": "Dedup: gate"
     },
@@ -64,7 +76,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1760, 80],
+      "position": [
+        -1760,
+        80
+      ],
       "id": "tgin0001-0001-4001-8001-000000000001",
       "name": "DB: ingest"
     },
@@ -74,7 +89,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1560, 80],
+      "position": [
+        -1560,
+        80
+      ],
       "id": "tgdl0001-0001-4001-8001-000000000001",
       "name": "Set Delay"
     },
@@ -91,7 +109,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1460, 80],
+      "position": [
+        -1460,
+        80
+      ],
       "id": "tgqe0001-0001-4001-8001-000000000001",
       "name": "Q: enqueue"
     },
@@ -106,7 +127,10 @@
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [-1360, 80],
+      "position": [
+        -1360,
+        80
+      ],
       "id": "tgwt0001-0001-4001-8001-000000000001",
       "name": "Wait (human delay)",
       "webhookId": "wait-candace-telegram-async"
@@ -121,7 +145,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1160, 80],
+      "position": [
+        -1160,
+        80
+      ],
       "id": "tggf0001-0001-4001-8001-000000000001",
       "name": "DB: get fan"
     },
@@ -131,7 +158,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-960, 80],
+      "position": [
+        -960,
+        80
+      ],
       "id": "tgck0001-0001-4001-8001-000000000001",
       "name": "Check Latest"
     },
@@ -141,7 +171,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-760, 80],
+      "position": [
+        -760,
+        80
+      ],
       "id": "tgbc0001-0001-4001-8001-000000000001",
       "name": "Build Classify Request"
     },
@@ -158,7 +191,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-560, 80],
+      "position": [
+        -560,
+        80
+      ],
       "id": "tgcl0001-0001-4001-8001-000000000001",
       "name": "Classify (OpenAI)"
     },
@@ -168,7 +204,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-360, 80],
+      "position": [
+        -360,
+        80
+      ],
       "id": "tgbm0001-0001-4001-8001-000000000001",
       "name": "Build Messages"
     },
@@ -185,7 +224,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-160, 80],
+      "position": [
+        -160,
+        80
+      ],
       "id": "tgai0001-0001-4001-8001-000000000001",
       "name": "Candace AI (OpenAI)"
     },
@@ -195,7 +237,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [40, 80],
+      "position": [
+        40,
+        80
+      ],
       "id": "tgfr0001-0001-4001-8001-000000000001",
       "name": "Format Reply"
     },
@@ -212,7 +257,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [240, 80],
+      "position": [
+        240,
+        80
+      ],
       "id": "tglr0001-0001-4001-8001-000000000001",
       "name": "DB: log reply"
     },
@@ -225,7 +273,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -235,17 +286,23 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 0],
+      "position": [
+        440,
+        0
+      ],
       "id": "tgsd0001-0001-4001-8001-000000000001",
       "name": "Telegram: send reply (bridge)"
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst sys = [\n'you are an expert retention strategist for a creator\\u2019s private telegram. candace chats one on one with men to make them fall for her and keep coming back. she is NOT selling anything here. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: how attached and hooked he is, where he is in the relationship, his type, and the exact technique to keep him coming back. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"attachment_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [new, rapport, warming, hooked, regular, fading, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to deepen his attachment from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": two short sentences candace should remember about him, who he is and where things stand',\n'}',\n'attachment_score rubric: 0-20 cold or barely engaged. 21-40 mild, casual chatting. 41-60 warming, engaged, complimenting, putting in effort. 61-80 hooked, jealousy or calls her special or different, future talk, initiates often, says he thinks about her. 81-100 obsessed, messages constantly, clearly craving her, emotionally invested, devoted.',\n'stage: new=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. regular=keeps coming back consistently. fading=going quiet or cooling. lost=gone or hostile.',\n'technique by type: provider or baller, make him feel like the man and needed. submissive, dominate and make him earn your attention. lonely or romantic, build emotional intimacy and girlfriend energy. tire_kicker, do not over invest, keep light.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst sys = [\n'you are an expert retention strategist for a creator\\u2019s private telegram. candace chats one on one with men to make them fall for her and keep coming back. she is NOT selling anything here. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: how attached and hooked he is, where he is in the relationship, his type, and the exact technique to keep him coming back. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"attachment_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [new, rapport, warming, hooked, regular, fading, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to deepen his attachment from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": her DURABLE MEMORY of him to reuse in future chats. PRESERVE everything already in previous notes and ADD any new concrete facts he revealed this conversation. format: one line on where things stand between you, then on a new line \"facts:\" and short bullet points (use • not dashes) of concrete things you know about him: his name, age, where he lives, his job, relationship status, pets, family, interests, plans, what he likes, anything specific he actually said. only true things he really shared. dedupe, most important first, NEVER drop a fact you already knew.',\n'}',\n'attachment_score rubric: 0-20 cold or barely engaged. 21-40 mild, casual chatting. 41-60 warming, engaged, complimenting, putting in effort. 61-80 hooked, jealousy or calls her special or different, future talk, initiates often, says he thinks about her. 81-100 obsessed, messages constantly, clearly craving her, emotionally invested, devoted.',\n'stage: new=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. regular=keeps coming back consistently. fading=going quiet or cooling. lost=gone or hostile.',\n'technique by type: provider or baller, make him feel like the man and needed. submissive, dominate and make him earn your attention. lonely or romantic, build emotional intimacy and girlfriend energy. tire_kicker, do not over invest, keep light.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 200],
+      "position": [
+        440,
+        200
+      ],
       "id": "tgbp0001-0001-4001-8001-000000000001",
       "name": "Build Profile Request"
     },
@@ -257,12 +314,15 @@
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.2, max_tokens: 320, response_format: { type: 'json_object' }, messages: $json.profileMessages } }}",
+        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.2, max_tokens: 600, response_format: { type: 'json_object' }, messages: $json.profileMessages } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 200],
+      "position": [
+        640,
+        200
+      ],
       "id": "tgpf0001-0001-4001-8001-000000000001",
       "name": "Profiler (OpenAI)"
     },
@@ -272,7 +332,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [840, 200],
+      "position": [
+        840,
+        200
+      ],
       "id": "tgap0001-0001-4001-8001-000000000001",
       "name": "Apply Profile"
     },
@@ -289,7 +352,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1040, 200],
+      "position": [
+        1040,
+        200
+      ],
       "id": "tgpa0001-0001-4001-8001-000000000001",
       "name": "DB: patch fan"
     },
@@ -306,36 +372,277 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 0],
+      "position": [
+        640,
+        0
+      ],
       "id": "tgqs0001-0001-4001-8001-000000000001",
       "name": "Q: sent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_refresh_person",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: $('Apply Profile').first().json.fan_id } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        200
+      ],
+      "id": "tgrp0001-0001-4001-8001-000000000001",
+      "name": "DB: refresh person"
     }
   ],
   "connections": {
-    "Webhook (Telegram bridge)": { "main": [[{ "node": "Extract Inbound", "type": "main", "index": 0 }]] },
-    "Extract Inbound": { "main": [[{ "node": "Dedup: read fan", "type": "main", "index": 0 }]] },
-    "Dedup: read fan": { "main": [[{ "node": "Dedup: gate", "type": "main", "index": 0 }]] },
-    "Dedup: gate": { "main": [[{ "node": "DB: ingest", "type": "main", "index": 0 }]] },
-    "DB: ingest": { "main": [[{ "node": "Set Delay", "type": "main", "index": 0 }]] },
-    "Set Delay": { "main": [[{ "node": "Q: enqueue", "type": "main", "index": 0 }]] },
-    "Q: enqueue": { "main": [[{ "node": "Wait (human delay)", "type": "main", "index": 0 }]] },
-    "Wait (human delay)": { "main": [[{ "node": "DB: get fan", "type": "main", "index": 0 }]] },
-    "DB: get fan": { "main": [[{ "node": "Check Latest", "type": "main", "index": 0 }]] },
-    "Check Latest": { "main": [[{ "node": "Build Classify Request", "type": "main", "index": 0 }]] },
-    "Build Classify Request": { "main": [[{ "node": "Classify (OpenAI)", "type": "main", "index": 0 }]] },
-    "Classify (OpenAI)": { "main": [[{ "node": "Build Messages", "type": "main", "index": 0 }]] },
-    "Build Messages": { "main": [[{ "node": "Candace AI (OpenAI)", "type": "main", "index": 0 }]] },
-    "Candace AI (OpenAI)": { "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]] },
-    "Format Reply": { "main": [[{ "node": "DB: log reply", "type": "main", "index": 0 }]] },
-    "DB: log reply": { "main": [[{ "node": "Telegram: send reply (bridge)", "type": "main", "index": 0 }, { "node": "Build Profile Request", "type": "main", "index": 0 }]] },
-    "Telegram: send reply (bridge)": { "main": [[{ "node": "Q: sent", "type": "main", "index": 0 }]] },
-    "Build Profile Request": { "main": [[{ "node": "Profiler (OpenAI)", "type": "main", "index": 0 }]] },
-    "Profiler (OpenAI)": { "main": [[{ "node": "Apply Profile", "type": "main", "index": 0 }]] },
-    "Apply Profile": { "main": [[{ "node": "DB: patch fan", "type": "main", "index": 0 }]] }
+    "Webhook (Telegram bridge)": {
+      "main": [
+        [
+          {
+            "node": "Extract Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inbound": {
+      "main": [
+        [
+          {
+            "node": "Dedup: read fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: read fan": {
+      "main": [
+        [
+          {
+            "node": "Dedup: gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: gate": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: ingest": {
+      "main": [
+        [
+          {
+            "node": "Set Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Delay": {
+      "main": [
+        [
+          {
+            "node": "Q: enqueue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Q: enqueue": {
+      "main": [
+        [
+          {
+            "node": "Wait (human delay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (human delay)": {
+      "main": [
+        [
+          {
+            "node": "DB: get fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: get fan": {
+      "main": [
+        [
+          {
+            "node": "Check Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Latest": {
+      "main": [
+        [
+          {
+            "node": "Build Classify Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Classify Request": {
+      "main": [
+        [
+          {
+            "node": "Classify (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Messages": {
+      "main": [
+        [
+          {
+            "node": "Candace AI (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candace AI (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "DB: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: log reply": {
+      "main": [
+        [
+          {
+            "node": "Telegram: send reply (bridge)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Profile Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: send reply (bridge)": {
+      "main": [
+        [
+          {
+            "node": "Q: sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Profile Request": {
+      "main": [
+        [
+          {
+            "node": "Profiler (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profiler (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Apply Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Profile": {
+      "main": [
+        [
+          {
+            "node": "DB: patch fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: patch fan": {
+      "main": [
+        [
+          {
+            "node": "DB: refresh person",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "pinData": {},
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "meta": {},
   "tags": []
 }
