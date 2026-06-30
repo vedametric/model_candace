@@ -1,5 +1,10 @@
 # Per-persona reply timing (editable from the dashboard)
 
+> ✅ **Already applied to the live n8n server** (`Candace ManyChat ASYNC`,
+> id `48WOVR3dC78VxYN8`, node `Set Delay`) on 2026-06-30. The snippet below is
+> the reference / for re-import. Editing **Reply timing** in the dashboard now
+> changes the live delay on the next inbound DM.
+
 The admin dashboard now controls each bot's reply delay. It's stored on
 `bots.reply_delay` (jsonb) and returned by `dm_ingest` so the n8n flow can read it
 live — **no redeploy needed when you change it**, the next inbound DM uses the new

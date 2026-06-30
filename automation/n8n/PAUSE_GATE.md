@@ -1,5 +1,11 @@
 # Honoring the dashboard's "Pause automation" toggle
 
+> ✅ **Already applied to the live n8n server** on 2026-06-30 — implemented inside
+> the `Set Delay` node (it returns early when `automation_paused` is true), so no
+> extra IF node was needed. The dashboard toggle now actually stops replies on the
+> next inbound DM (the message is still logged). The IF-node approach below is an
+> alternative for anyone re-importing the workflow from scratch.
+
 The admin dashboard can pause/resume a bot's auto-replies. It sets
 `bots.automation_paused` (via the `set_automation_paused` RPC). The flag is now
 also returned by `dm_ingest` as `automation_paused`, so the n8n flow can gate on

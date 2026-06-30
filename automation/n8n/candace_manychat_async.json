@@ -10,7 +10,10 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-2160, 80],
+      "position": [
+        -2160,
+        80
+      ],
       "id": "wh000001-0001-4001-8001-000000000001",
       "name": "Webhook (ManyChat)",
       "webhookId": "candace-manychat-async"
@@ -21,7 +24,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1960, 80],
+      "position": [
+        -1960,
+        80
+      ],
       "id": "ex000001-0001-4001-8001-000000000001",
       "name": "Extract Inbound"
     },
@@ -35,7 +41,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1860, 240],
+      "position": [
+        -1860,
+        240
+      ],
       "id": "dd000001-0001-4001-8001-000000000001",
       "name": "Dedup: read fan"
     },
@@ -45,7 +54,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1810, 80],
+      "position": [
+        -1810,
+        80
+      ],
       "id": "dd000002-0002-4002-8002-000000000002",
       "name": "Dedup: gate"
     },
@@ -62,17 +74,23 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1760, 80],
+      "position": [
+        -1760,
+        80
+      ],
       "id": "in000001-0001-4001-8001-000000000001",
       "name": "DB: ingest"
     },
     {
       "parameters": {
-        "jsCode": "// random, human-feeling delay before she replies. she is the prize, a little\n// aloof, not glued to her phone. most replies take 2-10 min; ~15% of the time\n// she happens to be around and fires back quicker (45-120s).\nconst r = Math.random();\nlet sec;\nif (r < 0.15) { sec = 45 + Math.floor(Math.random() * 75); }\nelse { sec = 120 + Math.floor(Math.random() * 480); }\nconst ctx = $('DB: ingest').first().json || {};\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, subscriber_id: ex.subscriber_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
+        "jsCode": "// human-feeling delay before she replies. timing + pause are PER-PERSONA, set in\n// the admin dashboard (bots.reply_delay / bots.automation_paused) and returned by\n// dm_ingest. See automation/n8n/REPLY_TIMING.md + PAUSE_GATE.md.\nconst ctx = $('DB: ingest').first().json || {};\n\n// pause: dashboard toggled this bot off -> inbound already logged by dm_ingest,\n// just don't queue or reply.\nif (ctx.automation_paused === true) { return []; }\n\nconst d = ctx.reply_delay || {};\nconst num = (v, dft) => (Number.isFinite(Number(v)) ? Number(v) : dft);\nconst minS = num(d.min_sec, 120);\nconst maxS = num(d.max_sec, 600);\nconst qP   = num(d.quick_chance, 0.15);\nconst qMin = num(d.quick_min_sec, 45);\nconst qMax = num(d.quick_max_sec, 120);\n\nlet sec;\nif (Math.random() < qP) { sec = Math.round(qMin + Math.random() * Math.max(0, qMax - qMin)); }\nelse { sec = Math.round(minS + Math.random() * Math.max(0, maxS - minS)); }\n\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, subscriber_id: ex.subscriber_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1560, 80],
+      "position": [
+        -1560,
+        80
+      ],
       "id": "dl000001-0001-4001-8001-000000000001",
       "name": "Set Delay"
     },
@@ -89,7 +107,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1460, 80],
+      "position": [
+        -1460,
+        80
+      ],
       "id": "qe000001-0001-4001-8001-000000000001",
       "name": "Q: enqueue"
     },
@@ -104,7 +125,10 @@
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [-1360, 80],
+      "position": [
+        -1360,
+        80
+      ],
       "id": "wt000001-0001-4001-8001-000000000001",
       "name": "Wait (human delay)",
       "webhookId": "wait-candace-async"
@@ -119,7 +143,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1160, 80],
+      "position": [
+        -1160,
+        80
+      ],
       "id": "gf000001-0001-4001-8001-000000000001",
       "name": "DB: get fan"
     },
@@ -129,7 +156,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-960, 80],
+      "position": [
+        -960,
+        80
+      ],
       "id": "ck000001-0001-4001-8001-000000000001",
       "name": "Check Latest"
     },
@@ -139,7 +169,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-760, 80],
+      "position": [
+        -760,
+        80
+      ],
       "id": "bc000001-0001-4001-8001-000000000001",
       "name": "Build Classify Request"
     },
@@ -156,7 +189,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-560, 80],
+      "position": [
+        -560,
+        80
+      ],
       "id": "cl000001-0001-4001-8001-000000000001",
       "name": "Classify (OpenAI)"
     },
@@ -166,7 +202,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-360, 80],
+      "position": [
+        -360,
+        80
+      ],
       "id": "bm000001-0001-4001-8001-000000000001",
       "name": "Build Messages"
     },
@@ -183,7 +222,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-160, 80],
+      "position": [
+        -160,
+        80
+      ],
       "id": "ai000001-0001-4001-8001-000000000001",
       "name": "Candace AI (OpenAI)"
     },
@@ -193,7 +235,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [40, 80],
+      "position": [
+        40,
+        80
+      ],
       "id": "fr000001-0001-4001-8001-000000000001",
       "name": "Format Reply"
     },
@@ -210,7 +255,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [240, 80],
+      "position": [
+        240,
+        80
+      ],
       "id": "lr000001-0001-4001-8001-000000000001",
       "name": "DB: log reply"
     },
@@ -223,7 +271,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -233,7 +284,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 0],
+      "position": [
+        440,
+        0
+      ],
       "id": "mc000001-0001-4001-8001-000000000001",
       "name": "ManyChat: send reply"
     },
@@ -243,7 +297,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 200],
+      "position": [
+        440,
+        200
+      ],
       "id": "bp000001-0001-4001-8001-000000000001",
       "name": "Build Profile Request"
     },
@@ -260,7 +317,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 200],
+      "position": [
+        640,
+        200
+      ],
       "id": "pf000001-0001-4001-8001-000000000001",
       "name": "Profiler (OpenAI)"
     },
@@ -270,7 +330,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [840, 200],
+      "position": [
+        840,
+        200
+      ],
       "id": "ap000001-0001-4001-8001-000000000001",
       "name": "Apply Profile"
     },
@@ -287,7 +350,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1040, 200],
+      "position": [
+        1040,
+        200
+      ],
       "id": "pa000001-0001-4001-8001-000000000001",
       "name": "DB: patch fan"
     },
@@ -304,36 +370,246 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 0],
+      "position": [
+        640,
+        0
+      ],
       "id": "qs000001-0001-4001-8001-000000000001",
       "name": "Q: sent"
     }
   ],
   "connections": {
-    "Webhook (ManyChat)": { "main": [[{ "node": "Extract Inbound", "type": "main", "index": 0 }]] },
-    "Extract Inbound": { "main": [[{ "node": "Dedup: read fan", "type": "main", "index": 0 }]] },
-    "Dedup: read fan": { "main": [[{ "node": "Dedup: gate", "type": "main", "index": 0 }]] },
-    "Dedup: gate": { "main": [[{ "node": "DB: ingest", "type": "main", "index": 0 }]] },
-    "DB: ingest": { "main": [[{ "node": "Set Delay", "type": "main", "index": 0 }]] },
-    "Set Delay": { "main": [[{ "node": "Q: enqueue", "type": "main", "index": 0 }]] },
-    "Q: enqueue": { "main": [[{ "node": "Wait (human delay)", "type": "main", "index": 0 }]] },
-    "Wait (human delay)": { "main": [[{ "node": "DB: get fan", "type": "main", "index": 0 }]] },
-    "DB: get fan": { "main": [[{ "node": "Check Latest", "type": "main", "index": 0 }]] },
-    "Check Latest": { "main": [[{ "node": "Build Classify Request", "type": "main", "index": 0 }]] },
-    "Build Classify Request": { "main": [[{ "node": "Classify (OpenAI)", "type": "main", "index": 0 }]] },
-    "Classify (OpenAI)": { "main": [[{ "node": "Build Messages", "type": "main", "index": 0 }]] },
-    "Build Messages": { "main": [[{ "node": "Candace AI (OpenAI)", "type": "main", "index": 0 }]] },
-    "Candace AI (OpenAI)": { "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]] },
-    "Format Reply": { "main": [[{ "node": "DB: log reply", "type": "main", "index": 0 }]] },
-    "DB: log reply": { "main": [[{ "node": "ManyChat: send reply", "type": "main", "index": 0 }, { "node": "Build Profile Request", "type": "main", "index": 0 }]] },
-    "ManyChat: send reply": { "main": [[{ "node": "Q: sent", "type": "main", "index": 0 }]] },
-    "Build Profile Request": { "main": [[{ "node": "Profiler (OpenAI)", "type": "main", "index": 0 }]] },
-    "Profiler (OpenAI)": { "main": [[{ "node": "Apply Profile", "type": "main", "index": 0 }]] },
-    "Apply Profile": { "main": [[{ "node": "DB: patch fan", "type": "main", "index": 0 }]] }
+    "Webhook (ManyChat)": {
+      "main": [
+        [
+          {
+            "node": "Extract Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inbound": {
+      "main": [
+        [
+          {
+            "node": "Dedup: read fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: read fan": {
+      "main": [
+        [
+          {
+            "node": "Dedup: gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: gate": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: ingest": {
+      "main": [
+        [
+          {
+            "node": "Set Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Delay": {
+      "main": [
+        [
+          {
+            "node": "Q: enqueue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Q: enqueue": {
+      "main": [
+        [
+          {
+            "node": "Wait (human delay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (human delay)": {
+      "main": [
+        [
+          {
+            "node": "DB: get fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: get fan": {
+      "main": [
+        [
+          {
+            "node": "Check Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Latest": {
+      "main": [
+        [
+          {
+            "node": "Build Classify Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Classify Request": {
+      "main": [
+        [
+          {
+            "node": "Classify (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Messages": {
+      "main": [
+        [
+          {
+            "node": "Candace AI (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candace AI (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "DB: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: log reply": {
+      "main": [
+        [
+          {
+            "node": "ManyChat: send reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Profile Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ManyChat: send reply": {
+      "main": [
+        [
+          {
+            "node": "Q: sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Profile Request": {
+      "main": [
+        [
+          {
+            "node": "Profiler (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profiler (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Apply Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Profile": {
+      "main": [
+        [
+          {
+            "node": "DB: patch fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "pinData": {},
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "meta": {},
   "tags": []
 }

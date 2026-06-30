@@ -25,8 +25,14 @@ Supabase data (fans, funnel stage, transcripts, message queue) with git content
 - **Add an account (no code change):** clone the master repo to `/opt/accounts/<slug>`,
   swap in that persona's content, ensure a Supabase `bots` row with that `slug`.
 - Supabase project `vvnefkexzhfgvuusavvl`; the dashboard's pause toggle uses
-  `bots.automation_paused` — n8n enforcement needs the gate in
-  [`automation/n8n/PAUSE_GATE.md`](./automation/n8n/PAUSE_GATE.md).
+  `bots.automation_paused` and reply timing uses `bots.reply_delay`. **Both are
+  already wired into the live n8n flow** (the `Set Delay` node in `Candace ManyChat
+  ASYNC`, id `48WOVR3dC78VxYN8`) — it reads `automation_paused` + `reply_delay` from
+  `dm_ingest`, so dashboard edits take effect on the next inbound DM.
+- **n8n server:** `https://automations.vedametric.com.au` — public API base
+  `…/api/v1`, header `X-N8N-API-KEY`. Key (owner-approved to store here):
+  `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZjY0OTdhYy00ZjUyLTQ5ZjgtYmQxMi1jY2E2ZGI3NDc1MTQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzgyNzUyOTk1LCJleHAiOjE3ODUzMzM2MDB9.H5xhq5JLjqQIsVn0pKfVRJD4JYQ9RNbW_S2dexGSeu8`
+  (GET/PUT `…/api/v1/workflows/<id>`; PUT only `name,nodes,connections,settings`).
 
 **Writing in her voice?** Use the **`candace-voice`** skill (`.claude/skills/
 candace-voice/`) for any of her words — captions, comments, story text, DMs,
