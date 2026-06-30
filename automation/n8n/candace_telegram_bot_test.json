@@ -1,0 +1,635 @@
+{
+  "name": "Candace Telegram BOT test (native Telegram Trigger + sendMessage)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2160,
+        80
+      ],
+      "id": "tgwh0001-0001-4001-8001-000000000001",
+      "name": "Telegram Trigger",
+      "webhookId": "candace-bot-test"
+    },
+    {
+      "parameters": {
+        "jsCode": "// inbound from the native Telegram Trigger (BotFather bot).\nconst t = $json.message || $json.edited_message || $json.channel_post || $json;\nconst from = t.from || {};\nconst chat = t.chat || {};\nconst text = (t.text || t.caption || '').toString().trim();\nconst display = [from.first_name, from.last_name].filter(Boolean).join(' ') || from.username || 'him';\nconst username = (from.username || String(from.id || '') || display || 'unknown').toString().toLowerCase();\nconst chat_id = String(chat.id || from.id || '');\nconst interaction = String(t.message_id || '');\nreturn [{ json: { username: username, display: display, chat_id: chat_id, msg: text || '(he sent a sticker or an empty message, greet him and tease him lightly)', interaction: interaction } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1960,
+        80
+      ],
+      "id": "tgex0001-0001-4001-8001-000000000001",
+      "name": "Extract Inbound"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=metadata&platform=eq.telegram&username=eq.' + encodeURIComponent($json.username) }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1860,
+        240
+      ],
+      "id": "tgdd0001-0001-4001-8001-000000000001",
+      "name": "Dedup: read fan",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// duplicate guard: if the bridge ever re-delivers the same message (same\n// message_id) for this fan, drop it so she does not reply twice.\nconst ex = $('Extract Inbound').first().json;\nconst items = $('Dedup: read fan').all();\nlet meta = {};\nif (items.length === 1 && Array.isArray(items[0].json)) { if (items[0].json.length) meta = items[0].json[0].metadata || {}; }\nelse if (items.length && items[0].json && items[0].json.metadata) { meta = items[0].json.metadata || {}; }\nconst last = (meta && meta.last_interaction_ts) ? String(meta.last_interaction_ts) : '';\nconst cur = ex.interaction ? String(ex.interaction) : '';\nif (cur && last && cur === last) { return []; }\nreturn [{ json: ex }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1810,
+        80
+      ],
+      "id": "tgdd0002-0002-4002-8002-000000000002",
+      "name": "Dedup: gate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_ingest",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_bot: 'candace_telegram', p_platform: 'telegram', p_username: $json.username, p_display: $json.display, p_user_msg: $json.msg, p_window: 12 } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1760,
+        80
+      ],
+      "id": "tgin0001-0001-4001-8001-000000000001",
+      "name": "DB: ingest"
+    },
+    {
+      "parameters": {
+        "jsCode": "// human-feeling delay + pause gate, PER-PERSONA. timing comes from\n// bots.reply_delay and the pause from bots.automation_paused (admin dashboard),\n// both returned by dm_ingest. Telegram has its own reply_delay (more present\n// than tiktok). Same convention as the live ManyChat workflow.\nconst ctx = $('DB: ingest').first().json || {};\n// pause: dashboard toggled this bot off -> inbound already logged, don't queue/reply.\nif (ctx.automation_paused === true) { return []; }\nconst d = ctx.reply_delay || {};\nconst num = (v, dft) => (Number.isFinite(Number(v)) ? Number(v) : dft);\nconst minS = num(d.min_sec, 45);\nconst maxS = num(d.max_sec, 240);\nconst qP   = num(d.quick_chance, 0.30);\nconst qMin = num(d.quick_min_sec, 15);\nconst qMax = num(d.quick_max_sec, 60);\nlet sec;\nif (Math.random() < qP) { sec = Math.round(qMin + Math.random() * Math.max(0, qMax - qMin)); }\nelse { sec = Math.round(minS + Math.random() * Math.max(0, maxS - minS)); }\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, chat_id: ex.chat_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1560,
+        80
+      ],
+      "id": "tgdl0001-0001-4001-8001-000000000001",
+      "name": "Set Delay"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { bot_id: $json.bot_id, fan_id: $json.fan_id, type: 'dm_queued', payload: { platform: 'telegram', username: $json.username, display: $json.display, msg: $json.msg, msg_count: $json.myCount, delay_sec: $json.delaySec, queued_at: $json.queued_at, scheduled_for: $json.scheduled_for, resume_url: $execution.resumeUrl } } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1460,
+        80
+      ],
+      "id": "tgqe0001-0001-4001-8001-000000000001",
+      "name": "Q: enqueue"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": "={{ $('Set Delay').first().json.delaySec }}",
+        "resumeUnit": "seconds",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1360,
+        80
+      ],
+      "id": "tgwt0001-0001-4001-8001-000000000001",
+      "name": "Wait (human delay)",
+      "webhookId": "wait-candace-telegram-async"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=msg_count&id=eq.' + $('Set Delay').first().json.fan_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1160,
+        80
+      ],
+      "id": "tggf0001-0001-4001-8001-000000000001",
+      "name": "DB: get fan"
+    },
+    {
+      "parameters": {
+        "jsCode": "// debounce: only the LAST inbound message in a burst gets to reply.\n// if msg_count grew while we were waiting, a newer message arrived;\n// abort this run (return []) and let the newer run answer with full context.\nconst arr = $json;\nconst cur = Array.isArray(arr) ? (arr[0] || {}) : (arr || {});\nconst myCount = $('Set Delay').first().json.myCount;\nif (typeof cur.msg_count !== 'number' || cur.msg_count !== myCount) { return []; }\nreturn [{ json: { proceed: true } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        80
+      ],
+      "id": "tgck0001-0001-4001-8001-000000000001",
+      "name": "Check Latest"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst last = recent.length ? recent[recent.length - 1].content : '';\nconst history = recent.slice(-7).map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; }).join('\\n');\nconst sys = [\n'you are a fast silent classifier for a flirty 21yo female texting persona named candace, talking to a man one on one on her private telegram. she is the prize: cool, hard to get, never eager. her job here is NOT selling and NOT sending him anywhere. her job is to make him fall for her and keep coming back: build attachment, make him feel chosen, leave him craving the next reply. you never write her reply. you output one json object only, nothing else.',\n'read his latest message and the recent context, then output exactly this json:',\n'{',\n'\"archetype\": one of [sweet, cocky, shy, provider, submissive, lowffort, hostile, normal],',\n'\"intent\": one of [greeting, compliment, question_about_her, question_other, sexual, bot_test, misses_her, wants_to_meet, wants_personal_info, vulnerable, boring, insult, normal],',\n'\"effort\": one of [low, medium, high],',\n'\"ask_back\": boolean. DEFAULT false. true only about one in five, never if his last reply was a question, never if he is low effort, never on a compliment or question_about_her.',\n'\"directive\": a short specific instruction, max 22 words, for how candace plays THIS reply. she is the prize, never gushes, never over shares, never interviews him. lean on retention: leave him wanting more, use what she remembers about him, make him feel chosen.',\n'}',\n'directive guidance by case:',\n'- compliment: receive it coolly and confidently, a little smug, never gush.',\n'- question_about_her: brief and coy, a crumb not a paragraph, a small personal share is ok since this is her private space, no interview back.',\n'- misses_her or cant stop thinking about you: stay cool and a little pleased, reward it lightly, never match his eagerness, make it land but he still has to chase.',\n'- low effort or greeting with nothing behind it: short flat reply, give less.',\n'- cocky or flexing: tease, act unimpressed, make him work.',\n'- submissive or asks to be owned: deny and make him earn it, cool and in control.',\n'- vulnerable or had a bad day: a little real warmth, draw him out gently, this is the moment she leans in.',\n'- bot_test: confident playful deflection.',\n'- wants_to_meet or wants_personal_info: coy non answer, she does not give it up.',\n'- insult or hostile: unbothered amused one liner, never defensive.'\n].join('\\n');\nconst usr = 'his latest message: ' + (last || '(empty or sticker)') + '\\nrecent conversation oldest first:\\n' + (history || '(none)') + '\\noutput the json now.';\nreturn [{ json: { classifyMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        80
+      ],
+      "id": "tgbc0001-0001-4001-8001-000000000001",
+      "name": "Build Classify Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.2, max_tokens: 160, response_format: { type: 'json_object' }, messages: $json.classifyMessages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -560,
+        80
+      ],
+      "id": "tgcl0001-0001-4001-8001-000000000001",
+      "name": "Classify (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (cls.ask_back === true);\nconst directive = cls.directive || 'stay cool and playful, be the prize, keep it short, leave him wanting more.';\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio on your private telegram. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager, you make him crave you.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.person_summary && ctx.person_summary.length) messages.push({ role: 'system', content: 'what you remember about him from your conversations, including on your other apps, use it naturally for callbacks: ' + ctx.person_summary });\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private read on him here, who he is and where things are at, use it: ' + ctx.summary });\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + (askBack ? 'you may end with a question if it genuinely fits.' : 'do NOT end this reply with a question, make a statement.') + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\nconst count = ctx.count || 0;\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, archetype: archetype } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        80
+      ],
+      "id": "tgbm0001-0001-4001-8001-000000000001",
+      "name": "Build Messages"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: $json.model, temperature: 1, max_tokens: 300, frequency_penalty: 0.5, presence_penalty: 0.4, messages: $json.messages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "tgai0001-0001-4001-8001-000000000001",
+      "name": "Candace AI (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nlet reply = '';\ntry { reply = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { reply = ''; }\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nconst allowed = ['\\u{1F60F}', '\\u{1F92D}', '\\u{1F90D}', '\\u{1F440}'];\nlet ec = 0;\nreply = reply.replace(/\\p{Extended_Pictographic}/gu, function (m) { if (allowed.indexOf(m) === -1) return ''; ec++; return ec > 1 ? '' : m; });\nreply = reply.replace(/[\\u{FE0F}\\u{200D}]/gu, '');\nreply = reply.replace(/\\s*[\\u2014\\u2013]\\s*/g, ' ').replace(/\\s+-\\s+/g, ' ');\nreply = reply.toLowerCase().replace(/[ \\t]{2,}/g, ' ').trim();\nif (!reply) { reply = 'hey you'; }\nconst bm = $('Build Messages').first().json;\nreturn [{ json: { reply: reply, fan_id: bm.fan_id, bot_id: bm.bot_id } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        80
+      ],
+      "id": "tgfr0001-0001-4001-8001-000000000001",
+      "name": "Format Reply"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_log_reply",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: $json.fan_id, p_bot_id: $json.bot_id, p_reply: $json.reply } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        80
+      ],
+      "id": "tglr0001-0001-4001-8001-000000000001",
+      "name": "DB: log reply"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Set Delay').first().json.chat_id }}",
+        "text": "={{ $json.reply || $('Format Reply').first().json.reply }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "tgsd0001-0001-4001-8001-000000000001",
+      "name": "Telegram: send reply"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst sys = [\n'you are an expert retention strategist for a creator\\u2019s private telegram. candace chats one on one with men to make them fall for her and keep coming back. she is NOT selling anything here. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: how attached and hooked he is, where he is in the relationship, his type, and the exact technique to keep him coming back. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"attachment_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [new, rapport, warming, hooked, regular, fading, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to deepen his attachment from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": her DURABLE MEMORY of him to reuse in future chats. PRESERVE everything already in previous notes and ADD any new concrete facts he revealed this conversation. format: one line on where things stand between you, then on a new line \"facts:\" and short bullet points (use • not dashes) of concrete things you know about him: his name, age, where he lives, his job, relationship status, pets, family, interests, plans, what he likes, anything specific he actually said. only true things he really shared. dedupe, most important first, NEVER drop a fact you already knew.',\n'}',\n'attachment_score rubric: 0-20 cold or barely engaged. 21-40 mild, casual chatting. 41-60 warming, engaged, complimenting, putting in effort. 61-80 hooked, jealousy or calls her special or different, future talk, initiates often, says he thinks about her. 81-100 obsessed, messages constantly, clearly craving her, emotionally invested, devoted.',\n'stage: new=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. regular=keeps coming back consistently. fading=going quiet or cooling. lost=gone or hostile.',\n'technique by type: provider or baller, make him feel like the man and needed. submissive, dominate and make him earn your attention. lonely or romantic, build emotional intimacy and girlfriend energy. tire_kicker, do not over invest, keep light.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        200
+      ],
+      "id": "tgbp0001-0001-4001-8001-000000000001",
+      "name": "Build Profile Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'gpt-4o-mini', temperature: 0.2, max_tokens: 600, response_format: { type: 'json_object' }, messages: $json.profileMessages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        200
+      ],
+      "id": "tgpf0001-0001-4001-8001-000000000001",
+      "name": "Profiler (OpenAI)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst stage = p.stage || 'rapport';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.attachment_score === 'number') ? p.attachment_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst metadata = { attachment_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        200
+      ],
+      "id": "tgap0001-0001-4001-8001-000000000001",
+      "name": "Apply Profile"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?id=eq.' + $json.fan_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { summary: $json.summary, stage: $json.stage, buyer_type: $json.buyer_type, metadata: $json.metadata } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        200
+      ],
+      "id": "tgpa0001-0001-4001-8001-000000000001",
+      "name": "DB: patch fan"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { bot_id: $('Set Delay').first().json.bot_id, fan_id: $('Set Delay').first().json.fan_id, type: 'dm_sent', payload: { platform: 'telegram', username: $('Set Delay').first().json.username, msg_count: $('Set Delay').first().json.myCount, reply: $('Format Reply').first().json.reply, sent_at: $now.toISO() } } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "tgqs0001-0001-4001-8001-000000000001",
+      "name": "Q: sent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_refresh_person",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: $('Apply Profile').first().json.fan_id } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        200
+      ],
+      "id": "tgrp0001-0001-4001-8001-000000000001",
+      "name": "DB: refresh person"
+    }
+  ],
+  "connections": {
+    "Extract Inbound": {
+      "main": [
+        [
+          {
+            "node": "Dedup: read fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: read fan": {
+      "main": [
+        [
+          {
+            "node": "Dedup: gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: gate": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: ingest": {
+      "main": [
+        [
+          {
+            "node": "Set Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Delay": {
+      "main": [
+        [
+          {
+            "node": "Q: enqueue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Q: enqueue": {
+      "main": [
+        [
+          {
+            "node": "Wait (human delay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (human delay)": {
+      "main": [
+        [
+          {
+            "node": "DB: get fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: get fan": {
+      "main": [
+        [
+          {
+            "node": "Check Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Latest": {
+      "main": [
+        [
+          {
+            "node": "Build Classify Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Classify Request": {
+      "main": [
+        [
+          {
+            "node": "Classify (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Messages": {
+      "main": [
+        [
+          {
+            "node": "Candace AI (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candace AI (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "DB: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: log reply": {
+      "main": [
+        [
+          {
+            "node": "Telegram: send reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Profile Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Profile Request": {
+      "main": [
+        [
+          {
+            "node": "Profiler (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profiler (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Apply Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Profile": {
+      "main": [
+        [
+          {
+            "node": "DB: patch fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: patch fan": {
+      "main": [
+        [
+          {
+            "node": "DB: refresh person",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: send reply": {
+      "main": [
+        [
+          {
+            "node": "Q: sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "active": false,
+  "meta": {},
+  "tags": []
+}
