@@ -443,7 +443,7 @@ function genRow(r, slug) {
         <div><button class="btn primary sm" data-approve="${r.id}" data-job="${esc(o.job_id)}">approve</button></div>
       </div>`).join('')}</div>` : '';
   const refImg = r.brief && r.brief.reference_image && r.brief.reference_image.url
-    ? `<img src="${esc(r.brief.reference_image.url)}" title="your reference picture" style="height:46px;border-radius:6px;border:1px solid var(--line);cursor:zoom-in" onclick="openLightbox('${esc(r.brief.reference_image.url)}',false)">` : '';
+    ? `<img src="${esc(r.brief.reference_image.url)}" title="your reference picture" style="height:46px;border-radius:6px;border:1px solid var(--line);cursor:zoom-in" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'tag',textContent:'📎 ref'}))" onclick="openLightbox('${esc(r.brief.reference_image.url)}',false)">` : '';
   const logArr = Array.isArray(r.log) ? r.log : [];
   const logHtml = logArr.length ? `<details class="prompt" style="margin-top:8px"><summary>worker activity (${logArr.length})</summary>
     <div style="margin-top:6px">${logArr.slice(-12).map(l => `<div class="mono" style="font-size:12px"><span class="dim">${fmtClock(l.ts)}</span> <b>${esc(l.stage || '')}</b> ${esc(l.msg || '')}</div>`).join('')}</div></details>` : '';

@@ -59,9 +59,11 @@ jobs:
           # provisioning script
           sshpass -p "$DROPLET_PASS" rsync -az -e "ssh $SSHOPTS" \
             deploy/provision.sh "$DEST:$APP_DIR/provision.sh"
-          # account content (Candace = this repo's content)
+          # account content (Candace = this repo's content). Exclude 'uploads' so a
+          # deploy never wipes user-uploaded reference images (they're gitignored, so
+          # --delete would otherwise remove them from the droplet).
           sshpass -p "$DROPLET_PASS" rsync -az --delete -e "ssh $SSHOPTS" \
-            --exclude '.git' --exclude 'dashboard/node_modules' \
+            --exclude '.git' --exclude 'dashboard/node_modules' --exclude 'uploads' \
             ./ "$DEST:$ACCOUNTS_ROOT/$ACCOUNT_SLUG/"
 
       - name: Provision + start on droplet
