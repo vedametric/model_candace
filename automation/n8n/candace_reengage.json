@@ -1,0 +1,333 @@
+{
+  "name": "Candace Re-engage (manual restart from dashboard)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candace-reengage",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -900,
+        0
+      ],
+      "id": "rewh0001-re00-4000-8000-000000000000",
+      "name": "Webhook (re-engage)",
+      "webhookId": "candace-reengage"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b=($json.body&&typeof $json.body==='object')?$json.body:$json;\nconst fan_id=parseInt(b.fan_id||b.id,10);\nif(!fan_id) return [];\nreturn [{ json: { fan_id: fan_id } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        0
+      ],
+      "id": "Extract0-re02-4002-8002-000000000002",
+      "name": "Extract"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?id=eq.' + $json.fan_id + '&select=id,bot_id,platform,username,summary,metadata,bots(system_prompt,model)' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.pgrst.object+json"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -500,
+        0
+      ],
+      "id": "DBfan000-re01-4001-8001-000000000001",
+      "name": "DB: fan"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/messages?fan_id=eq.' + $('DB: fan').first().json.id + '&select=role,content&order=created_at.desc&limit=12' }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -300,
+        0
+      ],
+      "id": "DBrecent-re01-4001-8001-000000000001",
+      "name": "DB: recent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fan=$('DB: fan').first().json||{};\nconst bot=fan.bots||{};\nconst brain=(bot.system_prompt&&bot.system_prompt.length>50)?bot.system_prompt:'you are candace, a flirty 21yo from columbus ohio. all lowercase, short, no dashes, you are the prize.';\nconst model=(bot.model&&bot.model.length)?bot.model:'gpt-4o';\nlet rec=[]; const ra=$('DB: recent').all(); if(ra.length===1&&Array.isArray(ra[0].json))rec=ra[0].json; else rec=ra.map(i=>i.json);\nconst messages=[{role:'system',content:brain}];\nif(fan.summary&&fan.summary.length)messages.push({role:'system',content:'your private read on him, who he is and where things stand, use it: '+fan.summary});\nfor(const t of rec.slice().reverse()){ if(t&&t.role&&t.content)messages.push({role:t.role,content:t.content}); }\nmessages.push({role:'system',content:'RE-ENGAGE: the conversation has gone quiet. you are reaching out FIRST to revive it, like texting a guy you have not heard from in a bit. send ONE short, natural, on-brand opener that makes him want to reply. use something you remember about him if it fits. warm and a little playful but still the prize, never needy, never desperate, never guilt-trip him for going quiet. reply with only the message.'});\nconst m=fan.metadata||{};\nreturn [{ json: { messages: messages, model: model, fan_id: fan.id, bot_id: fan.bot_id, platform: fan.platform, chat_id: m.chat_id||'', business_connection_id: m.business_connection_id||'', manychat_id: m.manychat_id||'' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "Build000-re02-4002-8002-000000000002",
+      "name": "Build"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: $json.model, temperature: 1, max_tokens: 160, frequency_penalty: 0.5, presence_penalty: 0.4, messages: $json.messages } }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        100,
+        0
+      ],
+      "id": "AI000000-re01-4001-8001-000000000001",
+      "name": "AI"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d=$json||{};\nlet reply='';\ntry{ reply=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)?d.choices[0].message.content:''; }catch(e){reply='';}\nreply=(reply||'').trim();\nconst dq=String.fromCharCode(34);\nif(reply.length>1&&reply.charAt(0)===dq&&reply.charAt(reply.length-1)===dq){reply=reply.slice(1,-1).trim();}\nconst allowed=['\\u{1F60F}','\\u{1F92D}','\\u{1F90D}','\\u{1F440}'];\nlet ec=0;\nreply=reply.replace(/\\p{Extended_Pictographic}/gu,function(m){if(allowed.indexOf(m)===-1)return '';ec++;return ec>1?'':m;});\nreply=reply.replace(/[\\u{FE0F}\\u{200D}]/gu,'');\nreply=reply.replace(/\\s*[\\u2014\\u2013]\\s*/g,' ').replace(/\\s+-\\s+/g,' ');\nreply=reply.toLowerCase().replace(/[ \\t]{2,}/g,' ').trim();\nif(!reply)reply='hey you';\nconst b=$('Build').first().json||{};\nreturn [{ json: { reply: reply, fan_id: b.fan_id, bot_id: b.bot_id, platform: b.platform, chat_id: b.chat_id, business_connection_id: b.business_connection_id, manychat_id: b.manychat_id } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        0
+      ],
+      "id": "Format00-re02-4002-8002-000000000002",
+      "name": "Format"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_log_reply",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: $json.fan_id, p_bot_id: $json.bot_id, p_reply: $json.reply } }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        0
+      ],
+      "id": "DBlogrep-re01-4001-8001-000000000001",
+      "name": "DB: log reply"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Format').first().json.platform }}",
+              "operation": "equals",
+              "value2": "telegram"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        700,
+        0
+      ],
+      "id": "reif0001-re03-4003-8003-000000000003",
+      "name": "Platform?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot__BOT_TOKEN__/sendMessage",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { business_connection_id: $('Format').first().json.business_connection_id, chat_id: $('Format').first().json.chat_id, text: $('Format').first().json.reply } }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        -80
+      ],
+      "id": "Sendtele-re01-4001-8001-000000000001",
+      "name": "Send: telegram"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { subscriber_id: $('Format').first().json.manychat_id, data: { version: 'v2', content: { type: 'tiktok', messages: [ { type: 'text', text: $('Format').first().json.reply } ] } } } }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        90
+      ],
+      "id": "Sendtikt-re01-4001-8001-000000000001",
+      "name": "Send: tiktok"
+    }
+  ],
+  "connections": {
+    "Webhook (re-engage)": {
+      "main": [
+        [
+          {
+            "node": "Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract": {
+      "main": [
+        [
+          {
+            "node": "DB: fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: fan": {
+      "main": [
+        [
+          {
+            "node": "DB: recent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: recent": {
+      "main": [
+        [
+          {
+            "node": "Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build": {
+      "main": [
+        [
+          {
+            "node": "AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI": {
+      "main": [
+        [
+          {
+            "node": "Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format": {
+      "main": [
+        [
+          {
+            "node": "DB: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: log reply": {
+      "main": [
+        [
+          {
+            "node": "Platform?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Platform?": {
+      "main": [
+        [
+          {
+            "node": "Send: telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send: tiktok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "active": false,
+  "meta": {},
+  "tags": []
+}
