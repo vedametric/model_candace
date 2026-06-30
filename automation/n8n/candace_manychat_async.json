@@ -183,7 +183,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { subscriber_id: $('Set Delay').first().json.subscriber_id, data: { version: 'v2', content: { messages: [ { type: 'text', text: $json.reply || $('Format Reply').first().json.reply } ] } } } }}",
+        "jsonBody": "={{ { subscriber_id: $('Set Delay').first().json.subscriber_id, data: { version: 'v2', content: { type: 'tiktok', messages: [ { type: 'text', text: $json.reply || $('Format Reply').first().json.reply } ] } } } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
