@@ -109,5 +109,14 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-28_beach-walk-motion_5bd2305e.mp4` | motion | `5bd2305e` | animated from beach-glam-A + sophieraiin beach-walk ref (9s, 1080p out) |
 | `2026-06-28_beach-walk2-motion_6ea7177a.mp4` | motion | `6ea7177a` | SAME start frame (c51d30fa) as #1 + 2nd TikTok motion ref → identical Candace, new motion (8s, 1080p out) |
 
+## 2026-06-30 — user-uploaded scene reference (dashboard queue job #3)
+
+User submitted a scene/pose reference image via the admin dashboard. Candace was placed into that reference scene using identity ref + uploaded scene ref.
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-06-30_user-scene-ref-A_c1ffad3c.png` | image | `c1ffad3c` | option A (not picked) |
+| `2026-06-30_user-scene-ref-B_12b45f0a.png` | image | `12b45f0a` | ✅ option B — APPROVED by user |
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._

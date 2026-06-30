@@ -44,6 +44,10 @@ _Started with two sunset surf-walk frames (hot-pink hibiscus two-piece). User pi
 _Identity reference (`49aff4e5`). A = full side-profile head-to-toe (best pose match to the driving clip); B = 3/4 turn, face larger._
 > Authentic UGC iPhone mirror selfie taken in a gym, candid and unposed, natural gym lighting, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing, phone visible held up to the mirror. The woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure. She stands side-on / side profile to a full-length gym mirror, taking a mirror selfie with her phone held up near her face, posing confidently. She wears a fitted black workout tank top and cute pink high-waisted gym shorts, with white sneakers and ankle socks. Behind her is a casual gym with equipment and dark mirrored walls. Her FACE is clear and in focus, fine facial detail. Candid cheeky-but-cute fitness vibe, tasteful, no nudity. Vertical 9:16. No text.
 
+### user-scene-ref A/B · `c1ffad3c` · `12b45f0a` (B approved — dashboard queue job #3)
+_Two references: identity (`49aff4e5`) + user-uploaded scene/pose reference (Higgsfield media `75ce46d8`). User submitted a reference image via the admin dashboard; Candace was placed into that scene._
+> Authentic UGC iPhone photo, candid and unposed, natural light (matching the reference), no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing. Take the woman from the FIRST reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure — and place her into the SECOND reference image: recreate its scene, setting, pose, body position, outfit, camera angle and framing as if she were the person in it. Keep it tasteful and SFW, no nudity. Vertical 9:16. No text.
+
 ---
 
 ## Videos — seedance_2_0 (silent, 9:16)

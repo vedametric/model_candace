@@ -1,0 +1,21 @@
+[
+  {
+    "worker_run": "2026-06-30",
+    "queue_job_id": 3,
+    "slug": "candace_summers",
+    "kind": "image",
+    "status_processed": "approved",
+    "approved_job": "12b45f0a-99da-4a3f-9140-db8f2b6d316e",
+    "files_saved": [
+      "2026-06-30_user-scene-ref-A_c1ffad3c.png",
+      "2026-06-30_user-scene-ref-B_12b45f0a.png"
+    ],
+    "model": "nano_banana_pro",
+    "resolution": "2k",
+    "aspect_ratio": "9:16",
+    "cost_cr": 4,
+    "identity_ref": "49aff4e5-9c20-44a3-87e8-85ba87e0d642",
+    "scene_ref_media": "75ce46d8",
+    "set_done_at": "2026-06-30T10:30Z"
+  }
+]
