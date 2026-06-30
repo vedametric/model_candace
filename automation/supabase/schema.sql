@@ -29,6 +29,7 @@ alter table public.bots add column if not exists system_prompt text;
 alter table public.bots add column if not exists model text default 'gpt-4o';
 alter table public.bots add column if not exists telegram_handle text;   -- e.g. @candace_summers (funnel destination)
 alter table public.bots add column if not exists instagram_url text;
+alter table public.bots add column if not exists automation_paused boolean not null default false;  -- admin dashboard pause toggle
 
 -- ---- one row per fan, per bot, per platform --------------------------------
 create table if not exists public.fans (
@@ -97,13 +98,14 @@ declare
   v_recent  jsonb;
   v_prompt  text;
   v_model   text;
+  v_paused  boolean;
 begin
   -- bot (auto-create if new)
-  select id, system_prompt, model into v_bot_id, v_prompt, v_model
+  select id, system_prompt, model, automation_paused into v_bot_id, v_prompt, v_model, v_paused
     from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
-    returning id, system_prompt, model into v_bot_id, v_prompt, v_model;
+    returning id, system_prompt, model, automation_paused into v_bot_id, v_prompt, v_model, v_paused;
   end if;
 
   -- fan (upsert)
@@ -149,7 +151,8 @@ begin
     'count',         v_count,
     'recent',        v_recent,
     'system_prompt', coalesce(v_prompt, ''),
-    'model',         coalesce(v_model, 'gpt-4o')
+    'model',         coalesce(v_model, 'gpt-4o'),
+    'automation_paused', coalesce(v_paused, false)   -- admin dashboard pause flag (see automation/n8n/PAUSE_GATE.md)
   );
 end;
 $$;
@@ -198,6 +201,21 @@ begin
      set stage = coalesce(p_stage, stage),
          buyer_type = coalesce(p_buyer_type, buyer_type)
    where id = p_fan_id;
+end;
+$$;
+
+-- Admin dashboard: pause / resume a bot's auto-replies (the n8n flow gates on
+-- bots.automation_paused, returned by dm_ingest — see automation/n8n/PAUSE_GATE.md).
+create or replace function public.set_automation_paused(p_slug text, p_paused boolean)
+returns boolean
+language plpgsql
+as $$
+begin
+  update public.bots set automation_paused = p_paused where slug = p_slug;
+  insert into public.events(bot_id, type, payload)
+  select id, 'automation_paused', jsonb_build_object('paused', p_paused)
+    from public.bots where slug = p_slug;
+  return p_paused;
 end;
 $$;
 
