@@ -5,6 +5,26 @@ Newest entries at the top. Machine-readable mirror: `posted_log.json`.
 
 ---
 
+## #009 — Close-up beauty / poolside (golden hour / soft-romantic) ⚠️ PENDING RE-AUTH
+
+- **File:** `2026-06-30_009_close-up-poolside_instagram.png`
+- **Posted:** PENDING — Instagram access token invalidated; account needs re-authentication on upload-post.com
+- **Platform:** Instagram
+- **Profile:** `model_candacesummers`
+- **Post URL:** (pending)
+- **Platform post ID:** (pending)
+- **Media type:** Photo (768 × 1376, vertical)
+- **Location tag:** Columbus, Ohio
+- **Caption:**
+  > poolside golden hour and i genuinely don't wanna leave 🌅✨ someone come float with me… i'll share my spot if you're cute enough 🤭 columbus summers are *it* tbh 🤍
+- **First comment:** ok genuine question — do you actually swim at the pool or are you just there for the content bc 👀 drop your answer below lol
+- **Hashtags:** #columbussummer #614pool #ohiosummer #midwestpool #poolday #poolvibes #goldenhourvibes #summerglow #summerlook #sunsetselfie #blondiegirl #girlsofinstagram #summerbeauty #goldenhourgirl #poolsideglow #softgirlaesthetic #beautymood #naturallightphoto #pooldayz #ohiopool
+- **Source generation:** Higgsfield `nano_banana_2`, job `1c4d2e1f-30f3-43b0-9a24-f7b1f38d3e6c` (persona reference `0a3e996d-ff5b-44b3-a0bc-3dc240099cb9`)
+- **Upload service:** upload-post.com (`request_id` `ee280442a2e74b17bccb1a1e34219c88`, `job_id` `257c9e86aeef44dd97c5f1f6c026aaad`)
+- **Status:** ❌ failed — Instagram token invalidated (password change / FB security reset)
+
+---
+
 ## #008 — GRWM bathroom mirror (daylight / flirty-teasing)
 
 - **File:** `2026-06-29_008_grwm-bathroom_instagram.png`
