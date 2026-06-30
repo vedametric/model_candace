@@ -60,7 +60,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { bot_id: $json.bot_id, fan_id: $json.fan_id, type: 'dm_queued', payload: { username: $json.username, display: $json.display, msg: $json.msg, msg_count: $json.myCount, delay_sec: $json.delaySec, queued_at: $json.queued_at, scheduled_for: $json.scheduled_for } } }}",
+        "jsonBody": "={{ { bot_id: $json.bot_id, fan_id: $json.fan_id, type: 'dm_queued', payload: { username: $json.username, display: $json.display, msg: $json.msg, msg_count: $json.myCount, delay_sec: $json.delaySec, queued_at: $json.queued_at, scheduled_for: $json.scheduled_for, resume_url: $execution.resumeUrl } } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -71,8 +71,12 @@
     },
     {
       "parameters": {
-        "amount": "={{ $('Set Delay').first().json.delaySec }}",
-        "unit": "seconds"
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": "={{ $('Set Delay').first().json.delaySec }}",
+        "resumeUnit": "seconds",
+        "options": {}
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
