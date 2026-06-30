@@ -2,6 +2,56 @@
   "profile": "model_candacesummers",
   "posts": [
     {
+      "id": "009",
+      "file": "2026-06-30_009_close-up-poolside_instagram.png",
+      "posted_at_utc": null,
+      "platform": "instagram",
+      "profile_username": "model_candacesummers",
+      "post_url": null,
+      "platform_post_id": null,
+      "media_type": "photo",
+      "dimensions": "768x1376",
+      "location_tag": "Columbus, Ohio",
+      "caption": "poolside golden hour and i genuinely don't wanna leave 🌅✨ someone come float with me… i'll share my spot if you're cute enough 🤭 columbus summers are *it* tbh 🤍",
+      "first_comment": "ok genuine question — do you actually swim at the pool or are you just there for the content bc 👀 drop your answer below lol",
+      "hashtags": [
+        "#columbussummer",
+        "#614pool",
+        "#ohiosummer",
+        "#midwestpool",
+        "#poolday",
+        "#poolvibes",
+        "#goldenhourvibes",
+        "#summerglow",
+        "#summerlook",
+        "#sunsetselfie",
+        "#blondiegirl",
+        "#girlsofinstagram",
+        "#summerbeauty",
+        "#goldenhourgirl",
+        "#poolsideglow",
+        "#softgirlaesthetic",
+        "#beautymood",
+        "#naturallightphoto",
+        "#pooldayz",
+        "#ohiopool"
+      ],
+      "generation": {
+        "engine": "higgsfield",
+        "model": "nano_banana_2",
+        "job_id": "1c4d2e1f-30f3-43b0-9a24-f7b1f38d3e6c",
+        "persona_reference_job_id": "0a3e996d-ff5b-44b3-a0bc-3dc240099cb9"
+      },
+      "upload": {
+        "service": "upload-post.com",
+        "request_id": "ee280442a2e74b17bccb1a1e34219c88",
+        "job_id": "257c9e86aeef44dd97c5f1f6c026aaad",
+        "status": "failed",
+        "success": false,
+        "error": "Instagram access token invalidated — account needs re-authentication on upload-post.com"
+      }
+    },
+    {
       "id": "008",
       "file": "2026-06-29_008_grwm-bathroom_instagram.png",
       "posted_at_utc": "2026-06-29T00:08:39Z",
