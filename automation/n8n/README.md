@@ -14,6 +14,18 @@ just a map of what's in this folder.
 The dashboard page itself (`test/candace_queue.html`) is served by a small
 page-serving workflow at `/webhook/candace-queue-page`.
 
+## Telegram (talk & retain)
+
+| File | What it is |
+|---|---|
+| **`candace_telegram_async.json`** | **The Telegram responder.** Clone of the ManyChat async flow, retargeted to the Telethon bridge (real account). Reads per-platform delay from `bots.settings`, injects cross-platform memory (`person_summary`), funnel removed, retention-tuned classifier + profiler. Webhook path `candace-telegram-async`. |
+| `candace_admin_api.json` | Admin API for the console: list fans (`/candace-admin-fans`) + `dm_link_person` (`/candace-admin-link`) + `dm_unlink_fan` (`/candace-admin-unlink`) for manual cross-platform sync. |
+
+The Telegram send goes to the **bridge** (`automation/telegram/bridge/`), not a
+platform API — set the send node URL via `$env.CANDACE_BRIDGE_URL` and an
+`httpHeaderAuth` cred (`X-Bridge-Secret`). Full overview:
+`automation/telegram/README.md`.
+
 **Why async:** the webhook is fire-and-forget (`responseMode: onReceived`), so
 ManyChat gets an instant 200 and n8n owns everything after — the delay, the
 debounce, and the send. The reply goes out via `sendContent` keyed by

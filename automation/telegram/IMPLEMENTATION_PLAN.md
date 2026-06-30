@@ -1,6 +1,8 @@
 # Candace on Telegram — implementation plan (v1: talk & retain)
 
-> Status: **PLAN — awaiting final approval.** Nothing below is built yet.
+> Status: **BUILT.** All files below exist on the branch. Remaining work is
+> operational (run the SQL in Supabase, mint the bridge session, import the n8n
+> workflows, go live). See `README.md` for the setup runbook.
 > Goal for v1: Candace talks to people on Telegram in her own voice — **more
 > personal than TikTok**, aimed at **retention / making them crave her**. No
 > selling, no funnel (they're already here). Same tasteful/SFW spice level as

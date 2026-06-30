@@ -1,0 +1,281 @@
+{
+  "name": "Candace Admin API (fans list + link/unlink persons)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "candace-admin-fans",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        -200
+      ],
+      "id": "adfans01-0001-4001-8001-000000000001",
+      "name": "Webhook: fans",
+      "webhookId": "candace-admin-fans"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=id,platform,username,display_name,summary,stage,person_id,last_seen,msg_count,bots(slug,display_name)&order=last_seen.desc&limit=500",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -480,
+        -200
+      ],
+      "id": "adfans02-0002-4002-8002-000000000002",
+      "name": "Supabase: fans"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet fans = [];\nif (items.length === 1 && Array.isArray(items[0].json)) { fans = items[0].json; }\nelse { fans = items.map(function (i) { return i.json; }); }\nreturn [{ json: { fans: fans } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        -200
+      ],
+      "id": "adfans03-0003-4003-8003-000000000003",
+      "name": "Collect fans"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { fans: $json.fans } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -40,
+        -200
+      ],
+      "id": "adfans04-0004-4004-8004-000000000004",
+      "name": "Respond fans"
+    },
+    {
+      "parameters": {
+        "path": "candace-admin-link",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        0
+      ],
+      "id": "adlink01-0001-4001-8001-000000000001",
+      "name": "Webhook: link",
+      "webhookId": "candace-admin-link"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_link_person",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: ($json.body && $json.body.fan_id) || $json.fan_id, p_other_fan_id: ($json.body && $json.body.other_fan_id) || $json.other_fan_id } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        0
+      ],
+      "id": "adlink02-0002-4002-8002-000000000002",
+      "name": "RPC: link person"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, result: $json } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -180,
+        0
+      ],
+      "id": "adlink03-0003-4003-8003-000000000003",
+      "name": "Respond link"
+    },
+    {
+      "parameters": {
+        "path": "candace-admin-unlink",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        200
+      ],
+      "id": "adunl001-0001-4001-8001-000000000001",
+      "name": "Webhook: unlink",
+      "webhookId": "candace-admin-unlink"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_unlink_fan",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: ($json.body && $json.body.fan_id) || $json.fan_id } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        200
+      ],
+      "id": "adunl002-0002-4002-8002-000000000002",
+      "name": "RPC: unlink fan"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -180,
+        200
+      ],
+      "id": "adunl003-0003-4003-8003-000000000003",
+      "name": "Respond unlink"
+    }
+  ],
+  "connections": {
+    "Webhook: fans": {
+      "main": [
+        [
+          {
+            "node": "Supabase: fans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: fans": {
+      "main": [
+        [
+          {
+            "node": "Collect fans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect fans": {
+      "main": [
+        [
+          {
+            "node": "Respond fans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: link": {
+      "main": [
+        [
+          {
+            "node": "RPC: link person",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RPC: link person": {
+      "main": [
+        [
+          {
+            "node": "Respond link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: unlink": {
+      "main": [
+        [
+          {
+            "node": "RPC: unlink fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RPC: unlink fan": {
+      "main": [
+        [
+          {
+            "node": "Respond unlink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {},
+  "tags": []
+}

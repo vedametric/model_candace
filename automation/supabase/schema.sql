@@ -29,6 +29,9 @@ alter table public.bots add column if not exists system_prompt text;
 alter table public.bots add column if not exists model text default 'gpt-4o';
 alter table public.bots add column if not exists telegram_handle text;   -- e.g. @candace_summers (funnel destination)
 alter table public.bots add column if not exists instagram_url text;
+-- per-bot/per-platform settings (delay pacing, spice level, etc). data, not code,
+-- so each surface (tiktok vs telegram) can be tuned without editing the workflow.
+alter table public.bots add column if not exists settings jsonb not null default '{}'::jsonb;
 
 -- ---- one row per fan, per bot, per platform --------------------------------
 create table if not exists public.fans (
@@ -48,6 +51,21 @@ create table if not exists public.fans (
 );
 create index if not exists idx_fans_bot          on public.fans(bot_id);
 create index if not exists idx_fans_lookup        on public.fans(bot_id, platform, username);
+
+-- ---- cross-platform identity -----------------------------------------------
+-- a real human, independent of which platform/handle they use. lets Candace on
+-- Telegram remember what someone said on TikTok once their fan rows are linked.
+-- one person <- many fan rows (tiktok handle, telegram handle, ...).
+create table if not exists public.persons (
+  id          bigint generated always as identity primary key,
+  label       text,                                   -- best-known name/handle
+  summary     text   not null default '',             -- cross-platform running memory
+  metadata    jsonb  not null default '{}'::jsonb,
+  created_at  timestamptz not null default now()
+);
+-- link each fan to a person (nullable; filled when you link them in the dashboard)
+alter table public.fans add column if not exists person_id bigint references public.persons(id);
+create index if not exists idx_fans_person on public.fans(person_id);
 
 -- ---- full, permanent message log -------------------------------------------
 create table if not exists public.messages (
@@ -97,9 +115,12 @@ declare
   v_recent  jsonb;
   v_prompt  text;
   v_model   text;
+  v_settings        jsonb;
+  v_person_id       bigint;
+  v_person_summary  text;
 begin
   -- bot (auto-create if new)
-  select id, system_prompt, model into v_bot_id, v_prompt, v_model
+  select id, system_prompt, model, settings into v_bot_id, v_prompt, v_model, v_settings
     from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
@@ -136,20 +157,30 @@ begin
     limit p_window
   ) t;
 
+  -- cross-platform memory: if this fan is linked to a person, surface that
+  -- person's running summary so the bot remembers conversations from other platforms.
+  select person_id into v_person_id from public.fans where id = v_fan_id;
+  if v_person_id is not null then
+    select summary into v_person_summary from public.persons where id = v_person_id;
+  end if;
+
   -- audit
   insert into public.events(bot_id, fan_id, type, payload)
   values (v_bot_id, v_fan_id, 'inbound_message',
           jsonb_build_object('platform', p_platform, 'username', lower(p_username)));
 
   return jsonb_build_object(
-    'bot_id',        v_bot_id,
-    'fan_id',        v_fan_id,
-    'summary',       coalesce(v_summary, ''),
-    'stage',         coalesce(v_stage, 'rapport'),
-    'count',         v_count,
-    'recent',        v_recent,
-    'system_prompt', coalesce(v_prompt, ''),
-    'model',         coalesce(v_model, 'gpt-4o')
+    'bot_id',         v_bot_id,
+    'fan_id',         v_fan_id,
+    'summary',        coalesce(v_summary, ''),
+    'stage',          coalesce(v_stage, 'rapport'),
+    'count',          v_count,
+    'recent',         v_recent,
+    'system_prompt',  coalesce(v_prompt, ''),
+    'model',          coalesce(v_model, 'gpt-4o'),
+    'settings',       coalesce(v_settings, '{}'::jsonb),
+    'person_id',      v_person_id,
+    'person_summary', coalesce(v_person_summary, '')
   );
 end;
 $$;
@@ -201,10 +232,105 @@ begin
 end;
 $$;
 
+-- ============================================================================
+--  Cross-platform identity RPCs (manual sync from the admin dashboard)
+-- ============================================================================
+
+-- Link two fan rows (e.g. a tiktok fan and a telegram fan) to the same person.
+-- Reuses an existing person if either side already has one, else creates one.
+-- If the person has no summary yet, seeds it from the two fans' summaries so the
+-- bot immediately "knows" the cross-platform history. Returns the person.
+create or replace function public.dm_link_person(
+  p_fan_id       bigint,
+  p_other_fan_id bigint
+) returns jsonb
+language plpgsql
+as $$
+declare
+  v_person_id bigint;
+  v_a_person  bigint; v_b_person bigint;
+  v_a_sum text; v_b_sum text; v_a_label text; v_b_label text;
+  v_merged text;
+begin
+  select person_id, summary, platform || ' @' || username
+    into v_a_person, v_a_sum, v_a_label
+    from public.fans where id = p_fan_id;
+  select person_id, summary, platform || ' @' || username
+    into v_b_person, v_b_sum, v_b_label
+    from public.fans where id = p_other_fan_id;
+
+  v_person_id := coalesce(v_a_person, v_b_person);
+  if v_person_id is null then
+    insert into public.persons(label, summary)
+    values (coalesce(v_a_label, v_b_label), '')
+    returning id into v_person_id;
+  end if;
+
+  -- attach both fans to the person
+  update public.fans set person_id = v_person_id
+   where id in (p_fan_id, p_other_fan_id);
+
+  -- seed cross-platform memory only if the person summary is still empty
+  -- (never clobber a summary you've already curated by hand)
+  select summary into v_merged from public.persons where id = v_person_id;
+  if v_merged is null or length(btrim(v_merged)) = 0 then
+    v_merged := '';
+    if coalesce(v_a_sum, '') <> '' then
+      v_merged := '[' || v_a_label || '] ' || v_a_sum;
+    end if;
+    if coalesce(v_b_sum, '') <> '' then
+      v_merged := case when v_merged = '' then '' else v_merged || E'\n' end
+                  || '[' || v_b_label || '] ' || v_b_sum;
+    end if;
+    update public.persons set summary = v_merged where id = v_person_id;
+  end if;
+
+  insert into public.events(type, payload)
+  values ('person_linked', jsonb_build_object(
+    'person_id', v_person_id, 'fans', jsonb_build_array(p_fan_id, p_other_fan_id)));
+
+  return jsonb_build_object('person_id', v_person_id, 'summary', v_merged);
+end;
+$$;
+
+-- Detach a fan from its person (undo a link).
+create or replace function public.dm_unlink_fan(p_fan_id bigint)
+returns void
+language plpgsql
+as $$
+begin
+  update public.fans set person_id = null where id = p_fan_id;
+  insert into public.events(fan_id, type, payload)
+  values (p_fan_id, 'person_unlinked', jsonb_build_object('fan_id', p_fan_id));
+end;
+$$;
+
+-- Edit a person's cross-platform memory note by hand.
+create or replace function public.dm_set_person_summary(
+  p_person_id bigint,
+  p_summary   text
+) returns void
+language plpgsql
+as $$
+begin
+  update public.persons set summary = p_summary where id = p_person_id;
+  insert into public.events(type, payload)
+  values ('person_summary_updated', jsonb_build_object('person_id', p_person_id));
+end;
+$$;
+
 -- ---- seed the Candace bot ---------------------------------------------------
 insert into public.bots(slug, display_name, platform_account)
 values ('candace_summers', 'Candace Summers', 'candace_summers')
 on conflict (slug) do nothing;
+
+-- record TikTok's current aloof pacing as data (matches the values currently
+-- hard-coded in the TikTok workflow's Set Delay node). only seeds if unset, so
+-- it never clobbers a value you've tuned. the TikTok workflow is unchanged.
+update public.bots
+   set settings = jsonb_build_object(
+     'delay', jsonb_build_object('min_s',120,'max_s',600,'fast_pct',0.15,'fast_min_s',45,'fast_max_s',120))
+ where slug = 'candace_summers' and settings = '{}'::jsonb;
 
 -- ---- convenience view: just Candace's fans ---------------------------------
 create or replace view public.candace_fans as

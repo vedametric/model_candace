@@ -3,20 +3,27 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Candace — message queue</title>
+<title>Candace — admin console</title>
 <style>
   :root{ --bg:#0b0b0d; --card:#15151a; --line:#26262e; --muted:#8a8a93; --txt:#ececf0;
-         --wait:#e0a73a; --sent:#33c06a; --super:#6a6a76; --flight:#3d8bff; }
+         --wait:#e0a73a; --sent:#33c06a; --super:#6a6a76; --flight:#3d8bff;
+         --tt:#ff5d8f; --tg:#3aa0ff; }
   *{ box-sizing:border-box; }
   body{ margin:0; background:var(--bg); color:var(--txt);
         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
   header{ padding:18px 20px 10px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   header h1{ font-size:18px; margin:0; font-weight:700; }
   header .sub{ color:var(--muted); font-size:12.5px; }
-  .pills{ margin-left:auto; display:flex; gap:8px; }
+  .pills{ margin-left:auto; display:flex; gap:8px; align-items:center; }
   .pill{ font-size:12px; padding:5px 11px; border-radius:999px; background:var(--card); border:1px solid var(--line); }
   .pill b{ font-weight:700; }
   .pill.w b{ color:var(--wait); } .pill.s b{ color:var(--sent); } .pill.x b{ color:var(--super); }
+  .tabs{ display:flex; gap:6px; padding:4px 20px 0; }
+  .tab{ font-size:13px; font-weight:600; cursor:pointer; color:var(--muted); background:none; border:none;
+        padding:8px 14px; border-bottom:2px solid transparent; }
+  .tab.on{ color:var(--txt); border-bottom-color:#7a4dff; }
+  select.flt{ background:var(--card); color:var(--txt); border:1px solid var(--line); border-radius:7px;
+              font-size:12.5px; padding:5px 8px; }
   .wrap{ padding:6px 14px 40px; }
   table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   th{ text-align:left; color:var(--muted); font-weight:600; font-size:11.5px; text-transform:uppercase;
@@ -26,52 +33,99 @@
   .user{ font-weight:600; }
   .msg{ color:#c9c9d2; max-width:280px; }
   .reply{ color:#9fe6bb; max-width:280px; font-style:italic; }
+  .sum{ color:#b6b6c0; max-width:340px; font-size:12.5px; }
   .mono{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; }
   .badge{ display:inline-block; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:6px; }
   .b-wait{ background:rgba(224,167,58,.14); color:var(--wait); }
   .b-sent{ background:rgba(51,192,106,.14); color:var(--sent); }
   .b-super{ background:rgba(106,106,118,.18); color:#b6b6c0; }
   .b-flight{ background:rgba(61,139,255,.16); color:var(--flight); }
+  .plat{ display:inline-block; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:5px; text-transform:lowercase; }
+  .p-tiktok{ background:rgba(255,93,143,.16); color:var(--tt); }
+  .p-telegram{ background:rgba(58,160,255,.16); color:var(--tg); }
   .cd{ font-weight:700; }
   .dim{ color:var(--muted); }
   .empty{ text-align:center; color:var(--muted); padding:50px 0; }
   .err{ color:#e0654b; font-size:12.5px; padding:0 20px 8px; }
+  .ok{ color:var(--sent); font-size:12.5px; padding:0 20px 8px; }
   .dot{ width:7px; height:7px; border-radius:50%; background:var(--sent); display:inline-block; margin-right:6px;
         animation:p 1.6s infinite; } @keyframes p{ 0%,100%{opacity:.35} 50%{opacity:1} }
-  button.go{ margin-left:10px; font-size:11.5px; font-weight:700; cursor:pointer; color:#fff;
+  button.go{ margin-left:8px; font-size:11.5px; font-weight:700; cursor:pointer; color:#fff;
              background:linear-gradient(135deg,#2d6cff,#7a4dff); border:none; border-radius:7px; padding:4px 10px; }
   button.go:hover{ filter:brightness(1.1); } button.go:disabled{ opacity:.5; cursor:default; }
+  button.ghost{ font-size:11.5px; font-weight:700; cursor:pointer; color:var(--txt);
+                background:var(--card); border:1px solid var(--line); border-radius:7px; padding:4px 10px; }
+  button.ghost:hover{ border-color:#7a4dff; }
+  tr.sel td{ background:rgba(122,77,255,.12); }
+  .person{ font-size:11.5px; color:#caa6ff; }
+  .hint{ color:var(--muted); font-size:12px; padding:4px 10px 10px; }
 </style>
 </head>
 <body>
   <header>
     <div>
-      <h1>candace — message queue</h1>
-      <div class="sub"><span class="dot"></span>live · what's come in, the delay she picked, and when it sent</div>
+      <h1>candace — admin console</h1>
+      <div class="sub"><span class="dot"></span>live · message queue + manual cross-platform sync</div>
     </div>
-    <div class="pills">
+    <div class="pills" id="qpills">
+      <select class="flt" id="platFilter">
+        <option value="all">all platforms</option>
+        <option value="tiktok">tiktok</option>
+        <option value="telegram">telegram</option>
+      </select>
       <div class="pill w">waiting <b id="cw">0</b></div>
       <div class="pill s">sent <b id="cs">0</b></div>
       <div class="pill x">debounced <b id="cx">0</b></div>
     </div>
   </header>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="queue">message queue</button>
+    <button class="tab" data-tab="sync">cross-platform sync</button>
+  </div>
+
   <div class="err" id="err"></div>
-  <div class="wrap">
+  <div class="ok" id="okmsg"></div>
+
+  <!-- QUEUE -->
+  <div class="wrap" id="view-queue">
     <table>
       <thead><tr>
-        <th>queued</th><th>user</th><th>incoming message</th><th>delay</th><th>status</th><th>sends in / reply</th>
+        <th>queued</th><th>platform</th><th>user</th><th>incoming message</th><th>delay</th><th>status</th><th>sends in / reply</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
     <div class="empty" id="empty">no messages yet. send candace a dm and it'll appear here.</div>
   </div>
 
+  <!-- SYNC -->
+  <div class="wrap" id="view-sync" style="display:none">
+    <div class="hint" id="syncHint">link a person's telegram identity to their tiktok identity so candace remembers them across both. pick one fan, then "link with" another. linking merges their memory.</div>
+    <table>
+      <thead><tr>
+        <th>platform</th><th>user</th><th>memory note</th><th>person</th><th>seen</th><th></th>
+      </tr></thead>
+      <tbody id="fanrows"></tbody>
+    </table>
+    <div class="empty" id="fanempty" style="display:none">no fans yet.</div>
+  </div>
+
 <script>
-  const API = "https://automations.vedametric.com.au/webhook/candace-queue";
+  const BASE  = "https://automations.vedametric.com.au/webhook";
+  const API   = BASE + "/candace-queue";
+  const FANS  = BASE + "/candace-admin-fans";
+  const LINK  = BASE + "/candace-admin-link";
+  const UNLINK= BASE + "/candace-admin-unlink";
+
   const rowsEl = document.getElementById('rows');
   const emptyEl = document.getElementById('empty');
   const errEl = document.getElementById('err');
-  let model = [];   // reconciled rows
+  const okEl = document.getElementById('okmsg');
+  let model = [];            // reconciled queue rows
+  let tab = 'queue';
+  let platFilter = 'all';
+  let fans = [];             // sync: fan rows
+  let linkSel = null;        // sync: currently selected fan id
 
   function fmtClock(iso){
     try { const d = new Date(iso); return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
@@ -82,18 +136,17 @@
     const m = Math.floor(sec/60), s = sec%60;
     return m + ':' + String(s).padStart(2,'0');
   }
+  function fmtDay(iso){ try { return new Date(iso).toLocaleDateString([], {month:'short', day:'numeric'}); } catch(e){ return ''; } }
+  function escapeHtml(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function platBadge(p){ p = p || 'tiktok'; return '<span class="plat p-' + p + '">' + p + '</span>'; }
 
   function reconcile(events){
-    // index dm_sent by fan_id|msg_count
-    const sent = {};
-    const queuedByFan = {};
+    const sent = {}, queuedByFan = {};
     events.forEach(e => {
       const p = e.payload || {};
       const key = (e.fan_id) + '|' + (p.msg_count);
       if (e.type === 'dm_sent') sent[key] = { reply: p.reply, at: e.created_at };
-      if (e.type === 'dm_queued') {
-        (queuedByFan[e.fan_id] = queuedByFan[e.fan_id] || []).push(p.msg_count);
-      }
+      if (e.type === 'dm_queued') (queuedByFan[e.fan_id] = queuedByFan[e.fan_id] || []).push(p.msg_count);
     });
     const maxCount = {};
     Object.keys(queuedByFan).forEach(f => { maxCount[f] = Math.max.apply(null, queuedByFan[f]); });
@@ -104,9 +157,10 @@
       let status;
       if (sent[key]) status = 'sent';
       else if (p.msg_count < maxCount[e.fan_id]) status = 'superseded';
-      else status = 'pending'; // waiting or in-flight, decided live by clock
+      else status = 'pending';
       return {
         fan_id: e.fan_id, count: p.msg_count,
+        platform: p.platform || 'tiktok',
         user: p.username || ('fan ' + e.fan_id),
         msg: p.msg || '',
         delay: p.delay_sec, queued_at: p.queued_at || e.created_at,
@@ -114,16 +168,17 @@
         status, reply: sent[key] ? sent[key].reply : '', sent_at: sent[key] ? sent[key].at : ''
       };
     });
-    // newest first by queued_at
     rows.sort((a,b) => new Date(b.queued_at) - new Date(a.queued_at));
     return rows;
   }
 
   function render(){
+    if (tab !== 'queue') return;
     const now = Date.now();
     let cw=0, cs=0, cx=0;
     rowsEl.innerHTML = '';
-    model.forEach(r => {
+    const shown = model.filter(r => platFilter === 'all' || r.platform === platFilter);
+    shown.forEach(r => {
       let badge, last;
       if (r.status === 'sent'){
         cs++; badge = '<span class="badge b-sent">sent</span>';
@@ -149,6 +204,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML =
         '<td class="mono dim">' + fmtClock(r.queued_at) + '</td>' +
+        '<td>' + platBadge(r.platform) + '</td>' +
         '<td class="user">' + escapeHtml(r.user) + '</td>' +
         '<td class="msg">' + escapeHtml(r.msg) + '</td>' +
         '<td class="mono">' + fmtDur(r.delay || 0) + '</td>' +
@@ -159,10 +215,8 @@
     document.getElementById('cw').textContent = cw;
     document.getElementById('cs').textContent = cs;
     document.getElementById('cx').textContent = cx;
-    emptyEl.style.display = model.length ? 'none' : 'block';
+    emptyEl.style.display = shown.length ? 'none' : 'block';
   }
-
-  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
   async function poll(){
     try {
@@ -174,21 +228,115 @@
     } catch(e){ errEl.textContent = 'could not reach queue api: ' + e.message; }
   }
 
-  // "send now" — resume the waiting n8n execution immediately (same-origin)
-  rowsEl.addEventListener('click', async (e) => {
-    const b = e.target.closest('button.go');
-    if (!b) return;
-    const url = decodeURIComponent(b.getAttribute('data-url') || '');
-    if (!url) return;
-    b.disabled = true; b.textContent = 'sending…';
-    try { await fetch(url, { method:'GET', cache:'no-store' }); }
-    catch(err){ /* same-origin; ignore */ }
-    setTimeout(poll, 1500);
+  // ---- sync tab ----
+  function fanLabel(f){
+    const b = (f.bots && f.bots.slug) ? f.bots.slug : '';
+    return (f.platform || '?') + ' @' + (f.username || f.id);
+  }
+  function renderFans(){
+    if (tab !== 'sync') return;
+    const tb = document.getElementById('fanrows');
+    tb.innerHTML = '';
+    fans.forEach(f => {
+      const tr = document.createElement('tr');
+      if (linkSel === f.id) tr.className = 'sel';
+      let action;
+      if (f.person_id){
+        action = '<span class="person">person #' + f.person_id + '</span> ' +
+                 '<button class="ghost" data-unlink="' + f.id + '">unlink</button>';
+      } else if (linkSel === null){
+        action = '<button class="ghost" data-select="' + f.id + '">select</button>';
+      } else if (linkSel === f.id){
+        action = '<button class="ghost" data-cancel="1">cancel</button>';
+      } else {
+        action = '<button class="go" data-linkto="' + f.id + '">link with selected</button>';
+      }
+      tr.innerHTML =
+        '<td>' + platBadge(f.platform) + '</td>' +
+        '<td class="user">' + escapeHtml(f.username || ('fan ' + f.id)) + (f.display_name ? ' <span class="dim">(' + escapeHtml(f.display_name) + ')</span>' : '') + '</td>' +
+        '<td class="sum">' + escapeHtml(f.summary || '') + '</td>' +
+        '<td>' + (f.person_id ? '<span class="person">#' + f.person_id + '</span>' : '<span class="dim">none</span>') + '</td>' +
+        '<td class="mono dim">' + fmtDay(f.last_seen) + '</td>' +
+        '<td>' + action + '</td>';
+      tb.appendChild(tr);
+    });
+    document.getElementById('fanempty').style.display = fans.length ? 'none' : 'block';
+    const sel = fans.find(f => f.id === linkSel);
+    document.getElementById('syncHint').textContent = sel
+      ? ('selected ' + fanLabel(sel) + ' — now click "link with selected" on the matching person on the other platform. linking merges their memory.')
+      : 'link a person’s telegram identity to their tiktok identity so candace remembers them across both. pick one fan, then "link with" another. linking merges their memory.';
+  }
+  async function loadFans(){
+    try {
+      const res = await fetch(FANS, { cache:'no-store' });
+      const data = await res.json();
+      fans = (data && data.fans) ? data.fans : [];
+      errEl.textContent = '';
+      renderFans();
+    } catch(e){ errEl.textContent = 'could not reach admin api: ' + e.message; }
+  }
+  function flash(msg){ okEl.textContent = msg; setTimeout(()=>{ if(okEl.textContent===msg) okEl.textContent=''; }, 4000); }
+
+  // clicks (queue + sync)
+  document.body.addEventListener('click', async (e) => {
+    // queue: send now
+    const b = e.target.closest('button.go[data-url]');
+    if (b){
+      const url = decodeURIComponent(b.getAttribute('data-url') || '');
+      if (!url) return;
+      b.disabled = true; b.textContent = 'sending…';
+      try { await fetch(url, { method:'GET', cache:'no-store' }); } catch(err){}
+      setTimeout(poll, 1500);
+      return;
+    }
+    // sync: select
+    const sel = e.target.closest('[data-select]');
+    if (sel){ linkSel = parseInt(sel.getAttribute('data-select'),10); renderFans(); return; }
+    const cancel = e.target.closest('[data-cancel]');
+    if (cancel){ linkSel = null; renderFans(); return; }
+    // sync: link with selected
+    const lk = e.target.closest('[data-linkto]');
+    if (lk){
+      const other = parseInt(lk.getAttribute('data-linkto'),10);
+      lk.disabled = true; lk.textContent = 'linking…';
+      try {
+        await fetch(LINK, { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ fan_id: linkSel, other_fan_id: other }) });
+        flash('linked. their memory is now shared.');
+      } catch(err){ errEl.textContent = 'link failed: ' + err.message; }
+      linkSel = null; await loadFans();
+      return;
+    }
+    // sync: unlink
+    const ul = e.target.closest('[data-unlink]');
+    if (ul){
+      const fid = parseInt(ul.getAttribute('data-unlink'),10);
+      ul.disabled = true; ul.textContent = 'unlinking…';
+      try {
+        await fetch(UNLINK, { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ fan_id: fid }) });
+        flash('unlinked.');
+      } catch(err){ errEl.textContent = 'unlink failed: ' + err.message; }
+      await loadFans();
+      return;
+    }
   });
 
+  // tabs + filter
+  document.querySelector('.tabs').addEventListener('click', (e) => {
+    const t = e.target.closest('.tab'); if (!t) return;
+    tab = t.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x===t));
+    document.getElementById('view-queue').style.display = tab==='queue' ? 'block' : 'none';
+    document.getElementById('view-sync').style.display = tab==='sync' ? 'block' : 'none';
+    document.getElementById('qpills').style.visibility = tab==='queue' ? 'visible' : 'hidden';
+    if (tab==='sync') loadFans(); else render();
+  });
+  document.getElementById('platFilter').addEventListener('change', (e) => { platFilter = e.target.value; render(); });
+
   poll();
-  setInterval(poll, 3000);   // refresh data every 3s
-  setInterval(render, 1000); // tick countdowns every 1s
+  setInterval(() => { if (tab==='queue') poll(); }, 3000);
+  setInterval(render, 1000);
 </script>
 </body>
 </html>
