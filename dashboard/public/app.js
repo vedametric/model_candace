@@ -405,7 +405,11 @@ async function studio(slug) {
     $('#s-ref-preview').innerHTML = b.reference_image && b.reference_image.url
       ? `<img src="${esc(b.reference_image.url)}" style="height:90px;border-radius:8px;border:1px solid var(--line);margin-top:8px" onerror="this.style.display='none'">` : '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (opts.submit) $('#s-submit').click();
+    if (opts.submit) { $('#s-submit').click(); return; }
+    // open the editable prompt so the user can see/tweak it (esp. reference-only jobs
+    // whose brief fields are blank — the prompt is where the substance is)
+    doPreview();
+    toast(`loaded #${job.id} into the form — edit and re-queue`);
   };
   async function doPreview() {
     $('#s-preview-panel').hidden = false;
