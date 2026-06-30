@@ -9,7 +9,7 @@
 #   BASIC_USER BASIC_PASS  HTTP basic-auth credentials
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
-# redeploy: 2026-06-30 — pick up SUPABASE_SERVICE_KEY for live data
+# redeploy: 2026-06-30 — pick up SUPABASE_SERVICE_KEY for live data (run 3)
 
 APP_DIR="${APP_DIR:-/opt/admin-dashboard}"
 ACCOUNTS_ROOT="${ACCOUNTS_ROOT:-/opt/accounts}"
