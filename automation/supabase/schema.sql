@@ -99,6 +99,17 @@ create table if not exists public.gen_requests (
   updated_at    timestamptz not null default now()
 );
 create index if not exists idx_gen_requests_bot_status on public.gen_requests(bot_id, status, created_at desc);
+alter table public.gen_requests add column if not exists log jsonb not null default '[]'::jsonb;  -- worker progress log
+
+-- worker appends a progress entry (shown live in the dashboard)
+create or replace function public.gen_log(p_id bigint, p_stage text, p_msg text)
+returns void language plpgsql as $$
+begin
+  update public.gen_requests
+     set log = log || jsonb_build_object('ts', now(), 'stage', p_stage, 'msg', p_msg)
+   where id = p_id;
+end;
+$$;
 
 -- ============================================================================
 --  RPCs used by the n8n workflow

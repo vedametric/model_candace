@@ -2,6 +2,8 @@
 // Reads fuse Supabase (live) + filesystem (git content); writes are strictly scoped.
 
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
 import { listBots, getBot, hasContent, contentPath, invalidateBots } from '../accounts.js';
 import { select, patch, rpc, insert, hasKey } from '../supabase.js';
 import { buildPrompt, estimateCost, suggestMethod, filterSafe, IDENTITY_REF } from '../content-gen.js';
@@ -255,6 +257,28 @@ router.post('/accounts/:slug/automation', wrap(async (req, res) => {
 }));
 
 // ============================ CONTENT GENERATION ============================
+
+// Upload a reference image ("put Candace in THIS scene/pose/outfit"). Stored under
+// the account's uploads/ dir and served at /content/:slug/uploads/<file>; the worker
+// fetches it and uploads it to Higgsfield as a composition reference.
+router.post('/accounts/:slug/upload', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const { filename, data_base64 } = req.body || {};
+  if (!data_base64 || typeof data_base64 !== 'string') {
+    throw Object.assign(new Error('data_base64 required'), { status: 400 });
+  }
+  const b64 = data_base64.includes(',') ? data_base64.split(',').pop() : data_base64;
+  const buf = Buffer.from(b64, 'base64');
+  if (!buf.length || buf.length > 25 * 1024 * 1024) {
+    throw Object.assign(new Error('image must be 1 byte–25 MB'), { status: 400 });
+  }
+  const ext = (String(filename || '').match(/\.(png|jpe?g|webp)$/i) || ['.png'])[0].toLowerCase();
+  const safe = `ref_${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
+  const dir = path.join(contentPath(req.params.slug), 'uploads');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, safe), buf);
+  res.json({ ok: true, filename: safe, url: `/content/${encodeURIComponent(req.params.slug)}/uploads/${encodeURIComponent(safe)}` });
+}));
 
 // live prompt preview (no insert) — drives the Studio form
 router.post('/accounts/:slug/gen/preview', wrap(async (req, res) => {

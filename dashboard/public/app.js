@@ -24,6 +24,30 @@ function toast(msg) {
 function copy(text) { navigator.clipboard.writeText(text).then(() => toast('copied')); }
 window.copy = copy;
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',').pop());
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+// click-to-enlarge lightbox (images + video)
+function openLightbox(src, isVideo) {
+  let lb = document.getElementById('lightbox');
+  if (!lb) {
+    lb = document.createElement('div'); lb.id = 'lightbox';
+    lb.onclick = () => { lb.style.display = 'none'; lb.innerHTML = ''; };
+    document.body.appendChild(lb);
+  }
+  lb.innerHTML = isVideo
+    ? `<video src="${src}" controls autoplay playsinline></video>`
+    : `<img src="${src}" alt="">`;
+  lb.style.display = 'flex';
+}
+window.openLightbox = openLightbox;
+
 function fmtClock(iso) { try { return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); } catch (e) { return ''; } }
 function fmtDateTime(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } }
 function fmtDur(sec) { sec = Math.max(0, Math.round(sec)); const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + String(s).padStart(2, '0'); }
@@ -294,6 +318,10 @@ async function studio(slug) {
           <div class="field" style="flex:1"><label>Mood / expression</label><input id="s-mood" placeholder="soft confident flirty"></div>
         </div>
         <div class="field"><label>Framing (optional)</label><input id="s-framing" placeholder="leave blank for a face-prominent default"></div>
+        <div class="field"><label>Put Candace in this picture (optional)</label>
+          <input id="s-ref" type="file" accept="image/png,image/jpeg,image/webp">
+          <div class="muted" style="font-size:12px;margin-top:4px">Upload a scene / pose / outfit reference — the worker keeps Candace's identity and places her into this look (composition reference, §7.3). Her face always stays the identity ref.</div>
+          <div id="s-ref-preview"></div></div>
         <div id="s-img-only" class="field"><label>How many options</label>
           <select id="s-count"><option value="2">2 (recommended)</option><option value="1">1</option><option value="3">3</option></select></div>
         <div id="s-vid-only" style="display:none">
@@ -361,13 +389,27 @@ async function studio(slug) {
     } catch (e) { $('#s-preview-box').innerHTML = errBox(e); }
   }
   $('#s-preview').onclick = doPreview;
+  // small thumbnail when a reference image is chosen
+  $('#s-ref').onchange = () => {
+    const f = $('#s-ref').files[0];
+    $('#s-ref-preview').innerHTML = f ? `<img src="${URL.createObjectURL(f)}" style="height:90px;border-radius:8px;border:1px solid var(--line);margin-top:8px">` : '';
+  };
   $('#s-submit').onclick = async () => {
-    const brief = readBrief();
-    const promptEl = $('#s-prompt'); if (promptEl) brief.prompt = promptEl.value; // honor edits
+    const btn = $('#s-submit'); btn.disabled = true;
     try {
+      const brief = readBrief();
+      const promptEl = $('#s-prompt'); if (promptEl) brief.prompt = promptEl.value; // honor edits
+      const file = $('#s-ref').files[0];
+      if (file) {
+        const data_base64 = await fileToBase64(file);
+        const up = await api(`/accounts/${slug}/upload`, { method: 'POST', body: JSON.stringify({ filename: file.name, data_base64 }) });
+        brief.reference_image = { url: up.url, filename: up.filename };
+      }
       await api(`/accounts/${slug}/gen`, { method: 'POST', body: JSON.stringify(brief) });
-      toast('queued — the content worker will pick it up'); loadQueue();
+      toast(file ? 'queued with your reference picture' : 'queued — the content worker will pick it up');
+      loadQueue();
     } catch (e) { toast('error: ' + e.message); }
+    btn.disabled = false;
   };
   $('#s-refresh').onclick = loadQueue;
 
@@ -389,14 +431,20 @@ function genRow(r, slug) {
   const optsHtml = (r.status === 'awaiting_approval' && opts.length) ? `
     <div class="row" style="gap:10px;margin-top:8px">${opts.map(o => `
       <div style="text-align:center">
-        <img src="${esc(o.url)}" style="width:120px;height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="">
+        <img src="${esc(o.url)}" style="width:120px;height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:zoom-in" alt="" onclick="openLightbox('${esc(o.url)}',false)">
         <div><button class="btn primary sm" data-approve="${r.id}" data-job="${esc(o.job_id)}">approve</button></div>
       </div>`).join('')}</div>` : '';
+  const refImg = r.brief && r.brief.reference_image && r.brief.reference_image.url
+    ? `<img src="${esc(r.brief.reference_image.url)}" title="your reference picture" style="height:46px;border-radius:6px;border:1px solid var(--line);cursor:zoom-in" onclick="openLightbox('${esc(r.brief.reference_image.url)}',false)">` : '';
+  const logArr = Array.isArray(r.log) ? r.log : [];
+  const logHtml = logArr.length ? `<details class="prompt" style="margin-top:8px"><summary>worker activity (${logArr.length})</summary>
+    <div style="margin-top:6px">${logArr.slice(-12).map(l => `<div class="mono" style="font-size:12px"><span class="dim">${fmtClock(l.ts)}</span> <b>${esc(l.stage || '')}</b> ${esc(l.msg || '')}</div>`).join('')}</div></details>` : '';
   const result = r.result && r.result.file ? `<a href="/content/${encodeURIComponent(slug)}/generations/${encodeURIComponent(r.result.file)}" target="_blank">view asset ↗</a>` : '';
   return `<div class="panel" style="box-shadow:none;border-radius:9px;margin:10px 0">
     <div class="row between">
       <div class="row"><span class="tag ${STATUS_TAG[r.status] || ''}">${esc(r.status)}</span>
         <span class="tag">${esc(r.kind)}${r.video_method ? ' · ' + esc(r.video_method) : ''}</span>
+        ${refImg}
         <span class="muted">#${r.id} · ~${r.est_cost_cr ?? '?'} cr · ${fmtDateTime(r.created_at)}</span></div>
       <div class="row">${result}
         ${['queued','awaiting_approval','generating'].includes(r.status) ? `<button class="btn ghost sm" data-cancel="${r.id}">cancel</button>` : ''}
@@ -404,6 +452,7 @@ function genRow(r, slug) {
       </div>
     </div>
     <details class="prompt" style="margin-top:8px"><summary>prompt</summary><p>${esc(r.prompt || '')}</p></details>
+    ${logHtml}
     ${optsHtml}
     ${r.error ? `<div class="warn-banner" style="margin-top:8px">${esc(r.error)}</div>` : ''}
   </div>`;
@@ -482,7 +531,7 @@ function gCard(i, slug) {
   const url = `/content/${encodeURIComponent(slug)}/generations/${encodeURIComponent(i.file)}`;
   const media = i.type === 'video'
     ? `<video src="${url}#t=0.5" preload="metadata" controls playsinline></video>`
-    : `<img loading="lazy" src="${url}" alt="${esc(i.file)}">`;
+    : `<img loading="lazy" src="${url}" alt="${esc(i.file)}" style="cursor:zoom-in" onclick="openLightbox('${url}',false)">`;
   return `<div class="gcard">
     <div class="gmedia">${media}</div>
     <div class="gbody">

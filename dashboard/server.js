@@ -21,7 +21,7 @@ const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || '127.0.0.1';
 
 app.disable('x-powered-by');
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '30mb' })); // large enough for base64 reference-image uploads
 
 // tiny request log
 app.use((req, _res, next) => {
@@ -39,7 +39,7 @@ app.use('/api', api);
 
 // Per-account media. Folder names on disk:
 //   generations/  ·  "posted images"/  ·  reference/
-const SUBDIRS = { generations: 'generations', posted: 'posted images', reference: 'reference' };
+const SUBDIRS = { generations: 'generations', posted: 'posted images', reference: 'reference', uploads: 'uploads' };
 app.get('/content/:slug/:kind/*', (req, res) => {
   const { slug, kind } = req.params;
   const sub = SUBDIRS[kind];

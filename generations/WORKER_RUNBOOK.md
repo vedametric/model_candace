@@ -17,6 +17,18 @@ read that masterfile too; this runbook does not replace it, it sequences it.
 Remote Routine can fire this automatically (default OFF until headless Higgsfield auth
 is confirmed — see `## Scheduling`).
 
+## Progress logging — do this at EVERY step
+
+So the dashboard shows live progress, call the `gen_log` RPC whenever you start/finish a
+step (it appends to `gen_requests.log`, shown under "worker activity" per job):
+```
+select gen_log(<id>, '<stage>', '<short human message>');
+-- stages: claimed, preflight, generating, options_ready, video_upload, video_running,
+--         logging, committed, done, skipped, failed
+```
+Example: `select gen_log(7,'generating','banana count:2 @2k, polling job d8d7110a');`
+Keep messages short and concrete (model, job id, what's happening, credits if known).
+
 ## The loop
 
 1. **Read the queue** (Supabase MCP):
@@ -35,9 +47,16 @@ is confirmed — see `## Scheduling`).
 3. **`status='queued'` → generate the still(s).** Mark `generating`, then run banana:
    - `generate_image` model `nano_banana_pro`, `resolution:"2k"`, `aspect_ratio:"9:16"`,
      `count` from the brief (default 2).
-   - `medias`: identity ref **first** `{role:"image", value:"49aff4e5-9c20-44a3-87e8-85ba87e0d642"}`;
-     if `brief.compose_from_job` is set (an iterate), add it as a **second** `image`
-     (composition ref, §7.3).
+   - `medias`: identity ref **first** `{role:"image", value:"49aff4e5-9c20-44a3-87e8-85ba87e0d642"}`.
+     **Composition / "put Candace in THIS picture" reference (second image):**
+     - if `brief.compose_from_job` is set (an iterate), add that job id as a 2nd `image`;
+     - if `brief.reference_image.url` is set (the user uploaded a scene/pose/outfit picture),
+       download it (`curl -u root:<basic-auth-pass> "http://134.199.145.47<url>" -o ref.png`),
+       `media_upload`(content_type image) → `curl -X PUT` the bytes → `media_confirm`(type
+       `image`), and add the resulting **media_id as the 2nd `image`**. Keep Candace's EXACT
+       face/identity from the first ref; let the second ref drive scene/pose/outfit. Word the
+       prompt as "place the woman from the first reference into the scene/pose/outfit of the
+       second reference, keeping her exact face…".
    - Use the row's `prompt` (already compliant). If it still reads filter-risky, reword
      per §4.4 before spending.
    - Poll `job_display`. For each completed option, get its CloudFront URL. Write them to

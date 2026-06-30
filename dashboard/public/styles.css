@@ -163,4 +163,7 @@ details.prompt p{white-space:pre-wrap;margin:7px 0 2px}
 .field label{display:block;font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
 .doc-md{white-space:pre-wrap;font-size:13px;line-height:1.6;max-height:300px;overflow-y:auto;background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:12px}
 .ref-imgs{display:flex;gap:12px;flex-wrap:wrap}
-.ref-imgs img{height:150px;border-radius:9px;border:1px solid var(--line)}
+.ref-imgs img{height:150px;border-radius:9px;border:1px solid var(--line);cursor:zoom-in}
+#lightbox{display:none;position:fixed;inset:0;z-index:100;background:rgba(15,23,42,.88);align-items:center;justify-content:center;cursor:zoom-out;padding:30px}
+#lightbox img,#lightbox video{max-width:96vw;max-height:94vh;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.gmedia img{cursor:zoom-in}
