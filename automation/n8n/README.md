@@ -17,10 +17,13 @@ All three keep your exact webhook path and the same OpenAI credential setup.
 
 ## Async version — `candace_manychat_async.json` (debounce + random delay + API send)
 
-⚠️ **Status: built, NOT yet verified end-to-end.** The ManyChat *Send API* leg
-(`api.manychat.com/fb/sending/sendContent`) has not yet successfully delivered a
-message in testing — the one attempt failed on ManyChat's 24h messaging window.
-Deploy + a live in-window test are still required before trusting it.
+✅ **Status: Send API leg verified.** A `sendContent` call delivered a message to
+a real TikTok subscriber and it showed up in the DM thread. **The critical
+detail: the content object must set `"type": "tiktok"`.** Without it, ManyChat
+defaults the send to the *Facebook Messenger* channel, which always fails the
+24h-window check because `last_interaction` never populates for TikTok
+subscribers (you'll see error `3011`, "last interaction was over 24h ago", even
+when the user just messaged). With `type: tiktok` the send goes through.
 
 This is the production-grade flow that fixes two problems with the synchronous
 webhook-return approach:
@@ -54,6 +57,14 @@ Build Messages → Candace AI → Format Reply → DB: log reply →
 
 **Credentials:** reuses `supabaseApi`, the OpenAI Bearer cred, and a
 `httpHeaderAuth` cred holding the ManyChat token (`Authorization: Bearer <token>`).
+
+**Send API gotcha (learned the hard way):** the send body must be
+`{ subscriber_id, data: { version: "v2", content: { type: "tiktok", messages:
+[{ type: "text", text }] } } }`. Omitting `content.type: "tiktok"` silently
+targets Messenger and fails with code `3011`. Message tags are not usable for
+TikTok (a tagged send returns "Validation error"), so the 45–300s delay must
+stay inside TikTok's normal post-interaction messaging window — which it always
+does, since she's replying to a guy who just messaged.
 
 ## Memory version (v2) — how it works
 - **Storage:** n8n's built-in static data (`$getWorkflowStaticData`). **Nothing
