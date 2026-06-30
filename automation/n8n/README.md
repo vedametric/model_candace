@@ -15,6 +15,46 @@ it to ManyChat in the same `{ "message": "..." }` shape you already use.
 
 All three keep your exact webhook path and the same OpenAI credential setup.
 
+## Async version — `candace_manychat_async.json` (debounce + random delay + API send)
+
+⚠️ **Status: built, NOT yet verified end-to-end.** The ManyChat *Send API* leg
+(`api.manychat.com/fb/sending/sendContent`) has not yet successfully delivered a
+message in testing — the one attempt failed on ManyChat's 24h messaging window.
+Deploy + a live in-window test are still required before trusting it.
+
+This is the production-grade flow that fixes two problems with the synchronous
+webhook-return approach:
+
+1. **Random, human-feeling delay** instead of ManyChat's fixed 4-minute wait.
+   `Set Delay` picks ~45–300s most of the time, with a 15% chance of a quick
+   10–40s burst.
+2. **Debounce for rapid-fire messages.** ManyChat fires the webhook per message
+   but only passes the *last* text, so consecutive messages used to clobber each
+   other's context. Here every inbound message is logged to Supabase immediately
+   (so the full burst is on record and in order), then after the delay the run
+   re-reads `msg_count`. If it grew, a newer message arrived — this run aborts
+   and lets the newest run answer with the **full batch** as context. Only one
+   reply is ever sent per burst.
+
+**Why it can't return the reply via the webhook:** the webhook is fire-and-forget
+(`responseMode: onReceived`), so ManyChat gets an instant 200 and can't map a
+reply back. The reply is therefore pushed out via the **ManyChat Send API**
+(`ManyChat: send reply` node), keyed by `subscriber_id`.
+
+**Flow:** Webhook → Extract Inbound (incl. `subscriber_id`) → DB: ingest →
+Set Delay → Wait → DB: get fan → Check Latest (abort if newer) → Classify →
+Build Messages → Candace AI → Format Reply → DB: log reply →
+[ManyChat: send reply • Build Profile → Profiler → Apply Profile → DB: patch fan].
+
+**ManyChat side (must change):**
+- Pass `subscriber_id` (System Field) to the webhook as a body/query param.
+- Point the External Request to the new webhook path `candace-manychat-async`.
+- **Remove** the fixed 4-minute delay and remove the response-mapping step
+  (she now replies via the Send API, not the request response).
+
+**Credentials:** reuses `supabaseApi`, the OpenAI Bearer cred, and a
+`httpHeaderAuth` cred holding the ManyChat token (`Authorization: Bearer <token>`).
+
 ## Memory version (v2) — how it works
 - **Storage:** n8n's built-in static data (`$getWorkflowStaticData`). **Nothing
   external to set up.** Each fan is keyed by `tiktok_username`.
