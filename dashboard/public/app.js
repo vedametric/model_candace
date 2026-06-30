@@ -304,47 +304,52 @@ async function studio(slug) {
       NOT retouched, no studio/pro polish. Tasteful &amp; SFW (suggestive, no nudity). The identity reference
       <code>49aff4e5</code> is attached to every job. Filter-risky wording is auto-reworded.
     </div>
-    <div class="grid2">
-      <div class="panel">
-        <h3>New content brief</h3>
-        <div class="field"><label>Type</label>
-          <select id="s-kind"><option value="image">Image (still)</option><option value="video">Video</option></select></div>
-        <div class="field"><label>Shot type</label><input id="s-shot" placeholder="arm's-length selfie / mirror selfie / over-the-shoulder"></div>
-        <div class="field"><label>What she's doing</label><input id="s-action" placeholder="sipping iced coffee, glancing back over her shoulder…"></div>
-        <div class="field"><label>Setting</label><input id="s-setting" placeholder="a sunlit kitchen / rooftop at golden hour / her car"></div>
-        <div class="field"><label>Outfit (tasteful)</label><input id="s-outfit" placeholder="oversized knit sweater / fitted gym set — kept covered"></div>
-        <div class="row" style="gap:12px">
-          <div class="field" style="flex:1"><label>Lighting</label><input id="s-light" placeholder="soft window daylight / golden-hour sun"></div>
-          <div class="field" style="flex:1"><label>Mood / expression</label><input id="s-mood" placeholder="soft confident flirty"></div>
-        </div>
-        <div class="field"><label>Framing (optional)</label><input id="s-framing" placeholder="leave blank for a face-prominent default"></div>
-        <div class="field"><label>Put Candace in this picture (optional)</label>
-          <input id="s-ref" type="file" accept="image/png,image/jpeg,image/webp">
-          <div class="muted" style="font-size:12px;margin-top:4px">Upload a scene / pose / outfit reference — the worker keeps Candace's identity and places her into this look (composition reference, §7.3). Her face always stays the identity ref.</div>
-          <div id="s-ref-preview"></div></div>
+    <div class="panel">
+      <div class="row between"><h3 style="margin:0">New content brief</h3>
+        <div class="row"><span class="muted" id="s-balance"></span>
+          <select id="s-kind" style="width:auto"><option value="image">📷 Image (still)</option><option value="video">🎬 Video</option></select></div>
+      </div>
+      <div class="sform" style="margin-top:14px">
+        <div class="field"><label>Shot type</label><input id="s-shot" placeholder="arm's-length selfie / mirror selfie"></div>
+        <div class="field"><label>Lighting</label><input id="s-light" placeholder="soft window daylight / golden-hour sun"></div>
+        <div class="field span2"><label>What she's doing</label><input id="s-action" placeholder="sipping iced coffee, glancing back over her shoulder…"></div>
+        <div class="field"><label>Setting</label><input id="s-setting" placeholder="a sunlit kitchen / rooftop / her car"></div>
+        <div class="field"><label>Mood / expression</label><input id="s-mood" placeholder="soft confident flirty"></div>
+        <div class="field span2"><label>Outfit (tasteful)</label><input id="s-outfit" placeholder="oversized knit sweater / fitted gym set — kept covered"></div>
+        <div class="field span2"><label>Framing <span class="muted">(optional — blank = face-prominent default)</span></label><input id="s-framing" placeholder="CLOSE waist-up, face large &amp; sharp"></div>
         <div id="s-img-only" class="field"><label>How many options</label>
           <select id="s-count"><option value="2">2 (recommended)</option><option value="1">1</option><option value="3">3</option></select></div>
-        <div id="s-vid-only" style="display:none">
-          <div class="row" style="gap:12px">
-            <div class="field" style="flex:1"><label>Method</label>
-              <select id="s-method"><option value="">Auto (recommended)</option><option value="seedance">Seedance (described motion / held object)</option><option value="motion_control">Motion Control (copy a clip)</option></select></div>
-            <div class="field" style="flex:1"><label>Duration (s)</label><input id="s-dur" type="number" min="4" max="15" value="8"></div>
-            <div class="field" style="flex:1"><label>Resolution</label><select id="s-res"><option>720p</option><option>1080p</option></select></div>
-          </div>
-          <div class="field"><label>Driving video (TikTok/IG link or note) — for Motion Control</label><input id="s-driving" placeholder="https://vt.tiktok.com/…"></div>
-          <div class="muted" style="font-size:12px;margin-top:-6px">Start frame is generated and <b>shown for approval before any video spend</b>.</div>
-        </div>
-        <div class="row" style="margin-top:6px">
-          <button id="s-preview" class="btn">Preview prompt</button>
-          <button id="s-submit" class="btn primary">Queue generation</button>
-          <span class="muted" id="s-balance"></span>
-        </div>
       </div>
-      <div class="panel">
-        <h3>Compliant prompt preview</h3>
-        <div id="s-preview-box"><div class="muted">Fill the brief and hit <b>Preview prompt</b> — the locked rules, identity restatement, 2K/9:16/"No text" and filter-safe wording are baked in automatically.</div></div>
+
+      <div id="s-vid-only" style="display:none;margin-top:4px">
+        <div class="sform">
+          <div class="field"><label>Method</label>
+            <select id="s-method"><option value="">Auto (recommended)</option><option value="seedance">Seedance (described / held object)</option><option value="motion_control">Motion Control (copy a clip)</option></select></div>
+          <div class="field"><label>Duration (s)</label><input id="s-dur" type="number" min="4" max="15" value="8"></div>
+          <div class="field"><label>Resolution</label><select id="s-res"><option>720p</option><option>1080p</option></select></div>
+          <div class="field span2"><label>Driving video — for Motion Control (TikTok/IG link)</label><input id="s-driving" placeholder="https://vt.tiktok.com/…"></div>
+        </div>
+        <div class="muted" style="font-size:12px;margin-top:8px">Start frame is generated and <b>shown for approval before any video spend</b>.</div>
+      </div>
+
+      <div class="field span2" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+        <label>📎 Put Candace in this picture (optional)</label>
+        <input id="s-ref" type="file" accept="image/png,image/jpeg,image/webp">
+        <div class="muted" style="font-size:12px;margin-top:4px">Upload a scene / pose / outfit reference — the worker keeps Candace's face (identity ref) and places her into this look.</div>
+        <div id="s-ref-preview"></div>
+      </div>
+
+      <div class="row" style="margin-top:16px;gap:10px">
+        <button id="s-submit" class="btn primary">Queue generation</button>
+        <button id="s-preview" class="btn">Preview compliant prompt</button>
       </div>
     </div>
+
+    <div class="panel" id="s-preview-panel" hidden>
+      <h3>Compliant prompt preview</h3>
+      <div id="s-preview-box"></div>
+    </div>
+
     <div class="panel">
       <div class="row between"><h3 style="margin:0">Generation queue</h3><button id="s-refresh" class="btn ghost sm">⟳ refresh</button></div>
       <div id="s-queue"><div class="loading">loading…</div></div>
@@ -375,6 +380,8 @@ async function studio(slug) {
     return brief;
   }
   async function doPreview() {
+    $('#s-preview-panel').hidden = false;
+    $('#s-preview-box').innerHTML = '<div class="loading">building…</div>';
     try {
       const p = await api(`/accounts/${slug}/gen/preview`, { method: 'POST', body: JSON.stringify(readBrief()) });
       $('#s-preview-box').innerHTML = `
