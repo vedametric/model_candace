@@ -129,13 +129,17 @@
         cx++; badge = '<span class="badge b-super">debounced</span>';
         last = '<span class="dim">newer message replaced this one</span>';
       } else {
-        const ms = r.scheduled_for ? (new Date(r.scheduled_for).getTime() - now) : 0;
+        const sched = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
+        const ms = sched - now;
         if (ms > 0){
           cw++; badge = '<span class="badge b-wait">waiting</span>';
           last = '<span class="cd mono">' + fmtDur(ms/1000) + '</span>';
-        } else {
+        } else if (now - sched < 90000){
           cw++; badge = '<span class="badge b-flight">generating…</span>';
           last = '<span class="dim mono">any second</span>';
+        } else {
+          cx++; badge = '<span class="badge b-super">no reply</span>';
+          last = '<span class="dim">never sent (aborted or error)</span>';
         }
       }
       const tr = document.createElement('tr');

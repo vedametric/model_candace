@@ -84,7 +84,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=msg_count&id=eq.' + $json.fan_id }}",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=msg_count&id=eq.' + $('Set Delay').first().json.fan_id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {}
