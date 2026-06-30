@@ -53,13 +53,24 @@ export function filterSafe(text) {
   // collapse any adjacent repeats introduced by neighbouring triggers
   t = t.replace(/\b(lightweight gauzy)(?:\s+lightweight gauzy\b)+/gi, '$1')
        .replace(/\s{2,}/g, ' ');
+  // swimwear trips the filter most often — keep the beach look but make it covered (§4.4)
+  if (/\b(bikini|swimsuit|swimwear)\b/i.test(t)) {
+    t = t.replace(/\b(bikini|swimsuit|swimwear)\b/gi, 'modest fully-covered one-piece swimsuit');
+    notes.push('reworded swimwear → modest fully-covered one-piece (clears the filter)');
+  }
   // always assert the SFW guardrail when the outfit reads risky
-  if (/bikini|swimsuit|gauzy|bralette|crop|cropped|loungewear|bodysuit/i.test(t) && !/no nudity/i.test(t)) {
+  if (/one-piece swimsuit|gauzy|bralette|crop|cropped|loungewear|bodysuit/i.test(t) && !/no nudity/i.test(t)) {
     t = t.replace(/\.?\s*$/, '') + ', fully covered, modest and tasteful, no nudity';
     notes.push('appended SFW qualifier (fully covered, tasteful, no nudity)');
   }
   return { text: t, changed: notes.length > 0, notes };
 }
+
+// Strong modesty clause appended when the user asks for "fully covered" (e.g. to clear
+// an NSFW filter flag). Same character, just covered.
+export const MODESTY_CLAUSE =
+  'She is fully covered in a modest, tasteful outfit — opaque lightweight fabric, modest ' +
+  'neckline, shoulders and midriff covered, no skin exposure beyond face/arms, no nudity.';
 
 // Suggest the video method per the §5 decision guide.
 //  - held object (phone/drink/glasses) → Seedance (only reliable way to keep it natural)
@@ -113,7 +124,8 @@ export function buildPrompt(brief = {}) {
   const notes = [...outfitSafe.notes, ...actionSafe.notes];
 
   const prefix = LOCKED_PREFIX.replace('{shot}', b.shot).replace('{light}', b.light);
-  const body = `${IDENTITY_SENTENCE} ${actionSafe.text} in ${b.setting}. She wears ${outfitSafe.text}. ${b.mood}.`;
+  let body = `${IDENTITY_SENTENCE} ${actionSafe.text} in ${b.setting}. She wears ${outfitSafe.text}. ${b.mood}.`;
+  if (brief.modest) body += ` ${MODESTY_CLAUSE}`;
   const tail = `${framing}. Vertical 9:16. No text.`;
   const prompt = `${prefix}\n${body}\n${tail}`.replace(/\s+\n/g, '\n').trim();
 
@@ -146,6 +158,10 @@ function buildReferencePrompt(brief) {
   if (s.setting) adj.push(`setting: ${s.setting}`);
   if (s.mood) adj.push(s.mood);
   if (s.framing) adj.push(`framing: ${s.framing}`);
+  if (brief.modest) {
+    body += `\nRender a MODEST, fully-covered version of the reference's outfit (override any ` +
+      `revealing/swim wear): ${MODESTY_CLAUSE}`;
+  }
   if (adj.length) body += `\nAdjustments (override the reference only where these conflict): ${adj.join('; ')}.`;
   const prompt = `${prefix}\n${body}\nVertical 9:16. No text.`;
   return {

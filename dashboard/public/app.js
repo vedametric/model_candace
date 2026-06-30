@@ -5,6 +5,9 @@ const view = $('#view');
 let ACCOUNTS = [];
 let LIVE = true;
 let timers = [];
+let S_CARRY = { reference_image: null, parent_id: null };
+let prefillStudio = null;
+let S_ROWS = [];
 
 function clearTimers() { timers.forEach(clearInterval); timers = []; }
 function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
@@ -337,6 +340,9 @@ async function studio(slug) {
         <input id="s-ref" type="file" accept="image/png,image/jpeg,image/webp">
         <div class="muted" style="font-size:12px;margin-top:4px">Upload a scene / pose / outfit reference — the worker keeps Candace's face (identity ref) and places her into this look.</div>
         <div id="s-ref-preview"></div>
+        <div id="s-carry-note"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;text-transform:none;font-weight:600;cursor:pointer;color:var(--text)">
+          <input type="checkbox" id="s-modest" style="width:auto"> Fully covered <span class="muted" style="font-weight:400">— clears Higgsfield's NSFW filter (use for swimwear / revealing references)</span></label>
       </div>
 
       <div class="row" style="margin-top:16px;gap:10px">
@@ -364,12 +370,13 @@ async function studio(slug) {
   };
   kindSel.onchange = toggleKind; toggleKind();
 
+  S_CARRY = { reference_image: null, parent_id: null }; // carried across an "edit & requeue"
   function readBrief() {
     const kind = kindSel.value;
     const brief = {
       kind, shot: $('#s-shot').value, action: $('#s-action').value, setting: $('#s-setting').value,
       outfit: $('#s-outfit').value, light: $('#s-light').value, mood: $('#s-mood').value,
-      framing: $('#s-framing').value,
+      framing: $('#s-framing').value, modest: $('#s-modest').checked,
     };
     if (kind === 'image') brief.count = +$('#s-count').value;
     else {
@@ -379,8 +386,27 @@ async function studio(slug) {
       if (link) brief.driving_video = { link };
     }
     if ($('#s-ref') && $('#s-ref').files && $('#s-ref').files.length) brief.has_reference = true;
+    // reuse a reference image carried from an edit-&-requeue (no re-upload)
+    if (S_CARRY.reference_image) { brief.reference_image = S_CARRY.reference_image; brief.has_reference = true; }
+    if (S_CARRY.parent_id) brief.parent_id = S_CARRY.parent_id;
     return brief;
   }
+  // expose a prefill hook for the queue's "Edit & requeue" buttons
+  prefillStudio = (job, opts = {}) => {
+    const b = job.brief || {};
+    kindSel.value = b.kind === 'video' ? 'video' : 'image'; toggleKind();
+    $('#s-shot').value = b.shot || ''; $('#s-action').value = b.action || '';
+    $('#s-setting').value = b.setting || ''; $('#s-outfit').value = b.outfit || '';
+    $('#s-light').value = b.light || ''; $('#s-mood').value = b.mood || ''; $('#s-framing').value = b.framing || '';
+    $('#s-modest').checked = opts.modest || !!b.modest;
+    S_CARRY = { reference_image: b.reference_image || null, parent_id: job.id };
+    $('#s-carry-note').innerHTML = b.reference_image
+      ? `<div class="muted" style="font-size:12px;margin-top:6px">↻ reusing the reference picture from #${job.id} (no re-upload needed)</div>` : '';
+    $('#s-ref-preview').innerHTML = b.reference_image && b.reference_image.url
+      ? `<img src="${esc(b.reference_image.url)}" style="height:90px;border-radius:8px;border:1px solid var(--line);margin-top:8px" onerror="this.style.display='none'">` : '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (opts.submit) $('#s-submit').click();
+  };
   async function doPreview() {
     $('#s-preview-panel').hidden = false;
     $('#s-preview-box').innerHTML = '<div class="loading">building…</div>';
@@ -392,6 +418,7 @@ async function studio(slug) {
           <span class="muted">${esc(p.cost_basis)}</span>
           ${p.method ? `<span class="tag buyer">${esc(p.method.method)}</span>` : ''}
           ${p.reference_driven ? '<span class="tag stage">📎 reference-driven — recreates your uploaded picture</span>' : ''}
+          ${$('#s-modest').checked ? '<span class="tag ok">🧥 fully covered (filter-safe)</span>' : ''}
         </div>
         <textarea id="s-prompt" rows="9">${esc(p.prompt)}</textarea>
         ${p.method ? `<div class="muted" style="font-size:12px;margin-top:4px">method: ${esc(p.method.reason)}</div>` : ''}
@@ -417,6 +444,7 @@ async function studio(slug) {
       }
       await api(`/accounts/${slug}/gen`, { method: 'POST', body: JSON.stringify(brief) });
       toast(file ? 'queued with your reference picture' : 'queued — the content worker will pick it up');
+      S_CARRY = { reference_image: null, parent_id: null }; $('#s-carry-note').innerHTML = '';
       loadQueue();
     } catch (e) { toast('error: ' + e.message); }
     btn.disabled = false;
@@ -436,6 +464,7 @@ async function studio(slug) {
     try {
       const d = await api(`/accounts/${slug}/gen`);
       const rows = d.requests || [];
+      S_ROWS = rows;
       $('#s-queue').innerHTML = rows.length ? rows.map(r => genRow(r, slug)).join('') : '<div class="muted">nothing queued yet</div>';
       wireQueue(slug);
     } catch (e) { $('#s-queue').innerHTML = errBox(e); }
@@ -457,6 +486,8 @@ function genRow(r, slug) {
   const logHtml = logArr.length ? `<details class="prompt" style="margin-top:8px"><summary>worker activity (${logArr.length})</summary>
     <div style="margin-top:6px">${logArr.slice(-12).map(l => `<div class="mono" style="font-size:12px"><span class="dim">${fmtClock(l.ts)}</span> <b>${esc(l.stage || '')}</b> ${esc(l.msg || '')}</div>`).join('')}</div></details>` : '';
   const result = r.result && r.result.file ? `<a href="/content/${encodeURIComponent(slug)}/generations/${encodeURIComponent(r.result.file)}" target="_blank">view asset ↗</a>` : '';
+  const isNsfw = ((r.error || '') + ' ' + logArr.map(l => l.msg || '').join(' ')).toLowerCase().includes('nsfw');
+  const recoverable = ['failed', 'rejected', 'canceled'].includes(r.status);
   return `<div class="panel" style="box-shadow:none;border-radius:9px;margin:10px 0">
     <div class="row between">
       <div class="row"><span class="tag ${STATUS_TAG[r.status] || ''}">${esc(r.status)}</span>
@@ -464,6 +495,8 @@ function genRow(r, slug) {
         ${refImg}
         <span class="muted">#${r.id} · ~${r.est_cost_cr ?? '?'} cr · ${fmtDateTime(r.created_at)}</span></div>
       <div class="row">${result}
+        ${r.status === 'failed' && isNsfw ? `<button class="btn primary sm" data-requeue-modest="${r.id}">Requeue (modest)</button>` : ''}
+        ${recoverable ? `<button class="btn sm" data-requeue="${r.id}">↻ Edit &amp; requeue</button>` : ''}
         ${['queued','awaiting_approval','generating'].includes(r.status) ? `<button class="btn ghost sm" data-cancel="${r.id}">cancel</button>` : ''}
         ${r.status === 'awaiting_approval' ? `<button class="btn ghost sm" data-reject="${r.id}">reject all</button>` : ''}
       </div>
@@ -485,6 +518,14 @@ function wireQueue(slug) {
   });
   view.querySelectorAll('[data-cancel]').forEach(b => b.onclick = async () => {
     try { await post(`${b.dataset.cancel}/cancel`); toast('canceled'); studio(slug); } catch (e) { toast('error: ' + e.message); }
+  });
+  view.querySelectorAll('[data-requeue]').forEach(b => b.onclick = () => {
+    const job = S_ROWS.find(r => String(r.id) === b.dataset.requeue);
+    if (job && prefillStudio) prefillStudio(job, { modest: false });
+  });
+  view.querySelectorAll('[data-requeue-modest]').forEach(b => b.onclick = () => {
+    const job = S_ROWS.find(r => String(r.id) === b.dataset.requeueModest);
+    if (job && prefillStudio) prefillStudio(job, { modest: true, submit: true });
   });
 }
 
