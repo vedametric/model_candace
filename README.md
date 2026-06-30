@@ -22,6 +22,7 @@ and how she's published — so every piece of content stays consistent.
 | [`approved_examples.md`](./approved_examples.md) | Human-approved gold-standard lines (captions + DM replies). ⛔ Nothing added without explicit approval. |
 | [`.claude/skills/candace-voice/`](./.claude/skills/candace-voice/) | The **`candace-voice` skill** — wraps the above for writing anything in her voice. |
 | [`automation/README.md`](./automation/README.md) | **How the live auto-DM system works** — TikTok → ManyChat → n8n → Supabase → OpenAI → reply, node by node. |
+| [`automation/telegram/README.md`](./automation/telegram/README.md) | **Candace on Telegram** — Business bot replying as the real account, photo vision + voice transcription, cross-platform memory, deploy steps. |
 
 ---
 
@@ -50,29 +51,75 @@ come from a brand, a marketer, or an AI, it's wrong.
 
 ---
 
-## The live auto-DM system
+## The live conversation system (TikTok + Telegram)
 
-Candace replies to her TikTok DMs automatically, in her own voice, and funnels
-interested men toward her private Telegram. Full node-by-node docs in
-[`automation/README.md`](./automation/README.md).
+Candace replies to her DMs automatically, in her own voice, on **two platforms
+that share one brain and one durable memory**. Docs:
+[`automation/README.md`](./automation/README.md) (TikTok) and
+[`automation/telegram/README.md`](./automation/telegram/README.md) (Telegram).
 
 ```
-fan DMs Candace on TikTok
-  -> ManyChat -> n8n webhook (responds instantly)
-     -> dedup re-deliveries -> log to Supabase
-     -> pick a random human delay (2-10 min) and wait
-     -> debounce: only his LAST message in a burst replies (with full context)
-     -> classify -> OpenAI (gpt-4o) reply in her voice -> send via ManyChat API
-     -> update his buyer profile / funnel stage
+inbound DM   (TikTok via ManyChat   |   Telegram via the Business bot)
+  -> n8n webhook (responds instantly)
+     -> dedup re-deliveries -> understand any media -> log to Supabase
+     -> per-platform human delay + pause gate, then wait
+     -> debounce: only his LAST message in a burst replies (full context)
+     -> classify -> OpenAI (gpt-4o) reply in her voice -> send back on that platform
+     -> fact-aware profiler updates his memory + funnel/attachment read
 ```
 
-- **Personality lives in the database** (`bots.system_prompt`) — edit
-  `automation/supabase/candace_prompt.sql` to change how she talks, no workflow
-  change needed.
-- **Human, not botty:** random aloof delay, rapid-message debouncing, and
-  duplicate-delivery protection so she never double-texts.
-- **Live queue dashboard** to watch what's come in, the delay she picked, and
-  when it sent: `https://automations.vedametric.com.au/webhook/candace-queue-page`.
+**One brain, two surfaces.** Each platform is a row in `bots`
+(`candace_summers` = TikTok, `candace_telegram` = Telegram), grouped under one
+identity. Personality, model and pacing live in the DB — edit behaviour without
+touching n8n:
+- TikTok brain → `automation/supabase/candace_prompt.sql` (funnels to Telegram).
+- Telegram brain → `automation/supabase/candace_telegram.sql` (talk & retain,
+  more personal, no funnel; a `spice` dial, tasteful by default).
+- Per-bot **`reply_delay`** (pacing) + **`automation_paused`** (kill switch),
+  both editable from the dashboard.
+
+**Telegram is a real account, no "bot" badge.** People DM the real
+**@candace_summers** account and a connected **Telegram Business bot**
+(@candace_auto_bot) answers on her behalf (via `business_connection_id`). A
+Telethon userbot **bridge** and a plain BotFather bot are also included as
+alternatives — see [`automation/telegram/`](./automation/telegram/).
+
+**She understands media on Telegram:**
+- **Photos** → gpt-4o **vision** describes them and she reacts to the real image
+  (logged as `[photo he sent: …]`).
+- **Voice notes** → **Whisper** transcription (`[voice note … transcript: …]`).
+- **Video / gif / sticker / file / location / contact** → a clear typed marker.
+- The interpretation is logged, shown in the dashboard conversation + queue, and
+  fed to memory. (ManyChat doesn't forward TikTok media, so TikTok stays text + funnel.)
+
+**Cross-platform memory.** A `persons` table links a fan's TikTok and Telegram
+identities; once linked, her memory — including the **raw facts the profiler
+accumulates** (name, pets, job, preferences…) — follows the person across both
+platforms. Linking is manual, from the dashboard.
+
+**Human, not botty:** random aloof delay, rapid-message debounce, and
+duplicate-delivery protection so she never double-texts.
+
+---
+
+## Admin dashboard
+
+A multi-account control panel (Node/Express + vanilla SPA) for the whole system,
+deployed to the droplet at **`http://134.199.145.47`** (basic auth) and
+auto-deployed via GitHub Actions. The app source lives on the
+**`claude/admin-dashboard-multi-account-i2zcpq`** branch under `dashboard/`.
+
+- **One "Candace" identity** with a **TikTok ⇄ Telegram** switch on Persona /
+  Studio / Generations / Posts (each platform can use a different model).
+- **Fans** and **Queue** merged across platforms and **filterable**; the queue's
+  fan name links straight to that fan's profile.
+- **Cross-platform identity** panel per fan: link / unlink the same person across
+  platforms (merges memory), with click-through to the linked profile.
+- Persona editing, funnel/stage edits, pacing + pause toggle, content Studio, and
+  a live message queue with "send now".
+
+(There's also a lightweight n8n-served queue board at
+`https://automations.vedametric.com.au/webhook/candace-queue-page`.)
 
 ---
 
@@ -100,7 +147,9 @@ talking_style.md         how she talks (public voice + seduction engine)
 conversation_master.md   DM -> paid conversion playbook + gold arcs
 approved_examples.md     human-approved gold-standard lines (vault)
 .claude/skills/          the candace-voice skill
-automation/              the live auto-DM system (ManyChat -> n8n -> Supabase -> OpenAI)
+automation/              the live conversation system (n8n + Supabase + OpenAI)
+automation/telegram/     Telegram system: Business bot, vision/voice media, bridge, brain
+dashboard/               admin control panel (lives on the admin-dashboard branch)
 reference/               locked face/figure identity references
 generations/             every generated asset + manifest/logs
 posted images/           archive of everything published + logs
