@@ -44,6 +44,15 @@ echo "==> npm deps"
 cd "$APP_DIR"
 if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi
 
+# Rebuild the account's generations manifest from whatever assets are present on the
+# droplet (so a fresh box, or newly-synced build_manifest.py, reflects reality). The
+# manifest/sidecars themselves are excluded from the deploy rsync — the deposit API owns them.
+for acct in "$ACCOUNTS_ROOT"/*/; do
+  if [ -f "$acct/generations/build_manifest.py" ]; then
+    ( cd "$acct/generations" && python3 build_manifest.py >/dev/null 2>&1 ) && echo "  manifest rebuilt: $acct"
+  fi
+done
+
 echo "==> systemd unit"
 cat > /etc/systemd/system/admin-dashboard.service <<UNIT
 [Unit]

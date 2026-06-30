@@ -4,6 +4,9 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+const execFileP = promisify(execFile);
 import { listBots, getBot, hasContent, contentPath, invalidateBots } from '../accounts.js';
 import { select, patch, rpc, insert, hasKey } from '../supabase.js';
 import { buildPrompt, estimateCost, suggestMethod, filterSafe, IDENTITY_REF } from '../content-gen.js';
@@ -283,6 +286,52 @@ router.post('/worker/fire', wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
+// Deposit a finished generation straight onto the droplet so it shows in the gallery
+// immediately — independent of which git branch the worker session is on. Writes the
+// asset, appends generations/entries.json, updates balance.json, and rebuilds manifest.json.
+router.post('/accounts/:slug/generations/deposit', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const { filename, data_base64, entry, balance_now_cr } = req.body || {};
+  if (!filename || !/\.(png|mp4|jpe?g|webp)$/i.test(filename)) {
+    throw Object.assign(new Error('valid filename (.png/.mp4/.jpg/.webp) required'), { status: 400 });
+  }
+  if (!data_base64 || typeof data_base64 !== 'string') {
+    throw Object.assign(new Error('data_base64 required'), { status: 400 });
+  }
+  const safe = path.basename(filename); // no path traversal
+  const b64 = data_base64.includes(',') ? data_base64.split(',').pop() : data_base64;
+  const buf = Buffer.from(b64, 'base64');
+  if (!buf.length || buf.length > 60 * 1024 * 1024) {
+    throw Object.assign(new Error('asset must be 1 byte–60 MB'), { status: 400 });
+  }
+  const genDir = path.join(contentPath(req.params.slug), 'generations');
+  fs.mkdirSync(genDir, { recursive: true });
+  fs.writeFileSync(path.join(genDir, safe), buf);
+
+  // merge the entry into entries.json (dashboard-appended sidecar; keyed by file)
+  if (entry && typeof entry === 'object') {
+    const ep = path.join(genDir, 'entries.json');
+    let sidecar = { entries: [] };
+    try { sidecar = JSON.parse(fs.readFileSync(ep, 'utf8')); } catch (_) {}
+    if (!Array.isArray(sidecar.entries)) sidecar.entries = [];
+    sidecar.entries = sidecar.entries.filter((e) => e.file !== safe); // replace if re-deposited
+    sidecar.entries.push({ file: safe, ...pick(entry, ['model', 'job', 'cost', 'batch', 'at', 'src', 'prompt', 'notes']) });
+    fs.writeFileSync(ep, JSON.stringify(sidecar, null, 2));
+  }
+  // update the live balance ledger if provided
+  if (Number.isFinite(Number(balance_now_cr))) {
+    const bp = path.join(genDir, 'balance.json');
+    let bal = {};
+    try { bal = JSON.parse(fs.readFileSync(bp, 'utf8')); } catch (_) {}
+    bal.balance_now_cr = Number(balance_now_cr);
+    fs.writeFileSync(bp, JSON.stringify(bal, null, 2));
+  }
+  // rebuild manifest.json on the droplet
+  await rebuildManifest(genDir);
+  const manifest = readManifest(req.params.slug);
+  res.json({ ok: true, count: manifest.count, file: safe });
+}));
+
 // Upload a reference image ("put Candace in THIS scene/pose/outfit"). Stored under
 // the account's uploads/ dir and served at /content/:slug/uploads/<file>; the worker
 // fetches it and uploads it to Higgsfield as a composition reference.
@@ -405,6 +454,19 @@ async function getGen(botId, id) {
   const rows = await select('gen_requests', `id=eq.${idNum(id)}&bot_id=eq.${botId}&limit=1`);
   if (!rows[0]) throw Object.assign(new Error('request not found'), { status: 404 });
   return rows[0];
+}
+function pick(obj, keys) {
+  const out = {};
+  for (const k of keys) if (k in obj) out[k] = obj[k];
+  return out;
+}
+// Rebuild generations/manifest.json by running the existing build script in that dir.
+async function rebuildManifest(genDir) {
+  try {
+    await execFileP('python3', ['build_manifest.py'], { cwd: genDir, timeout: 30000 });
+  } catch (e) {
+    throw Object.assign(new Error(`manifest rebuild failed: ${(e.stderr || e.message || '').toString().slice(0, 200)}`), { status: 500 });
+  }
 }
 
 export default router;

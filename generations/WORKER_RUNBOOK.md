@@ -97,12 +97,29 @@ Keep messages short and concrete (model, job id, what's happening, credits if kn
 
 6. **Log it (the full ritual, §8) — every time, before marking done:**
    - `curl` the result to `generations/YYYY-MM-DD_<short-desc>_<jobid8>.<ext>`.
-   - Append an entry to **`generations/entries.json`** (`{"entries":[…]}`) — fields:
-     `file, model, job, cost (verified via transactions), batch, at (UTC), src (the
-     approved_job for videos), prompt, notes`. **No need to edit `build_manifest.py`** —
-     it merges this sidecar.
+   - **DEPOSIT it to the live gallery (CRITICAL — this is how it shows up regardless of
+     your branch).** Your git commit lands on this session's branch, which the droplet does
+     NOT deploy from, so committing alone will NOT make it appear in the dashboard. POST the
+     asset to the deposit API so the droplet gallery updates immediately:
+     ```
+     B64=$(base64 -w0 "generations/<file>")
+     curl -sS -u root:BotMadhouse123!K -X POST \
+       http://134.199.145.47/api/accounts/candace_summers/generations/deposit \
+       -H 'Content-Type: application/json' \
+       -d "{\"filename\":\"<file>\",\"data_base64\":\"$B64\",\"balance_now_cr\":<balance>,\
+            \"entry\":{\"model\":\"nano_banana_pro\",\"job\":\"<jobid8>\",\"cost\":<cr>,\
+            \"batch\":\"<batch>\",\"at\":\"<UTC>\",\"src\":\"<approved_job or empty>\",\
+            \"prompt\":\"<prompt>\",\"notes\":\"<notes>\"}}"
+     ```
+     The endpoint writes the file, appends `entries.json`, updates `balance.json`, and
+     rebuilds `manifest.json` on the droplet. Do this for the CHOSEN asset (and any alt you
+     keep). Returns `{ok, count}` — confirm count went up.
+   - Append an entry to **`generations/entries.json`** (`{"entries":[…]}`) for the git archive
+     — fields: `file, model, job, cost (verified via transactions), batch, at (UTC), src,
+     prompt, notes`. **No need to edit `build_manifest.py`** — it merges this sidecar.
    - Update **`generations/balance.json`** `balance_now_cr` from the `balance` tool.
-   - Run `python3 generations/build_manifest.py` (rebuilds `manifest.json`).
+   - Run `python3 generations/build_manifest.py` (rebuilds your local `manifest.json` for the
+     git archive; the droplet's was already rebuilt by the deposit call).
    - Append to `generations/CREDIT_USAGE.md`, `generations/PROMPTS.md`,
      `generations/README.md` (formats in those files).
    - Set the row done with the asset:

@@ -21,7 +21,7 @@ const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || '127.0.0.1';
 
 app.disable('x-powered-by');
-app.use(express.json({ limit: '30mb' })); // large enough for base64 reference-image uploads
+app.use(express.json({ limit: '60mb' })); // base64 reference-image uploads + generation deposits (video)
 
 // tiny request log
 app.use((req, _res, next) => {

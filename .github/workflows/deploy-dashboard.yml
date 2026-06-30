@@ -59,11 +59,14 @@ jobs:
           # provisioning script
           sshpass -p "$DROPLET_PASS" rsync -az -e "ssh $SSHOPTS" \
             deploy/provision.sh "$DEST:$APP_DIR/provision.sh"
-          # account content (Candace = this repo's content). Exclude 'uploads' so a
-          # deploy never wipes user-uploaded reference images (they're gitignored, so
-          # --delete would otherwise remove them from the droplet).
-          sshpass -p "$DROPLET_PASS" rsync -az --delete -e "ssh $SSHOPTS" \
+          # account content (Candace = this repo's content). NO --delete: the worker
+          # deposits generated assets straight onto the droplet (branch-independent), and
+          # --delete would wipe them. Also never overwrite the droplet-owned live manifest
+          # / sidecars (the deposit API maintains those) or user uploads.
+          sshpass -p "$DROPLET_PASS" rsync -az -e "ssh $SSHOPTS" \
             --exclude '.git' --exclude 'dashboard/node_modules' --exclude 'uploads' \
+            --exclude 'generations/manifest.json' --exclude 'generations/entries.json' \
+            --exclude 'generations/balance.json' \
             ./ "$DEST:$ACCOUNTS_ROOT/$ACCOUNT_SLUG/"
 
       - name: Provision + start on droplet
