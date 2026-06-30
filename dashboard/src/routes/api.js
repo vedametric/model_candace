@@ -245,6 +245,22 @@ router.post('/accounts/:slug/fans/:id/unlink', wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
+// re-engage: fire the n8n re-engage workflow, which generates a natural re-opener
+// from this fan's memory + history and sends it on the right platform.
+router.post('/accounts/:slug/fans/:id/reengage', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const fanId = idNum(req.params.id);
+  const base = process.env.N8N_BASE || 'https://automations.vedametric.com.au';
+  const r = await fetch(`${base}/webhook/candace-reengage`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fan_id: fanId }),
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => '');
+    throw Object.assign(new Error(`re-engage trigger failed (${r.status}): ${t.slice(0, 150)}`), { status: 502 });
+  }
+  res.json({ ok: true });
+}));
+
 // ---- queue -----------------------------------------------------------------
 router.get('/accounts/:slug/queue', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);

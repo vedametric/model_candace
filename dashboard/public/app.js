@@ -778,6 +778,7 @@ async function fanDetail(slug, id) {
   view.innerHTML = `
     <div class="row between" style="margin-bottom:14px">
       <div><a href="#/a/${identityKeyForSlug(slug)}/fans">← all fans</a> <b style="font-size:17px;margin-left:8px">${esc(f.username)}</b> <span class="dim">${esc(f.display_name || '')}</span></div>
+      <button id="reengage" class="btn sm primary" title="Send a fresh opener to restart the conversation">↻ Re-engage</button>
     </div>
     <div class="grid2">
       <div class="panel"><h3>Conversation (${(m.messages || []).length})</h3>
@@ -809,6 +810,17 @@ async function fanDetail(slug, id) {
     catch (e) { toast('error: ' + e.message); }
   };
   wireLinks(slug, id);
+  const rb = $('#reengage');
+  if (rb) rb.onclick = async () => {
+    if (!confirm(`Send a fresh re-engagement message to ${f.username} now?`)) return;
+    rb.disabled = true; rb.textContent = 'sending…';
+    try {
+      await api(`/accounts/${slug}/fans/${id}/reengage`, { method: 'POST' });
+      toast('re-engage sent — her message will appear in the conversation shortly');
+      setTimeout(() => { if (location.hash.includes(`/fans/${slug}.${id}`)) fanDetail(slug, id); }, 9000);
+    } catch (e) { toast('error: ' + e.message); }
+    rb.disabled = false; rb.textContent = '↻ Re-engage';
+  };
 }
 
 // cross-platform identity panel — shows linked profiles (click through to them)
