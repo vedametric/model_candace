@@ -3,6 +3,31 @@
 This repo manages **Candace Summers**, an AI virtual influencer. The full
 persona bible is in [`soul.md`](./soul.md). Read it before generating anything.
 
+## 🖥️ Admin dashboard & deployment
+
+A multi-account admin dashboard (`dashboard/`) manages this whole system — Candace
+is **one account**; it is built to manage many cloned accounts. It fuses live
+Supabase data (fans, funnel stage, transcripts, message queue) with git content
+(generations gallery, posting log, persona docs).
+
+- **Live URL:** `http://134.199.145.47` — HTTP Basic Auth user `root`, password
+  `BotMadhouse123!K`.
+- **Droplet (SSH):** `134.199.145.47`, user `root`, password `BotMadhouse123!K`.
+  (Note: this dev sandbox cannot SSH out — deploys run via GitHub Actions runners.)
+- **Deploy:** push to the working branch → `.github/workflows/deploy-dashboard.yml`
+  rsyncs the app + content to the droplet and runs `deploy/provision.sh`
+  (Node + systemd unit `admin-dashboard` on `127.0.0.1:8787` + nginx :80 basic-auth).
+- **One-time secret:** add `SUPABASE_SERVICE_KEY` (Supabase → Project Settings → API →
+  `service_role`) as a GitHub Actions secret for live data. Without it the dashboard
+  runs content-only.
+- **App path on droplet:** `/opt/admin-dashboard`. **Accounts root:** `/opt/accounts/<slug>`
+  (each a clone of this master repo; Candace = `/opt/accounts/candace_summers`).
+- **Add an account (no code change):** clone the master repo to `/opt/accounts/<slug>`,
+  swap in that persona's content, ensure a Supabase `bots` row with that `slug`.
+- Supabase project `vvnefkexzhfgvuusavvl`; the dashboard's pause toggle uses
+  `bots.automation_paused` — n8n enforcement needs the gate in
+  [`automation/n8n/PAUSE_GATE.md`](./automation/n8n/PAUSE_GATE.md).
+
 **Writing in her voice?** Use the **`candace-voice`** skill (`.claude/skills/
 candace-voice/`) for any of her words — captions, comments, story text, DMs,
 and paid-conversion conversations. It's backed by [`talking_style.md`](./talking_style.md)

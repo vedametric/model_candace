@@ -1,0 +1,85 @@
+name: Deploy admin dashboard
+
+# Deploys the multi-account admin dashboard to the droplet from a GitHub runner
+# (which CAN reach port 22 — the dev sandbox cannot).
+#
+# Required secret:
+#   SUPABASE_SERVICE_KEY  - Supabase service_role key (Project Settings -> API).
+#       Without it the dashboard still serves git content, but live fan/queue/
+#       overview data stays empty.
+#
+# Droplet SSH creds are in env below per the repo owner's explicit approval
+# (private repo). To use secrets instead, swap them for ${{ secrets.DROPLET_* }}.
+
+on:
+  push:
+    branches: [claude/admin-dashboard-multi-account-i2zcpq]
+    paths:
+      - 'dashboard/**'
+      - 'deploy/**'
+      - '.github/workflows/deploy-dashboard.yml'
+      - 'generations/**'
+      - 'posted images/**'
+      - 'soul.md'
+      - 'talking_style.md'
+      - 'conversation_master.md'
+      - 'approved_examples.md'
+      - 'candace_system_prompt.md'
+  workflow_dispatch: {}
+
+env:
+  DROPLET_HOST: '134.199.145.47'
+  DROPLET_USER: 'root'
+  DROPLET_PASS: 'BotMadhouse123!K'
+  APP_DIR: '/opt/admin-dashboard'
+  ACCOUNTS_ROOT: '/opt/accounts'
+  ACCOUNT_SLUG: 'candace_summers'
+  BASIC_USER: 'root'
+  BASIC_PASS: 'BotMadhouse123!K'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install sshpass + rsync
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass rsync
+
+      - name: Sync app + content to droplet
+        run: |
+          set -e
+          DEST="$DROPLET_USER@$DROPLET_HOST"
+          SSHOPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          sshpass -p "$DROPLET_PASS" ssh $SSHOPTS "$DEST" "mkdir -p '$APP_DIR' '$ACCOUNTS_ROOT/$ACCOUNT_SLUG'"
+          # dashboard app code
+          sshpass -p "$DROPLET_PASS" rsync -az --delete -e "ssh $SSHOPTS" \
+            --exclude node_modules --exclude .env --exclude '*.log' \
+            dashboard/ "$DEST:$APP_DIR/"
+          # provisioning script
+          sshpass -p "$DROPLET_PASS" rsync -az -e "ssh $SSHOPTS" \
+            deploy/provision.sh "$DEST:$APP_DIR/provision.sh"
+          # account content (Candace = this repo's content)
+          sshpass -p "$DROPLET_PASS" rsync -az --delete -e "ssh $SSHOPTS" \
+            --exclude '.git' --exclude 'dashboard/node_modules' \
+            ./ "$DEST:$ACCOUNTS_ROOT/$ACCOUNT_SLUG/"
+
+      - name: Provision + start on droplet
+        run: |
+          set -e
+          DEST="$DROPLET_USER@$DROPLET_HOST"
+          SSHOPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          sshpass -p "$DROPLET_PASS" ssh $SSHOPTS "$DEST" \
+            "APP_DIR='$APP_DIR' ACCOUNTS_ROOT='$ACCOUNTS_ROOT' \
+             BASIC_USER='$BASIC_USER' BASIC_PASS='$BASIC_PASS' \
+             SUPABASE_SERVICE_KEY='${{ secrets.SUPABASE_SERVICE_KEY }}' \
+             bash '$APP_DIR/provision.sh'"
+
+      - name: Verify public endpoint
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 -u "$BASIC_USER:$BASIC_PASS" "http://$DROPLET_HOST/api/accounts" || echo 000)
+          noauth=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 "http://$DROPLET_HOST/api/accounts" || echo 000)
+          echo "public withauth=$code  noauth=$noauth"
+          test "$code" = "200"
+          test "$noauth" = "401"
+          echo "✅ dashboard live at http://$DROPLET_HOST  (basic auth user: $BASIC_USER)"

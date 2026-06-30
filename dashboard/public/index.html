@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vedametric · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div class="brand-text">
+          <b>Vedametric</b>
+          <span>Account Control</span>
+        </div>
+      </div>
+      <nav id="nav-global">
+        <a href="#/overview" class="nav-item nav-overview" data-route="overview">
+          <span class="ico">◎</span> Global Overview
+        </a>
+      </nav>
+      <div class="nav-label">Accounts</div>
+      <nav id="account-list"><div class="loading">loading…</div></nav>
+      <div class="side-foot" id="side-foot"></div>
+    </aside>
+
+    <main id="main">
+      <header id="topbar">
+        <div id="crumb">—</div>
+        <nav id="tabs"></nav>
+        <div class="spacer"></div>
+        <button id="refresh" class="btn ghost" title="Refresh">⟳</button>
+      </header>
+      <section id="view"><div class="loading big">loading…</div></section>
+    </main>
+  </div>
+  <div id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
