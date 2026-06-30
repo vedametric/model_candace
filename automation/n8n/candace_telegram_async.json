@@ -59,7 +59,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { p_bot: 'candace_telegram', p_platform: 'telegram', p_username: $json.username, p_display: $json.display, p_user_msg: $json.msg, p_window: 12, p_subscriber_id: $json.telegram_user_id } }}",
+        "jsonBody": "={{ { p_bot: 'candace_telegram', p_platform: 'telegram', p_username: $json.username, p_display: $json.display, p_user_msg: $json.msg, p_window: 12 } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
