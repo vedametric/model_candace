@@ -258,6 +258,31 @@ router.post('/accounts/:slug/automation', wrap(async (req, res) => {
 
 // ============================ CONTENT GENERATION ============================
 
+// Fire the content-worker Routine on demand (drains the queue immediately instead of
+// waiting for the hourly tick). Server-side only — the token never reaches the browser.
+router.post('/worker/fire', wrap(async (req, res) => {
+  const url = process.env.ROUTINE_FIRE_URL || '';
+  const token = process.env.ROUTINE_FIRE_TOKEN || '';
+  if (!url || !token) {
+    throw Object.assign(new Error('worker fire not configured (set ROUTINE_FIRE_URL + ROUTINE_FIRE_TOKEN)'), { status: 503 });
+  }
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'experimental-cc-routine-2026-04-01',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text: 'fired from dashboard — drain the content generation queue per generations/WORKER_RUNBOOK.md' }),
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => '');
+    throw Object.assign(new Error(`routine fire failed (${r.status}): ${t.slice(0, 200)}`), { status: 502 });
+  }
+  res.json({ ok: true });
+}));
+
 // Upload a reference image ("put Candace in THIS scene/pose/outfit"). Stored under
 // the account's uploads/ dir and served at /content/:slug/uploads/<file>; the worker
 // fetches it and uploads it to Higgsfield as a composition reference.

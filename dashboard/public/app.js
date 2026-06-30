@@ -351,7 +351,8 @@ async function studio(slug) {
     </div>
 
     <div class="panel">
-      <div class="row between"><h3 style="margin:0"><span class="live-dot"></span>Generation queue</h3><button id="s-refresh" class="btn ghost sm">⟳ refresh</button></div>
+      <div class="row between"><h3 style="margin:0"><span class="live-dot"></span>Generation queue</h3>
+        <div class="row"><button id="s-fire" class="btn primary sm">▶ Run worker now</button><button id="s-refresh" class="btn ghost sm">⟳ refresh</button></div></div>
       <div id="s-queue"><div class="loading">loading…</div></div>
     </div>`;
 
@@ -421,6 +422,12 @@ async function studio(slug) {
     btn.disabled = false;
   };
   $('#s-refresh').onclick = loadQueue;
+  $('#s-fire').onclick = async () => {
+    const b = $('#s-fire'); b.disabled = true; const o = b.textContent; b.textContent = 'firing…';
+    try { await api('/worker/fire', { method: 'POST', body: '{}' }); toast('worker fired — processing the queue'); }
+    catch (e) { toast('error: ' + e.message); }
+    setTimeout(() => { b.disabled = false; b.textContent = o; loadQueue(); }, 4000);
+  };
 
   // show current balance from the manifest ledger
   api(`/accounts/${slug}/generations`).then(d => { $('#s-balance').innerHTML = `balance ~<b>${d.balance_now_cr ?? '?'}</b> cr`; }).catch(() => {});

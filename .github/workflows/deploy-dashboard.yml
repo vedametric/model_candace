@@ -75,6 +75,8 @@ jobs:
             "APP_DIR='$APP_DIR' ACCOUNTS_ROOT='$ACCOUNTS_ROOT' \
              BASIC_USER='$BASIC_USER' BASIC_PASS='$BASIC_PASS' \
              SUPABASE_SERVICE_KEY='${{ secrets.SUPABASE_SERVICE_KEY }}' \
+             ROUTINE_FIRE_URL='https://api.anthropic.com/v1/claude_code/routines/trig_01QWC5YuWeSv8S369PLpBY8p/fire' \
+             ROUTINE_FIRE_TOKEN='${{ secrets.ANTHROPIC_ROUTINE_TOKEN }}' \
              bash '$APP_DIR/provision.sh'"
 
       - name: Verify public endpoint

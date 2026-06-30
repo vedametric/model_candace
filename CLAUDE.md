@@ -17,9 +17,12 @@ Supabase data (fans, funnel stage, transcripts, message queue) with git content
 - **Deploy:** push to the working branch → `.github/workflows/deploy-dashboard.yml`
   rsyncs the app + content to the droplet and runs `deploy/provision.sh`
   (Node + systemd unit `admin-dashboard` on `127.0.0.1:8787` + nginx :80 basic-auth).
-- **One-time secret:** add `SUPABASE_SERVICE_KEY` (Supabase → Project Settings → API →
-  `service_role`) as a GitHub Actions secret for live data. Without it the dashboard
-  runs content-only.
+- **One-time secrets (GitHub Actions):** `SUPABASE_SERVICE_KEY` (Supabase → Project
+  Settings → API → `service_role`) for live data, and `ANTHROPIC_ROUTINE_TOKEN`
+  (`sk-ant-oat01-…`) to power the Studio **"Run worker now"** button. The token is
+  server-side only (droplet `.env`), never committed. The Routine fire URL is
+  `https://api.anthropic.com/v1/claude_code/routines/trig_01QWC5YuWeSv8S369PLpBY8p/fire`
+  (POST, `anthropic-beta: experimental-cc-routine-2026-04-01`).
 - **App path on droplet:** `/opt/admin-dashboard`. **Accounts root:** `/opt/accounts/<slug>`
   (each a clone of this master repo; Candace = `/opt/accounts/candace_summers`).
 - **Add an account (no code change):** clone the master repo to `/opt/accounts/<slug>`,
