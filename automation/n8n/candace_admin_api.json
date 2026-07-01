@@ -1,5 +1,10 @@
 {
+  "createdAt": "2026-06-30T13:55:14.383Z",
+  "updatedAt": "2026-06-30T13:58:40.412Z",
+  "id": "e6o5Yu9GlwfRfhVR",
   "name": "Candace Admin API (fans list + link/unlink persons)",
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -32,7 +37,13 @@
         -200
       ],
       "id": "adfans02-0002-4002-8002-000000000002",
-      "name": "Supabase: fans"
+      "name": "Supabase: fans",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -106,7 +117,13 @@
         0
       ],
       "id": "adlink02-0002-4002-8002-000000000002",
-      "name": "RPC: link person"
+      "name": "RPC: link person",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -167,7 +184,13 @@
         200
       ],
       "id": "adunl002-0002-4002-8002-000000000002",
-      "name": "RPC: unlink fan"
+      "name": "RPC: unlink fan",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -224,7 +247,13 @@
         400
       ],
       "id": "adcfg002-0002-4002-8002-000000000002",
-      "name": "Supabase: bots"
+      "name": "Supabase: bots",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -298,7 +327,13 @@
         600
       ],
       "id": "adcset02-0002-4002-8002-000000000002",
-      "name": "RPC: set troll"
+      "name": "RPC: set troll",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -459,11 +494,71 @@
       ]
     }
   },
-  "pinData": {},
-  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "meta": {},
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "80a33d86-f752-4a1b-95cb-5227382f80d9",
+  "triggerCount": 3,
+  "shared": [
+    {
+      "createdAt": "2026-06-30T13:55:14.386Z",
+      "updatedAt": "2026-06-30T13:55:14.386Z",
+      "role": "workflow:owner",
+      "workflowId": "e6o5Yu9GlwfRfhVR",
+      "projectId": "yTRQR2lksGRfgB8Y",
+      "project": {
+        "createdAt": "2025-05-24T14:35:39.558Z",
+        "updatedAt": "2025-06-10T12:58:45.209Z",
+        "id": "yTRQR2lksGRfgB8Y",
+        "name": "Kunal Miind <kunal@vedametric.com.au>",
+        "type": "personal",
+        "icon": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-05-24T14:35:39.558Z",
+            "updatedAt": "2025-05-24T14:35:39.558Z",
+            "role": "project:personalOwner",
+            "userId": "ff6497ac-4f52-49f8-bd12-cca6db747514",
+            "projectId": "yTRQR2lksGRfgB8Y",
+            "user": {
+              "createdAt": "2025-05-24T14:35:37.719Z",
+              "updatedAt": "2026-06-29T14:11:16.149Z",
+              "id": "ff6497ac-4f52-49f8-bd12-cca6db747514",
+              "email": "kunal@vedametric.com.au",
+              "firstName": "Kunal",
+              "lastName": "Miind",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-05-24T14:36:31.650Z",
+                "personalization_survey_n8n_version": "1.93.0",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "NPwXwl1s4SVpp41O",
+                "userActivatedAt": 1748115956238,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 2,
+                  "lastShownAt": 1782742273181
+                }
+              },
+              "role": "global:owner",
+              "disabled": false,
+              "mfaEnabled": false,
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
   "tags": []
 }

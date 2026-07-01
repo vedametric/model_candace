@@ -1,18 +1,20 @@
 -- ============================================================================
 --  Troll / zero-intent detector — config + RPC support
---  Run in the Supabase SQL Editor AFTER schema.sql. Idempotent, safe to re-run.
+--  Run in the Supabase SQL Editor AFTER schema.sql + the guards/profile
+--  migrations. Idempotent, safe to re-run.
 --
 --  What this does:
 --   1. Seeds an admin-editable config block at bots.settings->'troll' with sane
---      defaults (shadow_mode ON, so it observes without changing behaviour until
---      you flip it off from the admin panel). Never clobbers an existing block.
---   2. Redefines dm_ingest to also return `settings`, so the n8n "Troll Gate"
---      node can read bots.settings->'troll' in the same round-trip it already
---      makes. Additive only — the 12-arg signature is unchanged.
+--      defaults (shadow_mode ON). Never clobbers an existing block.
+--   2. Redefines dm_ingest to ALSO return `settings` (alongside the existing
+--      `guards` + `profile` it already returns), so the n8n "Troll Gate" node
+--      can read bots.settings->'troll' in the same round-trip. IMPORTANT: this
+--      function keeps guards + profile intact — do not run an older dm_ingest
+--      body over this or you will drop the per-persona guards + profile memory.
+--   3. Adds dm_set_troll(slug, troll) to merge-write config from the admin panel.
 --
---  All weights/thresholds live in data (bots.settings), NOT in the workflow, so
---  they can be tuned live from the admin panel (candace_troll_config.html) with
---  no redeploy.
+--  troll config lives in bots.settings->'troll' (a jsonb key), which is SEPARATE
+--  from the bots.guards column used by the persona behaviour guards.
 -- ============================================================================
 
 -- ---- 1) seed default troll config on every bot that doesn't have one --------
@@ -36,9 +38,7 @@ update public.bots
    ))
  where not (coalesce(settings, '{}'::jsonb) ? 'troll');
 
--- ---- 2) dm_ingest: also return the bot's settings (for the Troll Gate) -------
---  Identical to schema.sql's canonical 12-arg dm_ingest, with `settings` added
---  to the bot read and to the returned jsonb. Nothing else changes.
+-- ---- 2) dm_ingest: return guards + profile (unchanged) + settings (added) ----
 create or replace function public.dm_ingest(
   p_bot text, p_platform text, p_username text, p_display text, p_user_msg text,
   p_window integer default 10,
@@ -50,19 +50,17 @@ as $$
 declare
   v_bot_id bigint; v_fan_id bigint; v_summary text; v_stage text; v_count int;
   v_recent jsonb; v_prompt text; v_model text; v_paused boolean; v_delay jsonb;
-  v_person_id bigint; v_person_summary text; v_settings jsonb;
+  v_person_id bigint; v_person_summary text; v_profile jsonb; v_guards jsonb; v_settings jsonb;
 begin
-  -- bot (auto-create if new)
-  select id, system_prompt, model, automation_paused, reply_delay, settings
-    into v_bot_id, v_prompt, v_model, v_paused, v_delay, v_settings
+  select id, system_prompt, model, automation_paused, reply_delay, guards, settings
+    into v_bot_id, v_prompt, v_model, v_paused, v_delay, v_guards, v_settings
     from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
-    returning id, system_prompt, model, automation_paused, reply_delay, settings
-      into v_bot_id, v_prompt, v_model, v_paused, v_delay, v_settings;
+    returning id, system_prompt, model, automation_paused, reply_delay, guards, settings
+      into v_bot_id, v_prompt, v_model, v_paused, v_delay, v_guards, v_settings;
   end if;
 
-  -- fan (upsert) + source-platform contact fields
   insert into public.fans(bot_id, platform, username, display_name, first_name, last_name, email, phone, subscribed_at, manychat_id)
   values (v_bot_id, p_platform, lower(p_username), nullif(p_display,''), nullif(p_first_name,''),
           nullif(p_last_name,''), nullif(p_email,''), nullif(p_phone,''), nullif(p_subscribed,''), nullif(p_subscriber_id,''))
@@ -78,26 +76,31 @@ begin
       last_seen    = now()
   returning id into v_fan_id;
 
-  -- log inbound message
   insert into public.messages(fan_id, bot_id, role, content)
   values (v_fan_id, v_bot_id, 'user', p_user_msg);
 
-  -- counters
   update public.fans set msg_count = msg_count + 1, last_seen = now()
    where id = v_fan_id returning summary, stage, msg_count into v_summary, v_stage, v_count;
 
-  -- recent window, chronological
   select coalesce(jsonb_agg(jsonb_build_object('role', role, 'content', content) order by created_at), '[]'::jsonb)
     into v_recent
   from (select role, content, created_at from public.messages where fan_id = v_fan_id order by created_at desc limit p_window) t;
 
-  -- cross-platform memory: linked person's running summary (manual links)
   select person_id into v_person_id from public.fans where id = v_fan_id;
   if v_person_id is not null then
     select summary into v_person_summary from public.persons where id = v_person_id;
+    select coalesce((
+      select jsonb_object_agg(key, value)
+      from (
+        select key, value, row_number() over (partition by key order by f.last_seen desc) rn
+        from public.fans f, lateral jsonb_each(coalesce(f.profile,'{}'::jsonb))
+        where f.person_id = v_person_id
+      ) x where rn = 1
+    ), '{}'::jsonb) into v_profile;
+  else
+    select profile into v_profile from public.fans where id = v_fan_id;
   end if;
 
-  -- audit
   insert into public.events(bot_id, fan_id, type, payload)
   values (v_bot_id, v_fan_id, 'inbound_message',
           jsonb_build_object('platform', p_platform, 'username', lower(p_username)));
@@ -111,6 +114,8 @@ begin
     'reply_delay', coalesce(v_delay, '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb),
     'person_id', v_person_id,
     'person_summary', coalesce(v_person_summary, ''),
+    'profile', coalesce(v_profile, '{}'::jsonb),
+    'guards', coalesce(v_guards, '{}'::jsonb),
     'settings', coalesce(v_settings, '{}'::jsonb)
   );
 end;
