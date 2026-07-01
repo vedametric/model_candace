@@ -192,6 +192,137 @@
       ],
       "id": "adunl003-0003-4003-8003-000000000003",
       "name": "Respond unlink"
+    },
+    {
+      "parameters": {
+        "path": "candace-admin-config",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        400
+      ],
+      "id": "adcfg001-0001-4001-8001-000000000001",
+      "name": "Webhook: config get",
+      "webhookId": "candace-admin-config"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/bots?select=slug,display_name,settings&order=slug.asc",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -460,
+        400
+      ],
+      "id": "adcfg002-0002-4002-8002-000000000002",
+      "name": "Supabase: bots"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items=$input.all();\nlet bots=[];\nif(items.length===1 && Array.isArray(items[0].json)){bots=items[0].json;}else{bots=items.map(function(i){return i.json;});}\nreturn [{ json: { bots: bots } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        400
+      ],
+      "id": "adcfg003-0003-4003-8003-000000000003",
+      "name": "Collect bots"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { bots: $json.bots } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -20,
+        400
+      ],
+      "id": "adcfg004-0004-4004-8004-000000000004",
+      "name": "Respond config"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "candace-admin-config-set",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        600
+      ],
+      "id": "adcset01-0001-4001-8001-000000000001",
+      "name": "Webhook: config set",
+      "webhookId": "candace-admin-config-set"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_set_troll",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_slug: ($json.body && $json.body.slug) || $json.slug, p_troll: ($json.body && $json.body.troll) || $json.troll } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        600
+      ],
+      "id": "adcset02-0002-4002-8002-000000000002",
+      "name": "RPC: set troll"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, settings: $json } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -180,
+        600
+      ],
+      "id": "adcset03-0003-4003-8003-000000000003",
+      "name": "Respond config set"
     }
   ],
   "connections": {
@@ -266,6 +397,61 @@
         [
           {
             "node": "Respond unlink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: config get": {
+      "main": [
+        [
+          {
+            "node": "Supabase: bots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: bots": {
+      "main": [
+        [
+          {
+            "node": "Collect bots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect bots": {
+      "main": [
+        [
+          {
+            "node": "Respond config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: config set": {
+      "main": [
+        [
+          {
+            "node": "RPC: set troll",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RPC: set troll": {
+      "main": [
+        [
+          {
+            "node": "Respond config set",
             "type": "main",
             "index": 0
           }

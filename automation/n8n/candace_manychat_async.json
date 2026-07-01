@@ -10,7 +10,10 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-2160, 80],
+      "position": [
+        -2160,
+        80
+      ],
       "id": "wh000001-0001-4001-8001-000000000001",
       "name": "Webhook (ManyChat)",
       "webhookId": "candace-manychat-async"
@@ -21,7 +24,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1960, 80],
+      "position": [
+        -1960,
+        80
+      ],
       "id": "ex000001-0001-4001-8001-000000000001",
       "name": "Extract Inbound"
     },
@@ -35,7 +41,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1860, 240],
+      "position": [
+        -1860,
+        240
+      ],
       "id": "dd000001-0001-4001-8001-000000000001",
       "name": "Dedup: read fan"
     },
@@ -45,7 +54,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1810, 80],
+      "position": [
+        -1810,
+        80
+      ],
       "id": "dd000002-0002-4002-8002-000000000002",
       "name": "Dedup: gate"
     },
@@ -62,7 +74,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1760, 80],
+      "position": [
+        -1760,
+        80
+      ],
       "id": "in000001-0001-4001-8001-000000000001",
       "name": "DB: ingest"
     },
@@ -72,7 +87,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1560, 80],
+      "position": [
+        -1560,
+        80
+      ],
       "id": "dl000001-0001-4001-8001-000000000001",
       "name": "Set Delay"
     },
@@ -89,7 +107,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1460, 80],
+      "position": [
+        -1460,
+        80
+      ],
       "id": "qe000001-0001-4001-8001-000000000001",
       "name": "Q: enqueue"
     },
@@ -104,7 +125,10 @@
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [-1360, 80],
+      "position": [
+        -1360,
+        80
+      ],
       "id": "wt000001-0001-4001-8001-000000000001",
       "name": "Wait (human delay)",
       "webhookId": "wait-candace-async"
@@ -112,14 +136,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=msg_count&id=eq.' + $('Set Delay').first().json.fan_id }}",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/fans?select=msg_count,metadata,stage,buyer_type&id=eq.' + $('Set Delay').first().json.fan_id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1160, 80],
+      "position": [
+        -1160,
+        80
+      ],
       "id": "gf000001-0001-4001-8001-000000000001",
       "name": "DB: get fan"
     },
@@ -129,17 +156,23 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-960, 80],
+      "position": [
+        -960,
+        80
+      ],
       "id": "ck000001-0001-4001-8001-000000000001",
       "name": "Check Latest"
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst last = recent.length ? recent[recent.length - 1].content : '';\nconst history = recent.slice(-7).map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; }).join('\\n');\nconst turns = recent.length;\nconst sys = [\n'you are a fast silent classifier for a flirty 21yo female texting persona named candace, talking to a man in her dms. she is the prize: cool, hard to get, never eager. her endgame is to lead him to her private telegram @candace_summers. you never write her reply. you output one json object only, nothing else.',\n'read his latest message and the recent context, then output exactly this json:',\n'{',\n'\"archetype\": one of [sweet, cocky, shy, provider, submissive, lowffort, hostile, normal],',\n'\"intent\": one of [greeting, compliment, question_about_her, question_other, sexual, bot_test, wants_more, wants_to_meet, wants_personal_info, vulnerable, boring, insult, normal],',\n'\"effort\": one of [low, medium, high],',\n'\"funnel\": boolean. true only when it is the right moment to lead him toward the telegram (he asked for more, onlyfans, snap, other socials, where to find her, to see more, or he is clearly hooked and flirty). false otherwise. do not funnel a guy who just said hey.',\n'\"ask_back\": boolean. DEFAULT false. true only about one in five, never if his last reply was a question, never if he is low effort, never on a compliment or question_about_her.',\n'\"directive\": a short specific instruction, max 22 words, for how candace plays THIS reply. she is the prize, never gushes, never over shares, never interviews him.',\n'}',\n'directive guidance by case:',\n'- wants_more (asks about onlyfans, snapchat, whatsapp, other socials, where else can i find you, can i see more of you, or getting flirty and clearly wanting more): set funnel true. lead him to her telegram, but make it sound like a real girl casually giving her username, never a pitch. give the username plainly as candace_summers with no @ symbol, no link, no call to action tacked on. do NOT explain why its good, do NOT add if you earn it every time. prefer she mentions shes barely on this app and more on telegram and let him ask. keep it casual and a little reluctant. never mention money. if the chat is brand new with almost no spark yet (' + turns + ' turns so far), tease the telegram and make him earn it instead of handing it over.',\n'- compliment: receive it coolly and confidently, a little smug, never gush.',\n'- question_about_her: brief and coy, a crumb not a paragraph, no interview back.',\n'- low effort or greeting with nothing behind it: short flat reply, give less.',\n'- cocky or flexing money or status: tease, act unimpressed, make him work.',\n'- submissive or asks to be owned: deny and make him earn it, cool and in control.',\n'- vulnerable: a little real warmth, draw him out gently.',\n'- bot_test: confident playful deflection.',\n'- wants_to_meet or wants_personal_info: coy non answer, she does not give it up.',\n'- insult or hostile: unbothered amused one liner, never defensive.'\n].join('\\n');\nconst usr = 'his latest message: ' + (last || '(empty or sticker)') + '\\nrecent conversation oldest first:\\n' + (history || '(none)') + '\\noutput the json now.';\nreturn [{ json: { classifyMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst last = recent.length ? recent[recent.length - 1].content : '';\nconst history = recent.slice(-7).map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; }).join('\\n');\nconst turns = recent.length;\nconst sys = [\n'you are a fast silent classifier for a flirty 21yo female texting persona named candace, talking to a man in her dms. she is the prize: cool, hard to get, never eager. her endgame is to lead him to her private telegram @candace_summers. you never write her reply. you output one json object only, nothing else.',\n'read his latest message and the recent context, then output exactly this json:',\n'{',\n'\"archetype\": one of [sweet, cocky, shy, provider, submissive, lowffort, hostile, normal],',\n'\"intent\": one of [greeting, compliment, question_about_her, question_other, sexual, bot_test, wants_more, wants_to_meet, wants_personal_info, vulnerable, boring, insult, normal],',\n'\"effort\": one of [low, medium, high],',\n'\"funnel\": boolean. true only when it is the right moment to lead him toward the telegram (he asked for more, onlyfans, snap, other socials, where to find her, to see more, or he is clearly hooked and flirty). false otherwise. do not funnel a guy who just said hey.',\n'\"ask_back\": boolean. DEFAULT false. true only about one in five, never if his last reply was a question, never if he is low effort, never on a compliment or question_about_her.',\n'\"zero_intent\": boolean. true when he is clearly time-wasting rather than genuinely interested: mocking you or laughing at you, repeatedly calling you a bot/ai while not really engaging, demanding you prove yourself or perform (talk dirty, send a photo) before he will do anything, dangling money he never acts on, or he has already been pointed to telegram and keeps making excuses instead of going. false if he seems genuine, even if shy or skeptical once.',\n'\"directive\": a short specific instruction, max 22 words, for how candace plays THIS reply. she is the prize, never gushes, never over shares, never interviews him.',\n'}',\n'directive guidance by case:',\n'- wants_more (asks about onlyfans, snapchat, whatsapp, other socials, where else can i find you, can i see more of you, or getting flirty and clearly wanting more): set funnel true. lead him to her telegram, but make it sound like a real girl casually giving her username, never a pitch. give the username plainly as candace_summers with no @ symbol, no link, no call to action tacked on. do NOT explain why its good, do NOT add if you earn it every time. prefer she mentions shes barely on this app and more on telegram and let him ask. keep it casual and a little reluctant. never mention money. if the chat is brand new with almost no spark yet (' + turns + ' turns so far), tease the telegram and make him earn it instead of handing it over.',\n'- compliment: receive it coolly and confidently, a little smug, never gush.',\n'- question_about_her: brief and coy, a crumb not a paragraph, no interview back.',\n'- low effort or greeting with nothing behind it: short flat reply, give less.',\n'- cocky or flexing money or status: tease, act unimpressed, make him work.',\n'- submissive or asks to be owned: deny and make him earn it, cool and in control.',\n'- vulnerable: a little real warmth, draw him out gently.',\n'- bot_test: confident playful deflection.',\n'- wants_to_meet or wants_personal_info: coy non answer, she does not give it up.',\n'- insult or hostile: unbothered amused one liner, never defensive.',\n'- if zero_intent is true: set funnel false. do not pitch telegram to a time waster, do not perform on demand, do not help him with signups. give less, stay cool.'\n].join('\\n');\nconst usr = 'his latest message: ' + (last || '(empty or sticker)') + '\\nrecent conversation oldest first:\\n' + (history || '(none)') + '\\noutput the json now.';\nreturn [{ json: { classifyMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-760, 80],
+      "position": [
+        -760,
+        80
+      ],
       "id": "bc000001-0001-4001-8001-000000000001",
       "name": "Build Classify Request"
     },
@@ -156,17 +189,23 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-560, 80],
+      "position": [
+        -560,
+        80
+      ],
       "id": "cl000001-0001-4001-8001-000000000001",
       "name": "Classify (OpenAI)"
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (cls.ask_back === true);\nconst directive = cls.directive || 'stay cool and playful, be the prize, keep it short.';\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private read on him, who he is and where things are at, use it: ' + ctx.summary });\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + (askBack ? 'you may end with a question if it genuinely fits.' : 'do NOT end this reply with a question, make a statement.') + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nconst st = ctx.stage || 'rapport';\nif (st === 'funnelled') messages.push({ role: 'system', content: 'STAGE NOTE: you have ALREADY given him your telegram @candace_summers. do not pitch it again like it is new and do not re-explain it. if he has not gone yet, playfully nudge him to actually come find you over there, tease that you are waiting. keep pulling him toward going.' });\nelse if (st === 'converted') messages.push({ role: 'system', content: 'STAGE NOTE: he has come to your telegram. keep him warm and a little more rewarding now, make him glad he came.' });\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\nconst count = ctx.count || 0;\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, stage: st, archetype: archetype } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst gate = ($json && $json.gate) ? $json.gate : {};\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (gate.mode && gate.mode !== 'engage') ? false : (cls.ask_back === true);\nconst directive = gate.directive ? gate.directive : (cls.directive || 'stay cool and playful, be the prize, keep it short.');\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private read on him, who he is and where things are at, use it: ' + ctx.summary });\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + (askBack ? 'you may end with a question if it genuinely fits.' : 'do NOT end this reply with a question, make a statement.') + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nconst st = ctx.stage || 'rapport';\nif (st === 'funnelled' && !gate.no_funnel) messages.push({ role: 'system', content: 'STAGE NOTE: you have ALREADY given him your telegram @candace_summers. do not pitch it again like it is new and do not re-explain it. if he has not gone yet, playfully nudge him to actually come find you over there, tease that you are waiting. keep pulling him toward going.' });\nelse if (st === 'converted') messages.push({ role: 'system', content: 'STAGE NOTE: he has come to your telegram. keep him warm and a little more rewarding now, make him glad he came.' });\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\nconst count = ctx.count || 0;\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, stage: st, archetype: archetype } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-360, 80],
+      "position": [
+        -360,
+        80
+      ],
       "id": "bm000001-0001-4001-8001-000000000001",
       "name": "Build Messages"
     },
@@ -183,7 +222,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-160, 80],
+      "position": [
+        -160,
+        80
+      ],
       "id": "ai000001-0001-4001-8001-000000000001",
       "name": "Candace AI (OpenAI)"
     },
@@ -193,7 +235,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [40, 80],
+      "position": [
+        40,
+        80
+      ],
       "id": "fr000001-0001-4001-8001-000000000001",
       "name": "Format Reply"
     },
@@ -210,7 +255,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [240, 80],
+      "position": [
+        240,
+        80
+      ],
       "id": "lr000001-0001-4001-8001-000000000001",
       "name": "DB: log reply"
     },
@@ -223,7 +271,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -233,7 +284,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 0],
+      "position": [
+        440,
+        0
+      ],
       "id": "mc000001-0001-4001-8001-000000000001",
       "name": "ManyChat: send reply"
     },
@@ -243,7 +297,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 200],
+      "position": [
+        440,
+        200
+      ],
       "id": "bp000001-0001-4001-8001-000000000001",
       "name": "Build Profile Request"
     },
@@ -260,17 +317,23 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 200],
+      "position": [
+        640,
+        200
+      ],
       "id": "pf000001-0001-4001-8001-000000000001",
       "name": "Profiler (OpenAI)"
     },
     {
       "parameters": {
-        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst reply = src.reply || '';\nlet stage = p.stage || 'rapport';\nif (/candace_summers|telegram/i.test(reply) && stage !== 'converted') stage = 'funnelled';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.intent_score === 'number') ? p.intent_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst metadata = { intent_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata } }];"
+        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nlet gate = {};\ntry { gate = ($('Troll Gate').first().json.gate) || {}; } catch (e) { gate = {}; }\nconst fan_id = src.fan_id;\nconst reply = src.reply || '';\nlet stage = p.stage || 'rapport';\nif (/candace_summers|telegram/i.test(reply) && stage !== 'converted') stage = 'funnelled';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.intent_score === 'number') ? p.intent_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst metadata = { intent_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction, troll_score: (typeof gate.troll_score === 'number' ? gate.troll_score : (typeof p !== 'undefined' ? null : null)), stall_hits: (typeof gate.stall_hits === 'number' ? gate.stall_hits : null), troll_mode: gate.would_be_mode || null, troll_shadow: (gate.shadow === true) };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [840, 200],
+      "position": [
+        840,
+        200
+      ],
       "id": "ap000001-0001-4001-8001-000000000001",
       "name": "Apply Profile"
     },
@@ -287,7 +350,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1040, 200],
+      "position": [
+        1040,
+        200
+      ],
       "id": "pa000001-0001-4001-8001-000000000001",
       "name": "DB: patch fan"
     },
@@ -304,36 +370,348 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 0],
+      "position": [
+        640,
+        0
+      ],
       "id": "qs000001-0001-4001-8001-000000000001",
       "name": "Q: sent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Troll / zero-intent gate. All knobs live in bots.settings.troll (admin-editable);\n// every value below falls back to a safe default if the admin hasn't set it.\nconst ctx = $('DB: ingest').first().json || {};\nconst fanRows = $('DB: get fan').first().json;\nconst fan = Array.isArray(fanRows) ? (fanRows[0] || {}) : (fanRows || {});\nconst prev = (fan.metadata && typeof fan.metadata === 'object') ? fan.metadata : {};\nconst cfg = ((ctx.settings || {}).troll) || {};\n\nconst D = {\n  enabled: true, shadow_mode: true, decay: 0.85, bot_test_after_turn: 3, minimal_reply_chance: 0.5,\n  weights: { bot_test_repeat:12, mockery:10, perform_first:12, empty_money:10, proof_demand:8, nonsense:6, zero_intent:15, stall_hit:15, hostility_floor:90 },\n  cooldown: { personal_disclosure:15, concrete_step:20, vulnerable:10 },\n  bands: { cool:30, minimal:60, ghost:85 },\n  stall_ladder: { callout_at:2, minimal_at:3, ghost_at:4 },\n  delay_penalty: { cool_sec:45, minimal_base_sec:120, minimal_per_stall_sec:90 }\n};\nconst num = (a,b)=> (typeof a === 'number' && !isNaN(a)) ? a : b;\nconst W  = Object.assign({}, D.weights, cfg.weights||{});\nconst CD = Object.assign({}, D.cooldown, cfg.cooldown||{});\nconst B  = Object.assign({}, D.bands, cfg.bands||{});\nconst L  = Object.assign({}, D.stall_ladder, cfg.stall_ladder||{});\nconst DP = Object.assign({}, D.delay_penalty, cfg.delay_penalty||{});\nconst decay = num(cfg.decay, D.decay);\nconst enabled = (cfg.enabled !== false);\nconst shadow  = (cfg.shadow_mode !== false); // default true = observe only\n\nlet cls = {};\ntry { cls = JSON.parse($json.choices[0].message.content); } catch (e) { cls = {}; }\n\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst last = (recent.length ? recent[recent.length-1].content : '') || '';\nconst stage = ctx.stage || fan.stage || 'rapport';\nconst turns = num(ctx.count, 0);\nconst funnelled = (stage === 'funnelled' || stage === 'converted');\nconst L1 = String(last).toLowerCase();\n\nconst botTest = /\\b(are|r|is)?\\s*(you|u|ur|your|youre|you'?re|this)\\s*(a\\s*)?(ai|bot|robot|fake)\\b|a\\s*phone|ai\\s*(cunt|bitch|slut)/i.test(last);\nconst laugh = /\\u{1F602}|\\u{1F923}|\\u{1F92A}|\\u{1F921}/u.test(last) || /\\b(your|ur|you'?re|u r|so)\\s*bad\\b/i.test(L1);\nconst proof = /(send|show).{0,20}(photo|pic|face|selfie)|prove it|or (else )?(your|ur|you'?re) (ai|a bot)/i.test(last);\nconst performFirst = /(before i|then i'?ll|first).{0,30}(add|sign|pay|send|join|download)|(talk dirty|sweet ?talk|tease me|show me).{0,20}(first|then|before)/i.test(L1);\nconst money = /\\$\\s*\\d+|\\b\\d{2,}\\s*(dollar|dollars|aud|aus|bucks|usd|k)\\b|give you.{0,15}(money|whatever|anything)/i.test(L1);\nconst STALL_RE = /can'?t\\s+(sign|log)\\s*in|not\\s+working|won'?t\\s+(work|let|load)|having\\s+trouble|help\\s+me|been\\s+busy|second\\s+chance|sweet\\s*talk|talk\\s+dirty|tease\\s+me|show\\s+me|photo|prove|before\\s+i\\s+(send|add|sign|pay|join)/i;\nconst nonsense = /do you wanna crack|i'?ll eyp|wanna crack/i.test(L1);\nconst hostile = (cls.intent === 'insult') || /kill yourself|\\bcunt\\b|pathetic|report you|\\bscam\\b|wanker|piece of shit/i.test(L1);\n\nlet score = Math.round(num(prev.troll_score, 0) * decay);\nlet stall = num(prev.stall_hits, 0);\n\nif (botTest && turns > num(cfg.bot_test_after_turn, D.bot_test_after_turn)) score += W.bot_test_repeat;\nif (laugh) score += W.mockery;\nif (performFirst) score += W.perform_first;\nif (money && funnelled) score += W.empty_money;\nif (proof) score += W.proof_demand;\nif (nonsense) score += W.nonsense;\nif (cls.zero_intent === true) score += W.zero_intent;\nif (funnelled && STALL_RE.test(last)) { stall += 1; score += W.stall_hit; }\n\n// cool-downs: genuine signals pull the score back down\nif (/\\b(i'?m|im|my)\\s+(from|name|job|work|dog|cat|mom|dad|sister|brother|birthday|feel|felt|had a|really|actually)\\b/i.test(L1) && !laugh && !botTest) score -= CD.personal_disclosure;\nif (cls.intent === 'vulnerable') score -= CD.vulnerable;\nif (stage === 'converted') score -= CD.concrete_step;\n\nif (hostile) score = Math.max(score, W.hostility_floor);\nscore = Math.max(0, Math.min(100, score));\n\nlet mode = score >= B.ghost ? 'ghost' : score >= B.minimal ? 'minimal' : score >= B.cool ? 'cool' : 'engage';\nif (stall >= L.ghost_at) mode = 'ghost';\nelse if (stall >= L.minimal_at && mode === 'engage') mode = 'minimal';\nelse if (stall >= L.callout_at && mode === 'engage') mode = 'cool';\nconst would_be = mode;\n\n// disabled or shadow mode: compute + persist, but never change behaviour\nif (!enabled || shadow) mode = 'engage';\n// at minimal, sometimes just skip the reply entirely\nif (mode === 'minimal' && Math.random() > num(cfg.minimal_reply_chance, D.minimal_reply_chance)) mode = 'ghost';\n\n// no-response penalty: send nothing this turn\nif (mode === 'ghost') { return []; }\n\nconst directiveByMode = {\n  cool: 'he is likely wasting your time. be cooler and shorter, give him less. do NOT offer telegram again, do NOT perform on demand, do NOT help him with any app or signup. one dry statement.' + (stall >= L.callout_at ? ' call it out once, lightly: he keeps saying that and never does it.' : ''),\n  minimal: 'he is a confirmed time waster. one short flat unbothered line. no telegram, no performing, no help, no question.',\n  engage: cls.directive || 'stay cool and playful, be the prize, keep it short.'\n};\nlet extra = 0;\nif (would_be === 'minimal') extra = DP.minimal_base_sec + stall * DP.minimal_per_stall_sec;\nelse if (would_be === 'cool') extra = DP.cool_sec;\nif (shadow || !enabled) extra = 0;\n\nreturn [{ json: Object.assign({}, $json, { gate: {\n  mode: mode, would_be_mode: would_be, troll_score: score, stall_hits: stall,\n  no_funnel: (mode !== 'engage'), directive: directiveByMode[mode],\n  extra_delay_sec: extra, shadow: shadow, enabled: enabled\n}})}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        240
+      ],
+      "id": "trollgate-0001-4001-8001-000000000001",
+      "name": "Troll Gate"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "pen-cond-1",
+              "leftValue": "={{ $('Troll Gate').first().json.gate.extra_delay_sec }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        20
+      ],
+      "id": "penaltyif-0001-4001-8001-000000000001",
+      "name": "Penalty?"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": "={{ $('Troll Gate').first().json.gate.extra_delay_sec || 0 }}",
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        160
+      ],
+      "id": "waitpenal-0001-4001-8001-000000000001",
+      "name": "Wait (penalty)",
+      "webhookId": "candace-troll-penalty-wait"
     }
   ],
   "connections": {
-    "Webhook (ManyChat)": { "main": [[{ "node": "Extract Inbound", "type": "main", "index": 0 }]] },
-    "Extract Inbound": { "main": [[{ "node": "Dedup: read fan", "type": "main", "index": 0 }]] },
-    "Dedup: read fan": { "main": [[{ "node": "Dedup: gate", "type": "main", "index": 0 }]] },
-    "Dedup: gate": { "main": [[{ "node": "DB: ingest", "type": "main", "index": 0 }]] },
-    "DB: ingest": { "main": [[{ "node": "Set Delay", "type": "main", "index": 0 }]] },
-    "Set Delay": { "main": [[{ "node": "Q: enqueue", "type": "main", "index": 0 }]] },
-    "Q: enqueue": { "main": [[{ "node": "Wait (human delay)", "type": "main", "index": 0 }]] },
-    "Wait (human delay)": { "main": [[{ "node": "DB: get fan", "type": "main", "index": 0 }]] },
-    "DB: get fan": { "main": [[{ "node": "Check Latest", "type": "main", "index": 0 }]] },
-    "Check Latest": { "main": [[{ "node": "Build Classify Request", "type": "main", "index": 0 }]] },
-    "Build Classify Request": { "main": [[{ "node": "Classify (OpenAI)", "type": "main", "index": 0 }]] },
-    "Classify (OpenAI)": { "main": [[{ "node": "Build Messages", "type": "main", "index": 0 }]] },
-    "Build Messages": { "main": [[{ "node": "Candace AI (OpenAI)", "type": "main", "index": 0 }]] },
-    "Candace AI (OpenAI)": { "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]] },
-    "Format Reply": { "main": [[{ "node": "DB: log reply", "type": "main", "index": 0 }]] },
-    "DB: log reply": { "main": [[{ "node": "ManyChat: send reply", "type": "main", "index": 0 }, { "node": "Build Profile Request", "type": "main", "index": 0 }]] },
-    "ManyChat: send reply": { "main": [[{ "node": "Q: sent", "type": "main", "index": 0 }]] },
-    "Build Profile Request": { "main": [[{ "node": "Profiler (OpenAI)", "type": "main", "index": 0 }]] },
-    "Profiler (OpenAI)": { "main": [[{ "node": "Apply Profile", "type": "main", "index": 0 }]] },
-    "Apply Profile": { "main": [[{ "node": "DB: patch fan", "type": "main", "index": 0 }]] }
+    "Webhook (ManyChat)": {
+      "main": [
+        [
+          {
+            "node": "Extract Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inbound": {
+      "main": [
+        [
+          {
+            "node": "Dedup: read fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: read fan": {
+      "main": [
+        [
+          {
+            "node": "Dedup: gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: gate": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: ingest": {
+      "main": [
+        [
+          {
+            "node": "Set Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Delay": {
+      "main": [
+        [
+          {
+            "node": "Q: enqueue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Q: enqueue": {
+      "main": [
+        [
+          {
+            "node": "Wait (human delay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (human delay)": {
+      "main": [
+        [
+          {
+            "node": "DB: get fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: get fan": {
+      "main": [
+        [
+          {
+            "node": "Check Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Latest": {
+      "main": [
+        [
+          {
+            "node": "Build Classify Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Classify Request": {
+      "main": [
+        [
+          {
+            "node": "Classify (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Troll Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Messages": {
+      "main": [
+        [
+          {
+            "node": "Candace AI (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candace AI (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "DB: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: log reply": {
+      "main": [
+        [
+          {
+            "node": "Build Profile Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Penalty?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ManyChat: send reply": {
+      "main": [
+        [
+          {
+            "node": "Q: sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Profile Request": {
+      "main": [
+        [
+          {
+            "node": "Profiler (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profiler (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Apply Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Profile": {
+      "main": [
+        [
+          {
+            "node": "DB: patch fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Troll Gate": {
+      "main": [
+        [
+          {
+            "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Penalty?": {
+      "main": [
+        [
+          {
+            "node": "Wait (penalty)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ManyChat: send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (penalty)": {
+      "main": [
+        [
+          {
+            "node": "ManyChat: send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "pinData": {},
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "meta": {},
   "tags": []
 }

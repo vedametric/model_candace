@@ -19,7 +19,12 @@ page-serving workflow at `/webhook/candace-queue-page`.
 | File | What it is |
 |---|---|
 | **`candace_telegram_async.json`** | **The Telegram responder.** Clone of the ManyChat async flow, retargeted to the Telethon bridge (real account). Reads per-platform delay from `bots.settings`, injects cross-platform memory (`person_summary`), funnel removed, retention-tuned classifier + profiler. Webhook path `candace-telegram-async`. |
-| `candace_admin_api.json` | Admin API for the console: list fans (`/candace-admin-fans`) + `dm_link_person` (`/candace-admin-link`) + `dm_unlink_fan` (`/candace-admin-unlink`) for manual cross-platform sync. |
+| `candace_admin_api.json` | Admin API for the console: list fans (`/candace-admin-fans`) + `dm_link_person` (`/candace-admin-link`) + `dm_unlink_fan` (`/candace-admin-unlink`) for manual cross-platform sync, plus troll-detector config read/write (`/candace-admin-config`, `/candace-admin-config-set`) edited from `test/candace_troll_config.html`. |
+
+**Troll / zero-intent detector:** the ManyChat responder has a stateful **Troll
+Gate** (config in `bots.settings.troll`, seeded by
+`../supabase/troll_detector.sql`, shipped in `shadow_mode`). See
+`../troll_detector_design.md` for the full design and how to arm it.
 
 The Telegram send goes to the **bridge** (`automation/telegram/bridge/`), not a
 platform API — set the send node URL via `$env.CANDACE_BRIDGE_URL` and an

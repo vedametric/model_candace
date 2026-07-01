@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Candace — Troll / Zero-Intent Detector Config</title>
+<style>
+  :root { --bg:#0e0f13; --panel:#181a21; --panel2:#20232c; --line:#2b2f3a; --fg:#e8e9ee; --mut:#9aa0ad; --acc:#ff5c8a; --ok:#3ddc84; --warn:#ffcc66; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  header { padding:18px 22px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:16px; margin:0; font-weight:600; }
+  .sub { color:var(--mut); font-size:12px; }
+  main { max-width:920px; margin:0 auto; padding:22px; }
+  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  input, select { background:var(--panel2); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font:inherit; }
+  input[type=number] { width:100px; }
+  input[type=text] { min-width:320px; }
+  label { color:var(--mut); }
+  button { background:var(--acc); color:#fff; border:0; border-radius:8px; padding:9px 16px; font-weight:600; cursor:pointer; }
+  button.ghost { background:var(--panel2); color:var(--fg); border:1px solid var(--line); }
+  button:disabled { opacity:.5; cursor:default; }
+  fieldset { border:1px solid var(--line); border-radius:12px; margin:16px 0; padding:14px 16px; background:var(--panel); }
+  legend { color:var(--fg); font-weight:600; padding:0 8px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px 20px; }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field small { color:var(--mut); font-size:11px; }
+  .toggle { display:flex; align-items:center; gap:10px; }
+  .pill { font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--mut); }
+  .pill.on { color:#08210f; background:var(--warn); border-color:var(--warn); }
+  .pill.armed { color:#08210f; background:var(--ok); border-color:var(--ok); }
+  #status { min-height:20px; font-size:13px; }
+  .ok { color:var(--ok); } .err { color:#ff6b6b; }
+  details { margin-top:10px; } pre { background:#0b0c10; border:1px solid var(--line); border-radius:8px; padding:12px; overflow:auto; font-size:12px; }
+  .note { color:var(--mut); font-size:12px; margin:6px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Candace — Troll / Zero-Intent Detector</h1>
+    <div class="sub">tune the detector live. changes save to <code>bots.settings.troll</code>; the responder reads them on the next message.</div>
+  </div>
+  <div class="row" style="margin-left:auto">
+    <label>API base</label>
+    <input id="base" type="text" value="https://automations.vedametric.com.au/webhook" />
+    <button class="ghost" id="reload">Reload</button>
+  </div>
+</header>
+
+<main>
+  <div class="row">
+    <label>Bot</label>
+    <select id="bot"></select>
+    <span id="modePill" class="pill">—</span>
+    <div id="status" style="margin-left:auto"></div>
+  </div>
+
+  <form id="form"><!-- rendered dynamically --></form>
+
+  <div class="row" style="margin-top:8px">
+    <button id="save">Save config</button>
+    <button class="ghost" id="revert">Revert</button>
+    <span class="note">Tip: leave <b>shadow_mode</b> on for a week to watch <code>troll_score</code> land in each fan's metadata before you arm it.</span>
+  </div>
+
+  <details>
+    <summary class="sub">Raw JSON</summary>
+    <pre id="raw"></pre>
+  </details>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const base = () => $('#base').value.replace(/\/+$/,'');
+let BOTS = [];        // [{slug, display_name, settings}]
+let current = null;   // working copy of the selected bot's troll config
+
+// field help text + step hints
+const HELP = {
+  enabled: 'master on/off for the detector',
+  shadow_mode: 'ON = observe & log only (no behaviour change). turn OFF to arm.',
+  decay: 'fraction of prior score carried into the next turn (0-1)',
+  bot_test_after_turn: '"are you ai" only counts as a signal after this many turns',
+  minimal_reply_chance: 'at minimal mode, chance she replies at all (0-1)',
+  weights: 'points added when each signal fires',
+  cooldown: 'points subtracted when a genuine signal shows',
+  bands: 'score thresholds that pick the response mode',
+  stall_ladder: 'consecutive post-funnel stalls that force cool / minimal / ghost',
+  delay_penalty: 'extra seconds added before the reply is sent'
+};
+const SCALARS = ['enabled','shadow_mode','decay','bot_test_after_turn','minimal_reply_chance'];
+const GROUPS  = ['weights','cooldown','bands','stall_ladder','delay_penalty'];
+
+function el(tag, attrs, kids){ const e=document.createElement(tag); for(const k in (attrs||{})){ if(k==='class')e.className=attrs[k]; else if(k==='html')e.innerHTML=attrs[k]; else e.setAttribute(k,attrs[k]); } (kids||[]).forEach(c=>e.appendChild(c)); return e; }
+
+function numField(path, key, val){
+  const f = el('div',{class:'field'});
+  f.appendChild(el('label',{html:key}));
+  const i = el('input',{type:'number', step:'any', value: val}); i.dataset.path = path; i.dataset.key = key;
+  f.appendChild(i); return f;
+}
+function boolField(key, val){
+  const f = el('div',{class:'field'});
+  const wrap = el('div',{class:'toggle'});
+  const i = el('input',{type:'checkbox'}); i.checked = !!val; i.dataset.path='root'; i.dataset.key=key;
+  wrap.appendChild(i); wrap.appendChild(el('label',{html:key}));
+  f.appendChild(wrap);
+  if(HELP[key]) f.appendChild(el('small',{html:HELP[key]}));
+  return f;
+}
+
+function render(){
+  const form = $('#form'); form.innerHTML='';
+  if(!current){ return; }
+  // scalars fieldset
+  const fs = el('fieldset'); fs.appendChild(el('legend',{html:'general'}));
+  const grid = el('div',{class:'grid'});
+  SCALARS.forEach(k=>{
+    if(!(k in current)) return;
+    if(typeof current[k]==='boolean') grid.appendChild(boolField(k,current[k]));
+    else { const f=numField('root',k,current[k]); if(HELP[k]) f.appendChild(el('small',{html:HELP[k]})); grid.appendChild(f); }
+  });
+  fs.appendChild(grid); form.appendChild(fs);
+  // grouped number objects
+  GROUPS.forEach(g=>{
+    if(!current[g] || typeof current[g]!=='object') return;
+    const gs = el('fieldset'); gs.appendChild(el('legend',{html:g}));
+    if(HELP[g]) gs.appendChild(el('div',{class:'note', html:HELP[g]}));
+    const gg = el('div',{class:'grid'});
+    Object.keys(current[g]).forEach(k=> gg.appendChild(numField(g,k,current[g][k])));
+    gs.appendChild(gg); form.appendChild(gs);
+  });
+  $('#raw').textContent = JSON.stringify(current,null,2);
+  const shadow = current.shadow_mode !== false, enabled = current.enabled !== false;
+  const pill = $('#modePill');
+  pill.className = 'pill ' + (!enabled ? '' : shadow ? 'on' : 'armed');
+  pill.textContent = !enabled ? 'disabled' : shadow ? 'shadow (observing)' : 'ARMED';
+}
+
+function collect(){
+  const out = JSON.parse(JSON.stringify(current));
+  document.querySelectorAll('#form input').forEach(i=>{
+    const key=i.dataset.key, path=i.dataset.path;
+    let v = i.type==='checkbox' ? i.checked : (i.value===''? null : Number(i.value));
+    if(path==='root') out[key]=v; else { out[path]=out[path]||{}; out[path][key]=v; }
+  });
+  return out;
+}
+
+function setStatus(msg, cls){ const s=$('#status'); s.textContent=msg||''; s.className=cls||''; }
+
+async function load(){
+  setStatus('loading…');
+  try {
+    const r = await fetch(base()+'/candace-admin-config');
+    const j = await r.json();
+    BOTS = j.bots || [];
+    const sel = $('#bot'); sel.innerHTML='';
+    BOTS.forEach(b=> sel.appendChild(el('option',{value:b.slug, html:(b.display_name||b.slug)})));
+    selectBot();
+    setStatus('loaded '+BOTS.length+' bots', 'ok');
+  } catch(e){ setStatus('load failed: '+e.message, 'err'); }
+}
+function selectBot(){
+  const slug = $('#bot').value;
+  const b = BOTS.find(x=>x.slug===slug);
+  current = (b && b.settings && b.settings.troll) ? JSON.parse(JSON.stringify(b.settings.troll)) : {};
+  render();
+}
+async function save(){
+  $('#save').disabled=true; setStatus('saving…');
+  try {
+    const troll = collect();
+    const r = await fetch(base()+'/candace-admin-config-set', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ slug: $('#bot').value, troll: troll })
+    });
+    const j = await r.json();
+    if(j.ok){ current=troll; const b=BOTS.find(x=>x.slug===$('#bot').value); if(b){b.settings=b.settings||{}; b.settings.troll=troll;} render(); setStatus('saved ✓', 'ok'); }
+    else setStatus('save returned unexpected response', 'err');
+  } catch(e){ setStatus('save failed: '+e.message, 'err'); }
+  $('#save').disabled=false;
+}
+
+$('#bot').addEventListener('change', selectBot);
+$('#reload').addEventListener('click', load);
+$('#revert').addEventListener('click', selectBot);
+$('#save').addEventListener('click', save);
+load();
+</script>
+</body>
+</html>
