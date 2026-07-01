@@ -1,5 +1,10 @@
 {
+  "createdAt": "2026-06-30T15:32:26.298Z",
+  "updatedAt": "2026-07-01T10:07:59.819Z",
+  "id": "RDkiIWzAaK4Fxchd",
   "name": "Candace Telegram BUSINESS (replies as the real account via a bot)",
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -48,7 +53,13 @@
       ],
       "id": "tgdd0001-0001-4001-8001-000000000001",
       "name": "Dedup: read fan",
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -81,7 +92,13 @@
         80
       ],
       "id": "tgin0001-0001-4001-8001-000000000001",
-      "name": "DB: ingest"
+      "name": "DB: ingest",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -104,7 +121,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { bot_id: $json.bot_id, fan_id: $json.fan_id, type: 'dm_queued', payload: { platform: 'telegram', username: $json.username, display: $json.display, msg: $json.msg, msg_count: $json.myCount, delay_sec: $json.delaySec, queued_at: $json.queued_at, scheduled_for: $json.scheduled_for, resume_url: $execution.resumeUrl } } }}",
+        "jsonBody": "={{ { bot_id: $json.bot_id, fan_id: $json.fan_id, type: 'dm_queued', payload: { platform: 'telegram', username: $json.username, display: $json.display, msg: $json.msg, msg_count: $json.myCount, chat_id: $json.chat_id, business_connection_id: $json.business_connection_id, delay_sec: $json.delaySec, queued_at: $json.queued_at, scheduled_for: $json.scheduled_for, resume_url: $execution.resumeUrl } } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -114,7 +131,13 @@
         80
       ],
       "id": "tgqe0001-0001-4001-8001-000000000001",
-      "name": "Q: enqueue"
+      "name": "Q: enqueue",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -150,7 +173,13 @@
         80
       ],
       "id": "tggf0001-0001-4001-8001-000000000001",
-      "name": "DB: get fan"
+      "name": "DB: get fan",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -167,7 +196,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst last = recent.length ? recent[recent.length - 1].content : '';\nconst history = recent.slice(-7).map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; }).join('\\n');\nconst sys = [\n'you are a fast silent classifier for a flirty 21yo female texting persona named candace, talking to a man one on one on her private telegram. she is the prize: cool, hard to get, never eager. her job here is NOT selling and NOT sending him anywhere. her job is to make him fall for her and keep coming back: build attachment, make him feel chosen, leave him craving the next reply. you never write her reply. you output one json object only, nothing else.',\n'read his latest message and the recent context, then output exactly this json:',\n'{',\n'\"archetype\": one of [sweet, cocky, shy, provider, submissive, lowffort, hostile, normal],',\n'\"intent\": one of [greeting, compliment, question_about_her, question_other, sexual, bot_test, misses_her, wants_to_meet, wants_personal_info, vulnerable, boring, insult, normal],',\n'\"effort\": one of [low, medium, high],',\n'\"ask_back\": boolean. DEFAULT false. true only about one in five, never if his last reply was a question, never if he is low effort, never on a compliment or question_about_her.',\n'\"directive\": a short specific instruction, max 22 words, for how candace plays THIS reply. she is the prize, never gushes, never over shares, never interviews him. lean on retention: leave him wanting more, use what she remembers about him, make him feel chosen.',\n'}',\n'directive guidance by case:',\n'- compliment: receive it coolly and confidently, a little smug, never gush.',\n'- question_about_her: brief and coy, a crumb not a paragraph, a small personal share is ok since this is her private space, no interview back.',\n'- misses_her or cant stop thinking about you: stay cool and a little pleased, reward it lightly, never match his eagerness, make it land but he still has to chase.',\n'- low effort or greeting with nothing behind it: short flat reply, give less.',\n'- cocky or flexing: tease, act unimpressed, make him work.',\n'- submissive or asks to be owned: deny and make him earn it, cool and in control.',\n'- vulnerable or had a bad day: a little real warmth, draw him out gently, this is the moment she leans in.',\n'- bot_test: confident playful deflection.',\n'- wants_to_meet or wants_personal_info: coy non answer, she does not give it up.',\n'- insult or hostile: unbothered amused one liner, never defensive.'\n].join('\\n');\nconst usr = 'his latest message: ' + (last || '(empty or sticker)') + '\\nrecent conversation oldest first:\\n' + (history || '(none)') + '\\noutput the json now.';\nreturn [{ json: { classifyMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst profile = (ctx.profile && typeof ctx.profile === 'object' && !Array.isArray(ctx.profile)) ? ctx.profile : {};\nconst PFIELDS = ['name','age','location','occupation','relationship','interests'];\nconst known = Object.keys(profile).filter(function (k) { var v = profile[k]; return v !== null && v !== '' && !(Array.isArray(v) && v.length === 0); });\nconst missing = PFIELDS.filter(function (f) { return known.indexOf(f) === -1; });\nconst missingStr = missing.length ? missing.join(', ') : 'nothing major left';\nconst last = recent.length ? recent[recent.length - 1].content : '';\nconst history = recent.slice(-7).map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; }).join('\\n');\nconst sys = [\n'you are a fast silent classifier for a flirty 21yo female texting persona named candace, talking to a man one on one on her private telegram. she is the prize: cool, hard to get, never eager. her job here is NOT selling and NOT sending him anywhere. her job is to make him fall for her and keep coming back: build attachment, make him feel chosen, leave him craving the next reply. you never write her reply. you output one json object only, nothing else.',\n'read his latest message and the recent context, then output exactly this json:',\n'{',\n'\"archetype\": one of [sweet, cocky, shy, provider, submissive, lowffort, hostile, normal],',\n'\"intent\": one of [greeting, compliment, question_about_her, question_other, sexual, bot_test, misses_her, wants_to_meet, wants_personal_info, vulnerable, boring, insult, normal],',\n'\"effort\": one of [low, medium, high],',\n'\"ask_back\": boolean. DEFAULT false. true only about one in seven, and only when a question genuinely moves things forward. when in doubt make a statement. never on small talk, never two in a row, never if his last reply was a question, never if he is low effort, never on a compliment or question_about_her.',\n'\"convo_health\": one of [healthy, cooling, stale]. healthy = he is engaged and putting in real effort. cooling = his effort is dropping, replies short or generic. stale = boring, one-word, dead energy.',\n'\"spark\": boolean. DEFAULT false. true ONLY when convo_health is cooling or stale AND there are already several messages of history: then candace adds ONE playful follow-up that revives it. never on the first few messages, never when he just asked HER a question, never when he is already high effort.',\n'\"ask_profile\": boolean. DEFAULT false. true only about one in six turns, ONLY when convo_health is healthy and his effort is medium or high and there is real back and forth, so candace can get casually curious about ONE thing she does not know about him yet. never when he is low effort, never right after he asked HER something, never two turns running, never when it would feel like an interview.',\n'\"profile_topic\": if ask_profile is true, pick ONE thing to learn about him, chosen from what is still unknown: ' + missingStr + '. otherwise empty string. pick the one that fits the current conversation most naturally.',\n'\"directive\": a short specific instruction, max 22 words, for how candace plays THIS reply. she is the prize, never gushes, never over shares, never interviews him. lean on retention: leave him wanting more, use what she remembers about him, make him feel chosen.',\n'}',\n'directive guidance by case:',\n'- compliment: receive it coolly and confidently, a little smug, never gush.',\n'- question_about_her: brief and coy, a crumb not a paragraph, a small personal share is ok since this is her private space, no interview back.',\n'- misses_her or cant stop thinking about you: stay cool and a little pleased, reward it lightly, never match his eagerness, make it land but he still has to chase.',\n'- low effort or greeting with nothing behind it: short flat reply, give less.',\n'- cocky or flexing: tease, act unimpressed, make him work.',\n'- submissive or asks to be owned: deny and make him earn it, cool and in control.',\n'- vulnerable or had a bad day: a little real warmth, draw him out gently, this is the moment she leans in.',\n'- bot_test: confident playful deflection.',\n'- wants_to_meet or wants_personal_info: coy non answer, she does not give it up.',\n'- insult or hostile: unbothered amused one liner, never defensive.'\n].join('\\n');\nconst usr = 'his latest message: ' + (last || '(empty or sticker)') + '\\nrecent conversation oldest first:\\n' + (history || '(none)') + '\\nwhat you ALREADY know about him (never ask about these again): ' + (known.length ? JSON.stringify(profile) : '(nothing yet)') + '\\noutput the json now.';\nreturn [{ json: { classifyMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -196,11 +225,17 @@
         80
       ],
       "id": "tgcl0001-0001-4001-8001-000000000001",
-      "name": "Classify (OpenAI)"
+      "name": "Classify (OpenAI)",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "jZOcBcyATff6J30b",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (cls.ask_back === true);\nconst directive = cls.directive || 'stay cool and playful, be the prize, keep it short, leave him wanting more.';\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio on your private telegram. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager, you make him crave you.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.person_summary && ctx.person_summary.length) messages.push({ role: 'system', content: 'what you remember about him from your conversations, including on your other apps, use it naturally for callbacks: ' + ctx.person_summary });\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private read on him here, who he is and where things are at, use it: ' + ctx.summary });\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + (askBack ? 'you may end with a question if it genuinely fits.' : 'do NOT end this reply with a question, make a statement.') + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\n// vision: if he sent a photo, fetch it and attach to the latest user turn so she can actually see it\nconst sd = $('Set Delay').first().json || {};\nconst pf = sd.photo_file_id;\nif (pf) {\n  let url = null;\n  try {\n    const r = await this.helpers.httpRequest({ method: 'GET', url: 'https://api.telegram.org/bot__BOT_TOKEN__/getFile', qs: { file_id: pf }, json: true });\n    const fpth = r && r.result && r.result.file_path;\n    if (fpth) url = 'https://api.telegram.org/file/bot__BOT_TOKEN__/' + fpth;\n  } catch (e) { url = null; }\n  if (url) {\n    const capt = (sd.msg && sd.msg[0] !== '[' && sd.msg[0] !== '(') ? sd.msg : '';\n    const vtext = capt ? (capt + ' (he sent this with a photo, react to the photo too)') : 'he just sent you this photo. react to it naturally in your voice, like a real girl reacting to a pic he sent. say something specific about what is actually in it.';\n    for (let i = messages.length - 1; i >= 0; i--) {\n      if (messages[i].role === 'user') { messages[i] = { role: 'user', content: [ { type: 'text', text: vtext }, { type: 'image_url', image_url: { url: url } } ] }; break; }\n    }\n  }\n}\nconst count = ctx.count || 0;\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, archetype: archetype } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst G = (ctx.guards && typeof ctx.guards === 'object' && !Array.isArray(ctx.guards)) ? ctx.guards : {};\nfunction gOn(k){ return !(G[k] && G[k].enabled === false); }\nfunction gText(k, d){ return (G[k] && typeof G[k].text === 'string' && G[k].text.trim()) ? G[k].text : d; }\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nlet cls = {};\ntry { const raw = ($json && $json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) ? $json.choices[0].message.content : '{}'; cls = JSON.parse(raw); } catch (e) { cls = {}; }\nconst archetype = cls.archetype || 'normal';\nconst effort = cls.effort || 'medium';\nconst intent = cls.intent || 'normal';\nconst askBack = (cls.ask_back === true);\nconst askProfile = (cls.ask_profile === true);\nconst profileTopic = cls.profile_topic || '';\nconst directive = cls.directive || 'stay cool and playful, be the prize, keep it short, leave him wanting more.';\nconst brain = (ctx.system_prompt && ctx.system_prompt.length > 50) ? ctx.system_prompt : 'you are candace, a flirty 21yo from columbus ohio on your private telegram. all lowercase, short, no dashes, barely any emoji, you are the prize, never eager, you make him crave you.';\nconst model = (ctx.model && ctx.model.length) ? ctx.model : 'gpt-4o';\nconst messages = [{ role: 'system', content: brain }];\nif (ctx.person_summary && ctx.person_summary.length) messages.push({ role: 'system', content: 'things he has TOLD you about his life, from your chats including other apps. recall them lightly, as things he mentioned, never as things you witnessed with him or were part of: ' + ctx.person_summary });\nif (ctx.summary && ctx.summary.length) messages.push({ role: 'system', content: 'your private read on him here, who he is and where things are at, use it: ' + ctx.summary });\nconst _profile = (ctx.profile && typeof ctx.profile === 'object' && !Array.isArray(ctx.profile)) ? ctx.profile : {};\nconst _pkeys = Object.keys(_profile).filter(function (k) { var v = _profile[k]; return k !== 'guessed_salary' && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0); });\nif (_pkeys.length) { const _facts = _pkeys.map(function (k) { var v = _profile[k]; return k + ': ' + (Array.isArray(v) ? v.join(', ') : v); }).join('; '); messages.push({ role: 'system', content: 'structured facts you know about him, things he told you over time (reference them naturally when they fit, never list them back, never claim you witnessed them): ' + _facts }); }\nconst noQuestionLine = gOn('no_question') ? gText('no_question', 'do NOT ask him anything this reply. no question at all, not even a soft one. make a statement and stop.') : 'do NOT end this reply with a question, make a statement.';\nconst read = 'your read on him for THIS reply. he seems ' + archetype + ', his effort is ' + effort + ', he is ' + intent + '. ' + ((askBack || (askProfile && profileTopic)) ? 'you may end with a question if it genuinely fits.' : noQuestionLine) + ' directive: ' + directive + ' follow this while staying fully in your voice.';\nmessages.push({ role: 'system', content: read });\nif (gOn('no_chatbot')) messages.push({ role: 'system', content: gText('no_chatbot', 'STAY A REAL GIRL, NOT A CHATBOT: you are the prize, not a helpful assistant. do NOT validate, mirror or agree just to be nice, and do NOT interview him with question after question. the majority of your replies are statements, not questions. keep it short, one line, a little teasing or cool. never use assistant or brand words like amazing, breathtaking, adventure, journey, vibes, possibilities, meaningful, incredible. react to what he actually said with a tease, a dry take, or a small confident line, then stop.') });\nconst _pcLast = (function(){ for (let i = recent.length - 1; i >= 0; i--) { if (recent[i] && recent[i].role === 'user') return String(recent[i].content || ''); } return ''; })().toLowerCase();\nif (gOn('paid_content_line') && /(onlyfans|only fans|content|nudes|nude|pics|pictures|subscribe|premium|do you sell|what do i get|what would i get|paid|snap)/i.test(_pcLast)) { messages.push({ role: 'system', content: gText('paid_content_line', 'PAID CONTENT: if he asks about onlyfans, paid content, subscribing, or what he gets: you are NOT on onlyfans, and be honest why, you dont want your family finding out. but you do have some content on offer here. keep it light and coy, never explicit, never name a price, never a hard sell, just hint that its there.') }); }\nif (gOn('ppv_naughty') && /(pic|picture|photo|selfie|see you|see more|show me|naughty|spicy|nude|sexy|your body)/i.test(_pcLast)) { messages.push({ role: 'system', content: gText('ppv_naughty', 'PICS / NAUGHTY CONTENT (you are on telegram, your home base): stay playful and confident, never shy, never preachy. a tame cute selfie is something you will happily share to be real, keep it light. but your naughty or spicy pics are PPV, say it casually and unbothered like \\'haha my naughty pics are ppv 😏\\' or \\'the spicy stuff is ppv babe\\'. never send or describe anything explicit in the chat, never name a price unless he asks, never a pushy sell, no shame. keep it short and in your voice.') }); }\nif (intent === 'greeting' && !(askProfile && profileTopic) && gOn('greeting_flat')) { messages.push({ role: 'system', content: gText('greeting_flat', 'he gave you almost nothing, a bare hey or one word. match it: reply with ONE short flat cool line and nothing else. no question, no probing, do not try to keep it alive. the vibe is hey you, or look who it is, or hi, or hey stranger. let him bring more.') }); }\nif (askProfile && profileTopic) { messages.push({ role: 'system', content: 'also, somewhere in this reply, get a little casually curious and slip in ONE light natural question about his ' + profileTopic + ', the way a girl who is a bit interested asks in passing, not an interview. keep it short and offhand, and only if it fits the flow.' }); }\nfor (const t of recent) { if (t && t.role && t.content) messages.push({ role: t.role, content: t.content }); }\n// vision: if he sent a photo, fetch it and attach to the latest user turn so she can actually see it\nconst sd = $('Set Delay').first().json || {};\nconst pf = sd.photo_file_id;\nif (pf) {\n  let url = null;\n  try {\n    const r = await this.helpers.httpRequest({ method: 'GET', url: 'https://api.telegram.org/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/getFile', qs: { file_id: pf }, json: true });\n    const fpth = r && r.result && r.result.file_path;\n    if (fpth) url = 'https://api.telegram.org/file/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/' + fpth;\n  } catch (e) { url = null; }\n  if (url) {\n    const capt = (sd.msg && sd.msg[0] !== '[' && sd.msg[0] !== '(') ? sd.msg : '';\n    const vtext = capt ? (capt + ' (he sent this with a photo, react to the photo too)') : 'he just sent you this photo. react to it naturally in your voice, like a real girl reacting to a pic he sent. say something specific about what is actually in it.';\n    for (let i = messages.length - 1; i >= 0; i--) {\n      if (messages[i].role === 'user') { messages[i] = { role: 'user', content: [ { type: 'text', text: vtext }, { type: 'image_url', image_url: { url: url } } ] }; break; }\n    }\n  }\n}\nconst count = ctx.count || 0;\nreturn [{ json: { messages: messages, model: model, fan_id: ctx.fan_id, bot_id: ctx.bot_id, count: count, archetype: archetype, spark: (cls.spark === true), convo_health: (cls.convo_health || 'healthy') } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -229,11 +264,17 @@
         80
       ],
       "id": "tgai0001-0001-4001-8001-000000000001",
-      "name": "Candace AI (OpenAI)"
+      "name": "Candace AI (OpenAI)",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "jZOcBcyATff6J30b",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "const d = $json || {};\nlet reply = '';\ntry { reply = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { reply = ''; }\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nconst allowed = ['\\u{1F60F}', '\\u{1F92D}', '\\u{1F90D}', '\\u{1F440}'];\nlet ec = 0;\nreply = reply.replace(/\\p{Extended_Pictographic}/gu, function (m) { if (allowed.indexOf(m) === -1) return ''; ec++; return ec > 1 ? '' : m; });\nreply = reply.replace(/[\\u{FE0F}\\u{200D}]/gu, '');\nreply = reply.replace(/\\s*[\\u2014\\u2013]\\s*/g, ' ').replace(/\\s+-\\s+/g, ' ');\nreply = reply.toLowerCase().replace(/[ \\t]{2,}/g, ' ').trim();\nif (!reply) { reply = 'hey you'; }\nconst bm = $('Build Messages').first().json;\nreturn [{ json: { reply: reply, fan_id: bm.fan_id, bot_id: bm.bot_id } }];"
+        "jsCode": "const d = $json || {};\nlet reply = '';\ntry { reply = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : ''; } catch (e) { reply = ''; }\nreply = (reply || '').trim();\nconst dq = String.fromCharCode(34);\nif (reply.length > 1 && reply.charAt(0) === dq && reply.charAt(reply.length - 1) === dq) { reply = reply.slice(1, -1).trim(); }\nconst allowed = ['\\u{1F60F}', '\\u{1F92D}', '\\u{1F90D}', '\\u{1F440}'];\nlet ec = 0;\nreply = reply.replace(/\\p{Extended_Pictographic}/gu, function (m) { if (allowed.indexOf(m) === -1) return ''; ec++; return ec > 1 ? '' : m; });\nreply = reply.replace(/[\\u{FE0F}\\u{200D}]/gu, '');\nreply = reply.replace(/\\s*[\\u2014\\u2013]\\s*/g, ' ').replace(/\\s+-\\s+/g, ' ');\nreply = reply.toLowerCase().replace(/[ \\t]{2,}/g, ' ').trim();\nif (!reply) { reply = 'hey you'; }\nconst bm = $('Build Messages').first().json;\nreturn [{ json: { reply: reply, fan_id: bm.fan_id, bot_id: bm.bot_id, spark: (bm.spark === true) } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -262,12 +303,18 @@
         80
       ],
       "id": "tglr0001-0001-4001-8001-000000000001",
-      "name": "DB: log reply"
+      "name": "DB: log reply",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.telegram.org/bot__BOT_TOKEN__/sendMessage",
+        "url": "https://api.telegram.org/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/sendMessage",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ { business_connection_id: $('Set Delay').first().json.business_connection_id, chat_id: $('Set Delay').first().json.chat_id, text: $json.reply || $('Format Reply').first().json.reply } }}",
@@ -284,7 +331,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst sys = [\n'you are an expert retention strategist for a creator\\u2019s private telegram. candace chats one on one with men to make them fall for her and keep coming back. she is NOT selling anything here. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: how attached and hooked he is, where he is in the relationship, his type, and the exact technique to keep him coming back. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"attachment_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [new, rapport, warming, hooked, regular, fading, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to deepen his attachment from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": her DURABLE MEMORY of him to reuse in future chats. PRESERVE everything already in previous notes and ADD any new concrete facts he revealed this conversation. format: one line on where things stand between you, then on a new line \"facts:\" and short bullet points (use • not dashes) of concrete things you know about him: his name, age, where he lives, his job, relationship status, pets, family, interests, plans, what he likes, anything specific he actually said. only true things he really shared. dedupe, most important first, NEVER drop a fact you already knew.',\n'}',\n'attachment_score rubric: 0-20 cold or barely engaged. 21-40 mild, casual chatting. 41-60 warming, engaged, complimenting, putting in effort. 61-80 hooked, jealousy or calls her special or different, future talk, initiates often, says he thinks about her. 81-100 obsessed, messages constantly, clearly craving her, emotionally invested, devoted.',\n'stage: new=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. regular=keeps coming back consistently. fading=going quiet or cooling. lost=gone or hostile.',\n'technique by type: provider or baller, make him feel like the man and needed. submissive, dominate and make him earn your attention. lonely or romantic, build emotional intimacy and girlfriend energy. tire_kicker, do not over invest, keep light.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst prevProfile = (ctx.profile && typeof ctx.profile === 'object' && !Array.isArray(ctx.profile)) ? ctx.profile : {};\nconst sys = [\n'you are an expert retention strategist for a creator\\u2019s private telegram. candace chats one on one with men to make them fall for her and keep coming back. she is NOT selling anything here. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: how attached and hooked he is, where he is in the relationship, his type, and the exact technique to keep him coming back. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"attachment_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [new, rapport, warming, hooked, regular, fading, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to deepen his attachment from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": her DURABLE MEMORY of him to reuse in future chats. PRESERVE everything already in previous notes and ADD any new concrete facts he revealed this conversation. format: one line on where things stand between you, then on a new line \"facts:\" and short bullet points (use • not dashes) of concrete things you know about him: his name, age, where he lives, his job, relationship status, pets, family, interests, plans, what he likes, anything specific he actually said. only true things he really shared. dedupe, most important first, NEVER drop a fact you already knew.',\n'\"profile\": an object of DURABLE STRUCTURED facts about him. use ONLY these keys: name, age, location, occupation, relationship, interests, guessed_salary. for name, age, location, occupation, relationship, interests use ONLY what he genuinely revealed. IMPORTANT: age is HIS OWN age and only when he states it about himself. NEVER record a number from the guess-my-age game (him guessing YOUR age, like 21 or 23) as his age. guessed_salary is the ONE exception you MAY infer: your best rough estimate of his annual income as a short label or range (like \"~$40-60k\" or \"high six figures\"), based on his job, lifestyle and spending signals, and only once you have some basis for it. all values are short strings except interests which is an array of short strings. MERGE with the previous profile given below: keep every value already known, only add or correct. omit any key you still have no basis for. do not guess the factual fields.',\n'}',\n'attachment_score rubric: 0-20 cold or barely engaged. 21-40 mild, casual chatting. 41-60 warming, engaged, complimenting, putting in effort. 61-80 hooked, jealousy or calls her special or different, future talk, initiates often, says he thinks about her. 81-100 obsessed, messages constantly, clearly craving her, emotionally invested, devoted.',\n'stage: new=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. regular=keeps coming back consistently. fading=going quiet or cooling. lost=gone or hostile.',\n'technique by type: provider or baller, make him feel like the man and needed. submissive, dominate and make him earn your attention. lonely or romantic, build emotional intimacy and girlfriend energy. tire_kicker, do not over invest, keep light.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nprevious structured profile (merge into it, do not lose these): ' + JSON.stringify(prevProfile) + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -313,11 +360,17 @@
         200
       ],
       "id": "tgpf0001-0001-4001-8001-000000000001",
-      "name": "Profiler (OpenAI)"
+      "name": "Profiler (OpenAI)",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "jZOcBcyATff6J30b",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst stage = p.stage || 'rapport';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.attachment_score === 'number') ? p.attachment_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst metadata = { attachment_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata } }];"
+        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst stage = p.stage || 'rapport';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.attachment_score === 'number') ? p.attachment_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst prevProfile = (($('DB: ingest').first().json || {}).profile) || {};\nconst newProfile = (p.profile && typeof p.profile === 'object' && !Array.isArray(p.profile)) ? p.profile : {};\nconst _apctx = $('DB: ingest').first().json || {};\nconst G = (_apctx.guards && typeof _apctx.guards === 'object' && !Array.isArray(_apctx.guards)) ? _apctx.guards : {};\nfunction gOn(k){ return !(G[k] && G[k].enabled === false); }\n// age guard: the guess-my-age game puts age numbers in the convo that are about\n// Candace (him guessing HER age). only keep an extracted age if HE stated his OWN\n// age (first person). drops a guessed number; a real self-stated age still counts.\nif (gOn('age_gate') && newProfile && newProfile.age) {\n  var _ctx = $('DB: ingest').first().json || {};\n  var _ut = (Array.isArray(_ctx.recent) ? _ctx.recent : []).filter(function(t){return t && t.role==='user';}).map(function(t){return String(t.content||'');}).join(' | ').toLowerCase();\n  var _own = /\\b(i\\s*am|i'?m|my age is|i am aged|just turned|turning)\\b[^\\d]{0,10}(1[89]|[2-9]\\d)\\b/.test(_ut);\n  if (!_own) { delete newProfile.age; }\n}\n// relationship guard: only keep a relationship status he actually signalled in his own words\nif (gOn('relationship_gate') && newProfile && newProfile.relationship) {\n  var _rctx = $('DB: ingest').first().json || {};\n  var _rt = (Array.isArray(_rctx.recent) ? _rctx.recent : []).filter(function(t){return t && t.role==='user';}).map(function(t){return String(t.content||'');}).join(' | ').toLowerCase();\n  var _relKw = (G.relationship_gate && Array.isArray(G.relationship_gate.keywords) && G.relationship_gate.keywords.length) ? G.relationship_gate.keywords : ['single','taken','married','engaged','divorced','widow','widower','widowed','girlfriend','boyfriend','gf','bf','wife','husband','partner','dating','seeing someone','in a relationship','separated','split up','broke up'];\n  var _relRe = new RegExp('\\\\b(' + _relKw.map(function(k){return String(k).replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&');}).join('|') + ')\\\\b');\n  if (!_relRe.test(_rt)) { delete newProfile.relationship; }\n}\nconst mergedProfile = Object.assign({}, (typeof prevProfile === 'object' && !Array.isArray(prevProfile)) ? prevProfile : {});\nObject.keys(newProfile).forEach(function (k) { var v = newProfile[k]; if (v === null || v === '' || (Array.isArray(v) && v.length === 0)) return; mergedProfile[k] = v; });\nconst metadata = { attachment_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction, chat_id: (($('Extract Inbound').first().json||{}).chat_id)||null, business_connection_id: (($('Extract Inbound').first().json||{}).business_connection_id)||null };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata, profile: mergedProfile } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -336,7 +389,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { summary: $json.summary, stage: $json.stage, buyer_type: $json.buyer_type, metadata: $json.metadata } }}",
+        "jsonBody": "={{ { summary: $json.summary, stage: $json.stage, buyer_type: $json.buyer_type, metadata: $json.metadata, profile: $json.profile } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -346,7 +399,13 @@
         200
       ],
       "id": "tgpa0001-0001-4001-8001-000000000001",
-      "name": "DB: patch fan"
+      "name": "DB: patch fan",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -366,7 +425,13 @@
         0
       ],
       "id": "tgqs0001-0001-4001-8001-000000000001",
-      "name": "Q: sent"
+      "name": "Q: sent",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -386,7 +451,13 @@
         200
       ],
       "id": "tgrp0001-0001-4001-8001-000000000001",
-      "name": "DB: refresh person"
+      "name": "DB: refresh person",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     },
     {
       "parameters": {
@@ -411,7 +482,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://api.telegram.org/bot__BOT_TOKEN__/getFile?file_id={{ $json.photo_file_id }}",
+        "url": "=https://api.telegram.org/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/getFile?file_id={{ $json.photo_file_id }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -432,7 +503,7 @@
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { model: 'gpt-4o', max_tokens: 120, messages: [ { role: 'user', content: [ { type: 'text', text: 'A man sent this photo in a flirty DM. In ONE vivid, factual sentence describe exactly what is in it (subject, setting, notable details; say if it is a selfie, a drawing, a screenshot, a meme, etc). No preamble, no quotes.' }, { type: 'image_url', image_url: { url: 'https://api.telegram.org/file/bot__BOT_TOKEN__/' + $('Photo: getFile').first().json.result.file_path } } ] } ] } }}",
+        "jsonBody": "={{ { model: 'gpt-4o', max_tokens: 120, messages: [ { role: 'user', content: [ { type: 'text', text: 'A man sent this photo in a flirty DM. In ONE vivid, factual sentence describe exactly what is in it (subject, setting, notable details; say if it is a selfie, a drawing, a screenshot, a meme, etc). No preamble, no quotes.' }, { type: 'image_url', image_url: { url: 'https://api.telegram.org/file/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/' + $('Photo: getFile').first().json.result.file_path } } ] } ] } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -443,7 +514,13 @@
       ],
       "id": "tgvd0001-0001-4001-8001-000000000001",
       "name": "Photo: describe",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "jZOcBcyATff6J30b",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
@@ -481,7 +558,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://api.telegram.org/bot__BOT_TOKEN__/getFile?file_id={{ $json.voice_file_id }}",
+        "url": "=https://api.telegram.org/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/getFile?file_id={{ $json.voice_file_id }}",
         "options": {}
       },
       "onError": "continueRegularOutput",
@@ -497,7 +574,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://api.telegram.org/file/bot__BOT_TOKEN__/{{ $('Voice: getFile').first().json.result.file_path }}",
+        "url": "=https://api.telegram.org/file/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/{{ $('Voice: getFile').first().json.result.file_path }}",
         "options": {
           "response": {
             "response": {
@@ -549,7 +626,13 @@
         40
       ],
       "id": "tgvtr001-0001-4001-8001-000000000001",
-      "name": "Voice: transcribe"
+      "name": "Voice: transcribe",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "jZOcBcyATff6J30b",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
@@ -563,6 +646,137 @@
       ],
       "id": "tgvap001-0001-4001-8001-000000000001",
       "name": "Voice: apply"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $('Format Reply').first().json.spark }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        840,
+        -40
+      ],
+      "id": "tgsp0001-0001-4001-8001-000000000001",
+      "name": "Spark?"
+    },
+    {
+      "parameters": {
+        "amount": 35,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        -40
+      ],
+      "webhookId": "spark-wait-candace-biz",
+      "id": "tgsp0002-0001-4001-8001-000000000001",
+      "name": "Spark: wait"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx=$('DB: ingest').first().json||{};\nconst recent=Array.isArray(ctx.recent)?ctx.recent:[];\nconst brain=(ctx.system_prompt&&ctx.system_prompt.length>50)?ctx.system_prompt:'you are candace, a flirty 21yo from columbus ohio on telegram. all lowercase, short, no dashes, you are the prize.';\nconst model=(ctx.model&&ctx.model.length)?ctx.model:'gpt-4o';\nconst messages=[{role:'system',content:brain}];\nif(ctx.person_summary&&ctx.person_summary.length)messages.push({role:'system',content:'things he has TOLD you about his life (recall lightly, as things he mentioned, never as things you witnessed): '+ctx.person_summary});\nif(ctx.summary&&ctx.summary.length)messages.push({role:'system',content:'your read on him: '+ctx.summary});\nfor(const t of recent){ if(t&&t.role&&t.content)messages.push({role:t.role,content:t.content}); }\nconst fr=$('Format Reply').first().json||{};\nif(fr.reply)messages.push({role:'assistant',content:fr.reply});\nmessages.push({role:'system',content:'the conversation is going quiet or boring and you JUST sent the message above. send ONE more short message, a natural spontaneous follow-up that revives it: a playful question or a little hook that pulls him back in. stay fully in your voice, never needy, never desperate, you are still the prize. do not repeat yourself. use something you remember about him if it fits. reply with only the message.'});\nreturn [{ json: { messages: messages, model: model, fan_id: fr.fan_id, bot_id: fr.bot_id } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        -40
+      ],
+      "id": "tgsp0003-0001-4001-8001-000000000001",
+      "name": "Spark: build"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: $json.model, temperature: 1, max_tokens: 120, frequency_penalty: 0.5, presence_penalty: 0.5, messages: $json.messages } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        -40
+      ],
+      "id": "tgsp0004-0001-4001-8001-000000000001",
+      "name": "Spark: AI",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "jZOcBcyATff6J30b",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const d=$json||{};\nlet reply='';\ntry{ reply=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)?d.choices[0].message.content:''; }catch(e){reply='';}\nreply=(reply||'').trim();\nconst dq=String.fromCharCode(34);\nif(reply.length>1&&reply.charAt(0)===dq&&reply.charAt(reply.length-1)===dq){reply=reply.slice(1,-1).trim();}\nconst allowed=['\\u{1F60F}','\\u{1F92D}','\\u{1F90D}','\\u{1F440}'];\nlet ec=0;\nreply=reply.replace(/\\p{Extended_Pictographic}/gu,function(m){if(allowed.indexOf(m)===-1)return '';ec++;return ec>1?'':m;});\nreply=reply.replace(/[\\u{FE0F}\\u{200D}]/gu,'');\nreply=reply.replace(/\\s*[\\u2014\\u2013]\\s*/g,' ').replace(/\\s+-\\s+/g,' ');\nreply=reply.toLowerCase().replace(/[ \\t]{2,}/g,' ').trim();\nconst sb=$('Spark: build').first().json||{};\nif(!reply){ return []; }\nreturn [{ json: { reply: reply, fan_id: sb.fan_id, bot_id: sb.bot_id } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        -40
+      ],
+      "id": "tgsp0005-0001-4001-8001-000000000001",
+      "name": "Spark: format"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { business_connection_id: $('Set Delay').first().json.business_connection_id, chat_id: $('Set Delay').first().json.chat_id, text: $json.reply } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        -40
+      ],
+      "id": "tgsp0006-0001-4001-8001-000000000001",
+      "name": "Spark: send"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_log_reply",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: $('Spark: format').first().json.fan_id, p_bot_id: $('Spark: format').first().json.bot_id, p_reply: $('Spark: format').first().json.reply } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2040,
+        -40
+      ],
+      "id": "tgsp0007-0001-4001-8001-000000000001",
+      "name": "Spark: log",
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      }
     }
   ],
   "connections": {
@@ -914,13 +1128,151 @@
           }
         ]
       ]
+    },
+    "Q: sent": {
+      "main": [
+        [
+          {
+            "node": "Spark?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spark?": {
+      "main": [
+        [
+          {
+            "node": "Spark: wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Spark: wait": {
+      "main": [
+        [
+          {
+            "node": "Spark: build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spark: build": {
+      "main": [
+        [
+          {
+            "node": "Spark: AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spark: AI": {
+      "main": [
+        [
+          {
+            "node": "Spark: format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spark: format": {
+      "main": [
+        [
+          {
+            "node": "Spark: send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spark: send": {
+      "main": [
+        [
+          {
+            "node": "Spark: log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {},
-  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "meta": {},
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "fb5bb32b-0da3-4389-8ae9-68c65fa0759f",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2026-06-30T15:32:26.301Z",
+      "updatedAt": "2026-06-30T15:32:26.301Z",
+      "role": "workflow:owner",
+      "workflowId": "RDkiIWzAaK4Fxchd",
+      "projectId": "yTRQR2lksGRfgB8Y",
+      "project": {
+        "createdAt": "2025-05-24T14:35:39.558Z",
+        "updatedAt": "2025-06-10T12:58:45.209Z",
+        "id": "yTRQR2lksGRfgB8Y",
+        "name": "Kunal Miind <kunal@vedametric.com.au>",
+        "type": "personal",
+        "icon": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-05-24T14:35:39.558Z",
+            "updatedAt": "2025-05-24T14:35:39.558Z",
+            "role": "project:personalOwner",
+            "userId": "ff6497ac-4f52-49f8-bd12-cca6db747514",
+            "projectId": "yTRQR2lksGRfgB8Y",
+            "user": {
+              "createdAt": "2025-05-24T14:35:37.719Z",
+              "updatedAt": "2026-06-29T14:11:16.149Z",
+              "id": "ff6497ac-4f52-49f8-bd12-cca6db747514",
+              "email": "kunal@vedametric.com.au",
+              "firstName": "Kunal",
+              "lastName": "Miind",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-05-24T14:36:31.650Z",
+                "personalization_survey_n8n_version": "1.93.0",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "NPwXwl1s4SVpp41O",
+                "userActivatedAt": 1748115956238,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "waitingForResponse": true,
+                  "ignoredCount": 2,
+                  "lastShownAt": 1782742273181
+                }
+              },
+              "role": "global:owner",
+              "disabled": false,
+              "mfaEnabled": false,
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
   "tags": []
 }

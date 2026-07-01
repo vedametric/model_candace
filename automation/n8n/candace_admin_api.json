@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-06-30T13:55:14.383Z",
-  "updatedAt": "2026-07-01T14:42:19.384Z",
+  "updatedAt": "2026-07-01T15:14:24.034Z",
   "id": "e6o5Yu9GlwfRfhVR",
   "name": "Candace Admin API (fans list + link/unlink persons)",
   "active": true,
@@ -420,7 +420,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { p_fan_id: $json.fan_id, p_bot_id: $json.bot_id, p_reply: $json.text } }}",
+        "jsonBody": "={{ { p_fan_id: $('Send: prep').first().json.fan_id, p_bot_id: $('Send: prep').first().json.bot_id, p_reply: $('Send: prep').first().json.text } }}",
         "options": {}
       },
       "credentials": {
@@ -496,6 +496,109 @@
       ],
       "id": "adsend06-0006-4006-8006-000000000006",
       "name": "Respond send"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        980
+      ],
+      "id": "adsndw01-0007-4007-8007-000000000007",
+      "name": "Send: wait",
+      "webhookId": "candace-admin-send-wait"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "snd-c1",
+              "leftValue": "={{ $('Send: prep').first().json.platform }}",
+              "rightValue": "telegram",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -120,
+        980
+      ],
+      "id": "adsndif0-0008-4008-8008-000000000008",
+      "name": "Route?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/events?select=payload&type=eq.dm_queued&order=created_at.desc&limit=25&fan_id=eq.' + $('Send: prep').first().json.fan_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        900
+      ],
+      "id": "adsndgr0-0009-4009-8009-000000000009",
+      "name": "Send: get route"
+    },
+    {
+      "parameters": {
+        "jsCode": "var evs = $json; if (!Array.isArray(evs)) evs = evs ? [evs] : [];\nvar route = null;\nfor (var i=0;i<evs.length;i++){ var p=(evs[i]&&evs[i].payload)||{}; if(p.chat_id&&p.business_connection_id){ route={chat_id:p.chat_id, business_connection_id:p.business_connection_id}; break; } }\nif(!route) throw new Error('no telegram route on record yet — this fan must send one more message so the bot captures chat_id + business_connection_id');\nreturn [{ json: route }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        900
+      ],
+      "id": "adsndpk0-0010-4010-8010-000000000010",
+      "name": "Send: pick route"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8690379679:AAHfVeKgaja_lr7F6XQgZ3b0d6d9M7ICw0g/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { business_connection_id: $('Send: pick route').first().json.business_connection_id, chat_id: $('Send: pick route').first().json.chat_id, text: $('Send: prep').first().json.text } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        900
+      ],
+      "id": "adsndtg0-0011-4011-8011-000000000011",
+      "name": "Send: Telegram"
     }
   ],
   "connections": {
@@ -657,7 +760,7 @@
       "main": [
         [
           {
-            "node": "Send: log reply",
+            "node": "Send: wait",
             "type": "main",
             "index": 0
           }
@@ -668,7 +771,7 @@
       "main": [
         [
           {
-            "node": "Send: ManyChat",
+            "node": "Respond send",
             "type": "main",
             "index": 0
           }
@@ -679,7 +782,69 @@
       "main": [
         [
           {
-            "node": "Respond send",
+            "node": "Send: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: wait": {
+      "main": [
+        [
+          {
+            "node": "Route?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route?": {
+      "main": [
+        [
+          {
+            "node": "Send: get route",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send: ManyChat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: get route": {
+      "main": [
+        [
+          {
+            "node": "Send: pick route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: pick route": {
+      "main": [
+        [
+          {
+            "node": "Send: Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send: Telegram": {
+      "main": [
+        [
+          {
+            "node": "Send: log reply",
             "type": "main",
             "index": 0
           }
@@ -693,8 +858,8 @@
   "staticData": null,
   "meta": null,
   "pinData": null,
-  "versionId": "8741f805-ba6f-4ca0-93d0-5ca31282ef95",
-  "triggerCount": 5,
+  "versionId": "66c766fc-2b03-47df-a727-8268f3cbc4e3",
+  "triggerCount": 6,
   "shared": [
     {
       "createdAt": "2026-06-30T13:55:14.386Z",

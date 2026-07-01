@@ -13,6 +13,17 @@
 
 alter table public.fans add column if not exists director_note text;
 alter table public.fans add column if not exists send_after timestamptz;
+-- next_directive: a ONE-SHOT steer applied to the very next reply, then the
+-- responder clears it. (director_note is the persistent/standing version.)
+alter table public.fans add column if not exists next_directive text;
+
+create or replace function public.dm_set_next_directive(p_fan_id bigint, p_note text)
+returns void language plpgsql as $$
+begin
+  update public.fans set next_directive = nullif(btrim(p_note), '') where id = p_fan_id;
+  insert into public.events(fan_id, type, payload)
+  values (p_fan_id, 'next_directive_set', jsonb_build_object('len', coalesce(length(p_note),0)));
+end; $$;
 
 -- set/clear the director's note.
 create or replace function public.dm_set_director_note(p_fan_id bigint, p_note text)
