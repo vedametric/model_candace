@@ -60,3 +60,29 @@ begin
   values (p_fan_id, 'reply_cancelled', jsonb_build_object('msg_count', v_count));
   return v_count;
 end; $$;
+
+-- "Play hard to get": ignore a fan's next N inbound messages (log, don't reply).
+-- fans.ignore_count is consumed per-inbound by the responders' "Ignore gate"
+-- (dm_take_ignore) right after dm_ingest; dashboard fan page sets it.
+alter table public.fans add column if not exists ignore_count int not null default 0;
+
+create or replace function public.dm_set_ignore(p_fan_id bigint, p_n int)
+returns int language plpgsql as $$
+declare v int;
+begin
+  update public.fans set ignore_count = greatest(0, coalesce(p_n,0)) where id = p_fan_id returning ignore_count into v;
+  insert into public.events(fan_id, type, payload) values (p_fan_id, 'ignore_set', jsonb_build_object('n', v));
+  return v;
+end; $$;
+
+create or replace function public.dm_take_ignore(p_fan_id bigint)
+returns jsonb language plpgsql as $$
+declare v int;
+begin
+  select ignore_count into v from public.fans where id = p_fan_id;
+  if coalesce(v,0) > 0 then
+    update public.fans set ignore_count = ignore_count - 1 where id = p_fan_id;
+    return jsonb_build_object('skip', true, 'remaining', v - 1);
+  end if;
+  return jsonb_build_object('skip', false, 'remaining', 0);
+end; $$;

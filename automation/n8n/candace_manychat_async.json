@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-06-30T04:19:22.252Z",
-  "updatedAt": "2026-07-01T16:23:35.633Z",
+  "updatedAt": "2026-07-01T16:48:56.463Z",
   "id": "48WOVR3dC78VxYN8",
   "name": "Candace ManyChat ASYNC (debounce + random delay + API send)",
   "active": true,
@@ -101,7 +101,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// random, human-feeling delay before she replies. she is the prize, a little\n// aloof, not glued to her phone. most replies take 2-10 min; ~15% of the time\n// she happens to be around and fires back quicker (45-120s).\nconst r = Math.random();\nlet sec;\nif (r < 0.15) { sec = 45 + Math.floor(Math.random() * 75); }\nelse { sec = 120 + Math.floor(Math.random() * 480); }\nconst ctx = $('DB: ingest').first().json || {};\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, subscriber_id: ex.subscriber_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
+        "jsCode": "// random, human-feeling delay before she replies. she is the prize, a little\n// aloof, not glued to her phone. most replies take 2-10 min; ~15% of the time\n// she happens to be around and fires back quicker (45-120s).\nconst r = Math.random();\nlet sec;\nif (r < 0.15) { sec = 45 + Math.floor(Math.random() * 75); }\nelse { sec = 120 + Math.floor(Math.random() * 480); }\nif (($json || {}).skip === true) { return []; } // Play Hard To Get: ignore this inbound\nconst ctx = $('DB: ingest').first().json || {};\nconst ex = $('Extract Inbound').first().json || {};\nconst now = Date.now();\nreturn [{ json: { delaySec: sec, myCount: ctx.count, fan_id: ctx.fan_id, bot_id: ctx.bot_id, subscriber_id: ex.subscriber_id, username: ex.username, display: ex.display, msg: ex.msg, queued_at: new Date(now).toISOString(), scheduled_for: new Date(now + sec * 1000).toISOString() } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -599,6 +599,32 @@
       "id": "waithold-0001-4001-8001-000000000001",
       "name": "Wait (hold)",
       "webhookId": "candace-hold-wait"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_take_ignore",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_fan_id: $('DB: ingest').first().json.fan_id } }}",
+        "options": {}
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "iYBFDGmRg03xuA4O",
+          "name": "Supabase account"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1560,
+        80
+      ],
+      "id": "ignoreg0-mc00-4001-8001-000000000001",
+      "name": "Ignore gate"
     }
   ],
   "connections": {
@@ -650,7 +676,7 @@
       "main": [
         [
           {
-            "node": "Set Delay",
+            "node": "Ignore gate",
             "type": "main",
             "index": 0
           }
@@ -917,6 +943,17 @@
           }
         ]
       ]
+    },
+    "Ignore gate": {
+      "main": [
+        [
+          {
+            "node": "Set Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -925,7 +962,7 @@
   "staticData": null,
   "meta": null,
   "pinData": null,
-  "versionId": "6aa3e0d9-c061-46ba-8605-c3e90a882951",
+  "versionId": "c1f9a34f-c987-4db5-8411-12ff10143491",
   "triggerCount": 1,
   "shared": [
     {
