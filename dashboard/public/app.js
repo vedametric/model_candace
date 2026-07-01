@@ -1157,10 +1157,11 @@ function wireLinks(slug, id) {
 // ---------------- QUEUE ----------------
 let Q = [];
 let Q_FIRED = new Set(); // event_ids the user hit "send now" on (optimistic, until server confirms)
+let Q_CANCELLED = new Set(); // event_ids the user cancelled (optimistic)
 let QP = 'all';          // queue platform filter
 async function queueForIdentity(key) {
   loading();
-  Q_FIRED = new Set(); QP = 'all';
+  Q_FIRED = new Set(); Q_CANCELLED = new Set(); QP = 'all';
   const members = membersOf(key);
   const plats = [...new Set(members.map(botPlatform))];
   view.innerHTML = `
@@ -1195,13 +1196,14 @@ function qRender(key) {
     if (r.status === 'sent') { cs++; Q_FIRED.delete(eid); badge = '<span class="tag b-sent">sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
     else if (r.status === 'superseded') { cx++; Q_FIRED.delete(eid); badge = '<span class="tag b-super">debounced</span>'; last = '<span class="dim">newer message replaced this</span>'; }
     else if (Q_FIRED.has(eid)) { cw++; badge = '<span class="tag b-flight">sending…</span>'; last = '<span class="dim mono">fired — generating reply</span>'; }
+    else if (Q_CANCELLED.has(eid)) { cx++; badge = '<span class="tag b-super">cancelled</span>'; last = '<span class="dim">reply cancelled — send manually from the fan page</span>'; }
     else {
       const base = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
       const hold = r.send_after ? new Date(r.send_after).getTime() : 0;
       const sched = Math.max(base, hold);              // a "+15m" hold pushes the send time out
       const heldMin = hold > base ? Math.round((hold - base) / 60000) : 0;
       const ms = sched - now;
-      if (ms > 0) { cw++; badge = '<span class="tag b-wait">waiting</span>'; last = `<b class="mono">${fmtDur(ms / 1000)}</b>${heldMin > 0 ? ` <span class="tag" title="held back by the +15m button">+${heldMin}m held</span>` : ''}${r.fan_id != null ? ` <button class="btn sm" data-hold="${r.fan_id}" data-eid="${r.event_id}" data-slug="${esc(r._slug)}" title="Push this reply back 15 more minutes">+15m</button>` : ''}${r.resume_url ? ` <button class="btn sm" data-send="${r.event_id}" data-slug="${esc(r._slug)}">send now</button>` : ''}`; }
+      if (ms > 0) { cw++; badge = '<span class="tag b-wait">waiting</span>'; last = `<b class="mono">${fmtDur(ms / 1000)}</b>${heldMin > 0 ? ` <span class="tag" title="held back by the +15m button">+${heldMin}m held</span>` : ''}${r.fan_id != null ? ` <button class="btn sm" data-hold="${r.fan_id}" data-eid="${r.event_id}" data-slug="${esc(r._slug)}" title="Push this reply back 15 more minutes">+15m</button>` : ''}${r.resume_url ? ` <button class="btn sm" data-send="${r.event_id}" data-slug="${esc(r._slug)}">send now</button>` : ''}${r.fan_id != null ? ` <button class="btn sm danger" data-cancel="${r.fan_id}" data-eid="${r.event_id}" data-slug="${esc(r._slug)}" title="Cancel this reply so nothing sends — then send manually as Candace">✕ cancel</button>` : ''}`; }
       else if (now - sched < 90000) { cw++; badge = '<span class="tag b-flight">generating…</span>'; last = '<span class="dim mono">any second</span>'; }
       else { cx++; badge = '<span class="tag b-super">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
     }
@@ -1233,6 +1235,16 @@ function qRender(key) {
       const rowObj = Q.find(x => String(x.event_id) === eid);
       if (rowObj && res && res.send_after) rowObj.send_after = res.send_after;
       toast('reply held +15m'); qRender(key);
+    } catch (err) { toast('error: ' + err.message); b.disabled = false; }
+  });
+  $('#q-body').querySelectorAll('[data-cancel]').forEach(b => b.onclick = async (e) => {
+    e.stopPropagation();
+    const fan = b.dataset.cancel, sl = b.dataset.slug, eid = String(b.dataset.eid);
+    if (!confirm('Cancel this reply so nothing sends? You can then send manually as Candace.')) return;
+    b.disabled = true;
+    try {
+      await api(`/accounts/${sl}/fans/${fan}/cancel-reply`, { method: 'POST', body: '{}' });
+      Q_CANCELLED.add(eid); toast('reply cancelled — nothing will send'); qRender(key);
     } catch (err) { toast('error: ' + err.message); b.disabled = false; }
   });
 }

@@ -397,6 +397,15 @@ router.post('/accounts/:slug/queue/:eventId/send-now', wrap(async (req, res) => 
   res.json({ ok: true });
 }));
 
+// Cancel a pending/waiting auto-reply so it never sends: bumps msg_count so the
+// waiting responder execution aborts at its debounce gate. Take over manually
+// with "Send as Candace".
+router.post('/accounts/:slug/fans/:id/cancel-reply', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const count = await rpc('dm_cancel_pending_reply', { p_fan_id: Number(req.params.id) });
+  res.json({ ok: true, msg_count: count });
+}));
+
 // pause / resume this bot's automation (flag honored by the n8n gate node)
 router.post('/accounts/:slug/automation', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
