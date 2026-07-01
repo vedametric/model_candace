@@ -949,11 +949,13 @@ async function fanDetail(slug, id) {
     <div class="grid2">
       <div class="panel"><h3>Conversation (${(m.messages || []).length})</h3>
         <div class="chat" id="chat">${(m.messages || []).map(x => `<div class="bubble ${x.role === 'assistant' ? 'assistant' : 'user'}">${esc(x.content)}<span class="ts">${fmtClock(x.created_at)}</span></div>`).join('')}</div>
-        ${f.director_note ? `<div class="dnote" id="dnote-cur">🎬 director note: ${esc(f.director_note)} <button id="dnote-clear" class="btn sm" title="Clear the steer">clear</button></div>` : ''}
+        ${f.next_directive ? `<div class="dnote next" id="ndir-cur">⏭ next reply: ${esc(f.next_directive)} <button id="ndir-clear" class="btn sm" title="Cancel the one-shot">clear</button></div>` : ''}
+        ${f.director_note ? `<div class="dnote" id="dnote-cur">🎬 standing note: ${esc(f.director_note)} <button id="dnote-clear" class="btn sm" title="Clear the standing steer">clear</button></div>` : ''}
         <div class="composer">
-          <textarea id="steer-text" rows="2" placeholder="type here — 'Inject note' steers how she replies (hidden), 'Send as Candace' messages him now"></textarea>
+          <textarea id="steer-text" rows="2" placeholder="type here — 'Next reply' = one-off task for her next message · 'Standing note' = ongoing tone/behavior · 'Send as Candace' = message him now"></textarea>
           <div class="row" style="gap:8px;margin-top:6px">
-            <button id="steer-note" class="btn sm" title="Hidden instruction the model follows on her next replies (not sent to him)">🎬 Inject note</button>
+            <button id="steer-next" class="btn sm" title="One-off instruction applied to her NEXT reply only, then it clears itself (e.g. 'ask him what the time is')">⏭ Next reply</button>
+            <button id="steer-note" class="btn sm" title="Ongoing hidden steer applied to every reply until cleared (e.g. 'stop funneling, be warmer')">🎬 Standing note</button>
             <button id="steer-send" class="btn sm primary" title="Send this to him now as Candace (logged as her message)">➤ Send as Candace</button>
           </div>
         </div>
@@ -981,12 +983,20 @@ async function fanDetail(slug, id) {
       </div>
     </div>`;
   const chat = $('#chat'); if (chat) chat.scrollTop = chat.scrollHeight;
+  const steerNext = $('#steer-next');
+  if (steerNext) steerNext.onclick = async () => {
+    const text = ($('#steer-text').value || '').trim();
+    if (!text) { toast('type a task first'); return; }
+    steerNext.disabled = true;
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ next_directive: text }) }); toast('queued for her next reply (one-off)'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); steerNext.disabled = false; }
+  };
   const steerNote = $('#steer-note');
   if (steerNote) steerNote.onclick = async () => {
     const text = ($('#steer-text').value || '').trim();
     if (!text) { toast('type a note first'); return; }
     steerNote.disabled = true;
-    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ director_note: text }) }); toast('note injected — steers her next reply'); fanDetail(slug, id); }
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ director_note: text }) }); toast('standing note set — steers every reply until cleared'); fanDetail(slug, id); }
     catch (e) { toast('error: ' + e.message); steerNote.disabled = false; }
   };
   const steerSend = $('#steer-send');
@@ -997,6 +1007,11 @@ async function fanDetail(slug, id) {
     steerSend.disabled = true;
     try { await api(`/accounts/${slug}/fans/${id}/send`, { method: 'POST', body: JSON.stringify({ text }) }); toast('sent as Candace'); setTimeout(() => fanDetail(slug, id), 800); }
     catch (e) { toast('error: ' + e.message); steerSend.disabled = false; }
+  };
+  const ndirClear = $('#ndir-clear');
+  if (ndirClear) ndirClear.onclick = async () => {
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ next_directive: '' }) }); toast('one-off cleared'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); }
   };
   const dnoteClear = $('#dnote-clear');
   if (dnoteClear) dnoteClear.onclick = async () => {

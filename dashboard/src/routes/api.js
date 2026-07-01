@@ -316,9 +316,9 @@ router.put('/accounts/:slug/docs/:name', wrap(async (req, res) => {
 // structured profile the responder's profiler accumulates.
 router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
-  const { stage, buyer_type, profile, director_note } = req.body || {};
-  if (stage == null && buyer_type == null && profile == null && director_note === undefined) {
-    throw Object.assign(new Error('supply stage, buyer_type, profile and/or director_note'), { status: 400 });
+  const { stage, buyer_type, profile, director_note, next_directive } = req.body || {};
+  if (stage == null && buyer_type == null && profile == null && director_note === undefined && next_directive === undefined) {
+    throw Object.assign(new Error('supply stage, buyer_type, profile, director_note and/or next_directive'), { status: 400 });
   }
   if (stage != null || buyer_type != null) {
     await rpc('dm_set_stage', {
@@ -340,6 +340,14 @@ router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
       throw Object.assign(new Error('director_note must be a string'), { status: 400 });
     }
     await rpc('dm_set_director_note', { p_fan_id: Number(req.params.id), p_note: director_note || '' });
+  }
+  // next_directive: a ONE-SHOT steer applied to her next reply, then the
+  // responder clears it (empty string / null clears it manually).
+  if (next_directive !== undefined) {
+    if (next_directive != null && typeof next_directive !== 'string') {
+      throw Object.assign(new Error('next_directive must be a string'), { status: 400 });
+    }
+    await rpc('dm_set_next_directive', { p_fan_id: Number(req.params.id), p_note: next_directive || '' });
   }
   res.json({ ok: true });
 }));

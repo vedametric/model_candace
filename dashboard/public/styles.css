@@ -106,6 +106,7 @@ input[type=search]{min-width:220px}
 .composer{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
 .composer textarea{width:100%;resize:vertical}
 .dnote{margin-top:10px;padding:8px 10px;border-radius:8px;background:#241b00;border:1px solid #5a4a00;color:#ffcc66;font-size:12px}
+.dnote.next{background:#0a2436;border-color:#1e5a7a;color:#7ec8ff}
 
 /* ---------- tables ---------- */
 table{width:100%;border-collapse:collapse;font-size:13.5px}
