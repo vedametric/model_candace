@@ -31,15 +31,18 @@
       <header id="topbar">
         <button id="navtoggle" class="btn ghost" aria-label="Menu">☰</button>
         <div id="crumb">—</div>
-        <nav id="tabs"></nav>
+        <button id="acct-chip" aria-label="Switch account"></button>
+        <nav id="tabs" role="tablist"></nav>
         <div class="spacer"></div>
-        <button id="refresh" class="btn ghost" title="Refresh">⟳</button>
+        <button id="refresh" class="btn ghost" title="Refresh" aria-label="Refresh"><span>⟳</span></button>
       </header>
       <section id="view"><div class="loading big">loading…</div></section>
+      <nav id="bottomnav" class="bottomnav" role="tablist"></nav>
     </main>
     <div id="nav-scrim"></div>
   </div>
-  <div id="toast"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="sheet-root"></div>
   <script src="app.js"></script>
 </body>
 </html>
