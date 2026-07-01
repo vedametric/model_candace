@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-06-30T13:55:14.383Z",
-  "updatedAt": "2026-07-01T15:14:24.034Z",
+  "updatedAt": "2026-07-01T15:52:57.942Z",
   "id": "e6o5Yu9GlwfRfhVR",
   "name": "Candace Admin API (fans list + link/unlink persons)",
   "active": true,
@@ -471,7 +471,8 @@
         800
       ],
       "id": "adsend05-0005-4005-8005-000000000005",
-      "name": "Send: ManyChat"
+      "name": "Send: ManyChat",
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -598,7 +599,33 @@
         900
       ],
       "id": "adsndtg0-0011-4011-8011-000000000011",
-      "name": "Send: Telegram"
+      "name": "Send: Telegram",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, error: (($json.error && ($json.error.message || $json.error)) || 'send failed — the platform rejected it (missing/invalid recipient id, or outside the messaging window)') } }}",
+        "options": {
+          "responseCode": 502,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        480,
+        1080
+      ],
+      "id": "adsndfl0-0012-4012-8012-000000000012",
+      "name": "Respond fail"
     }
   ],
   "connections": {
@@ -786,6 +813,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Respond fail",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -848,6 +882,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Respond fail",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
@@ -858,7 +899,7 @@
   "staticData": null,
   "meta": null,
   "pinData": null,
-  "versionId": "66c766fc-2b03-47df-a727-8268f3cbc4e3",
+  "versionId": "83cc4016-1ee4-4541-99f9-26ef7e9ef312",
   "triggerCount": 6,
   "shared": [
     {

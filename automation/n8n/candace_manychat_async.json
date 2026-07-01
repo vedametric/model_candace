@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-06-30T04:19:22.252Z",
-  "updatedAt": "2026-07-01T15:29:16.390Z",
+  "updatedAt": "2026-07-01T16:23:35.633Z",
   "id": "48WOVR3dC78VxYN8",
   "name": "Candace ManyChat ASYNC (debounce + random delay + API send)",
   "active": true,
@@ -81,7 +81,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { p_bot: 'candace_summers', p_platform: 'tiktok', p_username: $('Extract Inbound').first().json.username, p_display: $('Extract Inbound').first().json.display, p_user_msg: $('Extract Inbound').first().json.msg, p_window: 12 } }}",
+        "jsonBody": "={{ { p_bot: 'candace_summers', p_platform: 'tiktok', p_username: $('Extract Inbound').first().json.username, p_display: $('Extract Inbound').first().json.display, p_user_msg: $('Extract Inbound').first().json.msg, p_window: 12, p_subscriber_id: $('Extract Inbound').first().json.subscriber_id } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -925,7 +925,7 @@
   "staticData": null,
   "meta": null,
   "pinData": null,
-  "versionId": "67544031-7110-49bb-ad60-03dcb70788d7",
+  "versionId": "6aa3e0d9-c061-46ba-8605-c3e90a882951",
   "triggerCount": 1,
   "shared": [
     {
