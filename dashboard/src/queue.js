@@ -12,7 +12,20 @@ export async function queueRows(botId, { limit = 200 } = {}) {
     'events',
     `bot_id=eq.${botId}&type=in.(dm_queued,dm_sent)&order=created_at.desc&limit=${limit}`,
   );
-  return reconcile(events);
+  const rows = reconcile(events);
+  // Attach any dashboard-set hold (fans.send_after) to pending rows, so the
+  // "+15m" button visibly extends the countdown and survives a page refresh
+  // (it's persisted in the DB, not just client memory).
+  const pendingIds = [...new Set(rows.filter((r) => r.status === 'pending' && r.fan_id != null).map((r) => r.fan_id))];
+  if (pendingIds.length) {
+    try {
+      const fans = await select('fans', `id=in.(${pendingIds.join(',')})&select=id,send_after`);
+      const holdById = {};
+      fans.forEach((f) => { if (f.send_after) holdById[f.id] = f.send_after; });
+      rows.forEach((r) => { if (holdById[r.fan_id]) r.send_after = holdById[r.fan_id]; });
+    } catch (_) { /* hold is best-effort; ignore */ }
+  }
+  return rows;
 }
 
 export function reconcile(events) {
