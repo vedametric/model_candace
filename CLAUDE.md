@@ -64,6 +64,18 @@ to miss:
 - **Per-bot source of truth (Supabase):** `bots.system_prompt`, `bots.guards`
   (jsonb feature flags), `bots.settings` (jsonb: `reply_delay`, `spice`,
   `troll`, …), and `fans.*` / `fans.profile`.
+- **Send transports differ by platform — get this right before touching sends:**
+  - **TikTok** → ManyChat (`sendContent`, `content.type:"tiktok"`), keyed by
+    `fans.manychat_id` (subscriber id). Workflow: *Candace ManyChat ASYNC*.
+  - **Telegram** → the **`candace_auto_bot` Telegram Business bot**
+    (`api.telegram.org/bot<token>/sendMessage` with `business_connection_id` +
+    numeric `chat_id`), so replies come from the real account. Workflow:
+    *Candace Telegram BUSINESS* (webhook `/candace-business`). The old **Telethon
+    bridge** and *Candace Telegram ASYNC* workflow are **DEPRECATED/inactive** —
+    do not use or document them as live.
+  - Out-of-band (dashboard) sends must route by `fans.platform`; Telegram needs
+    `chat_id` + the (constant) `business_connection_id`, which the responder only
+    has live per-inbound unless persisted.
 - **⚠️ Live-first discipline (prod has drifted ahead of this repo).** The live
   n8n workflows AND Supabase functions (`dm_ingest`, etc.) are ahead of the repo
   copies. **Never recreate a live workflow or DB function from the repo version**

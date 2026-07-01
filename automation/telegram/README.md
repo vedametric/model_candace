@@ -1,85 +1,98 @@
 # automation/telegram/ — Candace on Telegram (talk & retain)
 
 Candace on **Telegram**, reusing the same brain + memory as the TikTok auto-DM
-system. Her job here (v1): **talk to people and make them crave her** — more
-personal than TikTok, **no funnel, no selling**. Spice stays **tasteful** (same
-as TikTok) for now; it's a dial that can be raised later.
+system. Her job here: **talk to people and make them crave her** — more personal
+than TikTok, **no funnel, no selling**. Spice stays **tasteful** for now (a dial
+that can be raised later).
 
-> Full design + decisions: [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md).
 > TikTok pipeline (the shared brain): [`../README.md`](../README.md).
 
-## Data flow (same shape as TikTok, different connector)
+## ⚠️ How Telegram sends now (READ THIS)
+
+Telegram sends through a **Telegram Business bot**, `candace_auto_bot`, connected
+to the real Candace account via **Telegram Business**. It is **NOT** the Telethon
+bridge anymore — the bridge (`bridge/`, and the `Candace Telegram ASYNC` workflow)
+is **deprecated / inactive**, kept only for reference.
+
+Because the bot is attached as a Business connection, its messages appear **from
+the real account** (no "bot" badge). Every outbound reply is a Telegram Bot API
+call:
+
 ```
-person DMs the Candace Telegram ACCOUNT
-  -> Telethon bridge forwards it to the n8n Telegram webhook   (bridge == ManyChat)
-     -> n8n: dedup -> dm_ingest (candace_telegram / telegram) -> per-platform delay
-        -> debounce -> classify -> OpenAI reply -> style-enforce
-           -> n8n POSTs the reply to the bridge /send
-              -> bridge sends it AS Candace (real account, no "bot" badge)
-                 -> log reply + retention profiler (Supabase)
+POST https://api.telegram.org/bot<candace_auto_bot-token>/sendMessage
+{ business_connection_id, chat_id, text }
+```
+
+Both `business_connection_id` and the numeric `chat_id` come from the inbound
+`business_message` update — they are required to send *as the account*, and they
+are currently only known live per-inbound (see "Out-of-band sends" below).
+
+## Data flow (same engine as TikTok, different connector)
+```
+person DMs the real Candace account (which has candace_auto_bot connected)
+  -> Telegram sends a `business_message` update to the n8n webhook
+     POST /webhook/candace-business
+     -> n8n: dedup -> dm_ingest (bot 'candace_telegram', platform 'telegram')
+        -> per-platform delay -> debounce -> (photo vision / voice transcription
+           if attached) -> classify -> troll gate -> Build Messages (system prompt
+           + guards + director note) -> OpenAI reply -> style-enforce
+              -> sendMessage via candace_auto_bot (business_connection_id + chat_id)
+                 -> log reply + retention profiler + cross-platform memory refresh
 ```
 Everything between `dm_ingest` and the send is the **same engine** as TikTok
-(delay, debounce, dedup, classifier, profiler, prompt-caching, queue events).
+(delay, debounce, dedup, classifier, profiler, **guards**, **troll gate**,
+**director note**, prompt-caching, queue events).
 
 ## What's different from TikTok
-- **Real user account, not a bot** — driven by the Telethon **bridge/** so there's
-  no "bot" badge. (TikTok uses ManyChat.)
+- **Sends as the real account via `candace_auto_bot`** (Telegram Business), not
+  ManyChat. No "bot" badge.
+- **Rich inbound** — handles **photos** (getFile → vision describe) and **voice
+  notes** (getFile → download → transcribe) so she can react to them.
+- **"Spark"** — a proactive re-engagement branch that can open/re-open a chat.
 - **Separate bot row** `candace_telegram` with its own `system_prompt` — TikTok
   stays locked. Funnel removed; objective re-aimed at **retention / attachment**.
-- **Per-bot delay + pause** — pacing comes from `bots.reply_delay` and the pause
-  gate from `bots.automation_paused` (same convention as the live TikTok flow), so
-  Telegram is more present than TikTok's aloof 2–10 min, tuned from the dashboard.
-- **Cross-platform memory** — `persons` table links a Telegram fan to their TikTok
-  history; the bot is fed that shared memory. Linking is **manual** in the admin
-  console (v1).
+- **Per-bot delay + pause** — pacing from `bots.reply_delay`, pause gate from
+  `bots.automation_paused` (tuned from the dashboard). More present than TikTok's
+  aloof 2–10 min.
+- **Cross-platform memory** — `persons` links a Telegram fan to their TikTok
+  history; the bot is fed the shared memory. Linking is **manual** in the console.
 
-## ✅ Live status (deployed)
-- **Supabase:** `schema.sql` + `candace_telegram.sql` applied. Both bots present
-  (`candace_summers` untouched, `candace_telegram` brain 8.8k chars, spice
-  `tasteful`, its own `reply_delay`). `persons` + link/unlink RPCs live. The
-  `dm_ingest` overload was de-duped (only the canonical 12-arg remains).
-- **n8n (all active):** `Candace Telegram ASYNC` (`/webhook/candace-telegram-async`,
-  POST), `Candace Admin API` (`/webhook/candace-admin-fans|link|unlink`), and the
-  dashboard page now serves the new admin console at
-  `/webhook/candace-queue-page`. Credentials bound (Supabase, OpenAI, bridge
-  secret). Verified end-to-end: a test inbound produced an on-voice reply and
-  logged it; only the final *send* needs the bridge online.
-- **⏳ Remaining (your move):** stand up the **bridge** on the droplet (SSH is
-  blocked from the build env, so I couldn't). Once it's up and reachable at
-  `http://134.199.145.47:8081/send`, the loop is closed.
+## Live workflows (n8n)
+| Workflow | State | What |
+|---|---|---|
+| **Candace Telegram BUSINESS** (`/webhook/candace-business`) | **ACTIVE** | The live Telegram responder. Business-bot send + photo vision + voice transcription + Spark. |
+| Candace Telegram ASYNC (`/webhook/candace-telegram-async`) | inactive | **Deprecated** Telethon-bridge version. Reference only. |
+| Candace Telegram BOT test | inactive | Old native-bot experiment. Reference only. |
+
+## Out-of-band sends (dashboard "Send as Candace")
+The responder gets `business_connection_id` + `chat_id` live from each inbound.
+For a **dashboard-initiated** send there is no inbound, so those IDs must be
+recovered:
+- `chat_id` = the fan's numeric Telegram id. `fans.username` holds the fan's
+  `@username` if they have one, else the numeric id. So chat_id is only directly
+  available for users **without** a public @username unless we persist it.
+- `business_connection_id` is **constant** for the connected account (capture it
+  once, store on the bot).
+
+The clean approach (per the current plan): reuse the responder's **own send node**
+by injecting the human's text as the reply and letting it go out on the existing
+pathway (short delay), rather than duplicating the send. TikTok out-of-band sends
+already work because `fans.manychat_id` (the ManyChat subscriber id) is stored.
 
 ## Files
 | File | What |
 |---|---|
 | `candace_telegram_persona.md` | Human-readable Telegram brain (mirror of the SQL). |
 | `../supabase/candace_telegram.sql` | Loads the brain + model + `settings` into the `candace_telegram` bot row. |
-| `../supabase/schema.sql` | (extended) `persons` table, `fans.person_id`, `bots.settings`, `dm_ingest` returns `settings` + `person_summary`, link/unlink RPCs. |
-| `../n8n/candace_telegram_async.json` | The Telegram responder workflow (clone of the ManyChat async flow, retargeted). |
-| `../n8n/candace_admin_api.json` | Admin API: list fans + `dm_link_person` / `dm_unlink_fan`. |
-| `../test/candace_queue.html` | Admin console: queue (platform-aware) + cross-platform sync UI. |
-| `bridge/` | Telethon bridge (real-account connector) + login helper + README. |
-
-## Setup (once)
-1. **DB:** run `../supabase/schema.sql` (additive, safe to re-run), then
-   `../supabase/candace_telegram.sql`. Verify:
-   ```sql
-   select slug, model, settings, length(system_prompt) as chars
-   from bots where slug = 'candace_telegram';   -- chars ~6000+
-   ```
-2. **Bridge:** see [`bridge/README.md`](./bridge/README.md) — mint a session
-   string for the Candace account, set env, run it (reply-only).
-3. **n8n:** import `candace_telegram_async.json` and `candace_admin_api.json`,
-   select the existing `supabaseApi` + OpenAI Bearer creds, and add an
-   `httpHeaderAuth` cred (`X-Bridge-Secret`) for the send node. Set the send
-   node URL to the bridge `/send` (`$env.CANDACE_BRIDGE_URL`).
-4. **Go live:** activate the workflows; warm the account up slowly.
+| `../supabase/schema.sql` | `persons`, `fans.person_id`, `bots.settings`, link/unlink RPCs, `dm_ingest`. |
+| `../n8n/*` | The live workflows are edited **in n8n** and fetched/patched live (see `../n8n/README.md` §deploy) — the JSON exports here can lag production. |
+| `bridge/` | **Deprecated** Telethon bridge (real-account connector). Not in use. |
 
 ## Manual cross-platform sync
-Open the admin console → **cross-platform sync** tab. Pick a fan, then
-**link with selected** on the same person's other-platform row. Linking merges
-their memory into a shared `persons.summary`, so Candace on Telegram immediately
-knows what they talked about on TikTok. **Unlink** reverses it.
+Admin dashboard → fans → link a fan to the same person's other-platform row.
+Linking merges their memory into a shared `persons.summary`, so Candace on
+Telegram immediately knows what they talked about on TikTok. Unlink reverses it.
 
 ## Cost
 Same model mix as TikTok (`gpt-4o` reply + `gpt-4o-mini` classifier/profiler),
-~$5–8 per 1,000 DMs with prompt caching.
+~$5–8 per 1,000 DMs with prompt caching (plus vision/transcription when used).

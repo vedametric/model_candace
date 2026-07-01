@@ -16,19 +16,22 @@ page-serving workflow at `/webhook/candace-queue-page`.
 
 ## Telegram (talk & retain)
 
-| File | What it is |
+| Workflow (in n8n) | What it is |
 |---|---|
-| **`candace_telegram_async.json`** | **The Telegram responder.** Clone of the ManyChat async flow, retargeted to the Telethon bridge (real account). Reads per-platform delay from `bots.settings`, injects cross-platform memory (`person_summary`), funnel removed, retention-tuned classifier + profiler. Webhook path `candace-telegram-async`. |
-| `candace_admin_api.json` | Admin API for the console: list fans (`/candace-admin-fans`) + `dm_link_person` (`/candace-admin-link`) + `dm_unlink_fan` (`/candace-admin-unlink`) for manual cross-platform sync, plus troll-detector config read/write (`/candace-admin-config`, `/candace-admin-config-set`) edited from `test/candace_troll_config.html`. |
+| **Candace Telegram BUSINESS** (`/webhook/candace-business`) | **The LIVE Telegram responder.** Sends **as the real account** via the `candace_auto_bot` Telegram **Business** bot (`sendMessage` with `business_connection_id` + `chat_id`) — NOT the bridge. Adds photo vision + voice transcription + a "Spark" re-engage branch. Same engine as ManyChat (delay/debounce/classifier/troll gate/director note/profiler). |
+| `candace_telegram_async.json` | **Deprecated.** Old Telethon-**bridge** version (`/webhook/candace-telegram-async`, inactive). Reference only. |
+| `candace_admin_api.json` | Admin API for the console: list fans (`/candace-admin-fans`) + `dm_link_person` (`/candace-admin-link`) + `dm_unlink_fan` (`/candace-admin-unlink`) for manual cross-platform sync; troll-detector config read/write (`/candace-admin-config`, `/candace-admin-config-set`); and **`/candace-admin-send`** (dashboard "Send as Candace"). |
 
 **Troll / zero-intent detector:** the ManyChat responder has a stateful **Troll
 Gate** (config in `bots.settings.troll`, seeded by
 `../supabase/troll_detector.sql`, shipped in `shadow_mode`). See
 `../troll_detector_design.md` for the full design and how to arm it.
 
-The Telegram send goes to the **bridge** (`automation/telegram/bridge/`), not a
-platform API — set the send node URL via `$env.CANDACE_BRIDGE_URL` and an
-`httpHeaderAuth` cred (`X-Bridge-Secret`). Full overview:
+**Telegram send = Business bot, not the bridge.** The live Telegram responder
+sends via `POST api.telegram.org/bot<candace_auto_bot>/sendMessage` with
+`{ business_connection_id, chat_id, text }`, so replies appear from the real
+account. The Telethon **bridge** (`automation/telegram/bridge/`) and the
+`candace_telegram_async` workflow are **deprecated / inactive**. Full overview:
 `automation/telegram/README.md`.
 
 **Why async:** the webhook is fire-and-forget (`responseMode: onReceived`), so
