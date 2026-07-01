@@ -363,6 +363,7 @@ const GUARD_META = {
   funnel_friction:   { label: 'Funnel friction (trouble joining TG)', type: 'text',     help: 'When a willing lead reports Telegram trouble: help lightly once, then keep him warm and leave the door open instead of dismissing him. (TikTok only.)' },
   age_gate:          { label: 'Age gate (anti-hallucination)',       type: 'toggle',   help: 'Keep an extracted age only if he stated his OWN age (first person). Blocks guess-my-age numbers.' },
   relationship_gate: { label: 'Relationship gate (anti-hallucination)', type: 'keywords', help: 'Keep a relationship status only if his messages contain one of these keywords.' },
+  spark:             { label: 'Spark follow-up (proactive re-engage)', type: 'toggle',   help: 'After a reply, sometimes send ONE extra spontaneous message to revive a quiet chat. Auto-suppressed on steered replies (director/next-reply note). Telegram only.' },
 };
 function guardsPanel(guards) {
   guards = (guards && typeof guards === 'object' && !Array.isArray(guards)) ? guards : {};
