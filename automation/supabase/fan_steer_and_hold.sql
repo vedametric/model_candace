@@ -86,3 +86,16 @@ begin
   end if;
   return jsonb_build_object('skip', false, 'remaining', 0);
 end; $$;
+
+-- Cancel a specific queued reply from the queue page: bump msg_count (abort the
+-- waiting execution at its debounce gate) AND write a dm_cancelled marker keyed
+-- to that queued message's count so the queue UI shows it as cancelled.
+create or replace function public.dm_cancel_queued(p_fan_id bigint, p_queued_count int)
+returns bigint language plpgsql as $$
+declare v_count int;
+begin
+  update public.fans set msg_count = msg_count + 1 where id = p_fan_id returning msg_count into v_count;
+  insert into public.events(fan_id, type, payload)
+  values (p_fan_id, 'dm_cancelled', jsonb_build_object('msg_count', p_queued_count));
+  return v_count;
+end; $$;
