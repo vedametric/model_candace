@@ -374,9 +374,11 @@ router.post('/accounts/:slug/fans/:id/send', wrap(async (req, res) => {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fan_id: Number(req.params.id), slug: bot.slug, text }),
   });
-  if (!r.ok) {
-    const t = await r.text().catch(() => '');
-    throw Object.assign(new Error(`send failed (${r.status}): ${t.slice(0, 150)}`), { status: 502 });
+  // Trust the body's ok flag, not just the HTTP status: the responder only
+  // returns ok:true after a confirmed platform send (never on a failed one).
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.ok === false) {
+    throw Object.assign(new Error(j.error || `send failed (${r.status})`), { status: 502 });
   }
   res.json({ ok: true });
 }));
