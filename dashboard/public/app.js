@@ -844,11 +844,13 @@ function profilePanel(f) {
   const FIELDS = [
     ['name', 'Name'], ['age', 'Age'], ['location', 'Location'],
     ['occupation', 'Occupation'], ['relationship', 'Relationship'], ['interests', 'Interests'],
+    ['guessed_salary', 'Guessed salary'],
   ];
+  const HINT = { interests: '(comma-separated)', guessed_salary: '(inferred estimate — never shown to Candace)' };
   const known = FIELDS.map(k => k[0]);
   const val = k => { const v = p[k]; return Array.isArray(v) ? v.join(', ') : (v == null ? '' : String(v)); };
   const rows = FIELDS.map(([k, lbl]) =>
-    `<div class="field"><label>${lbl}${k === 'interests' ? ' <span class="dim">(comma-separated)</span>' : ''}</label>` +
+    `<div class="field"><label>${lbl}${HINT[k] ? ` <span class="dim">${HINT[k]}</span>` : ''}</label>` +
     `<input data-pkey="${k}" value="${esc(val(k))}" placeholder="—"></div>`).join('');
   // any extra keys the model captured that aren't in the standard set
   const extra = Object.keys(p).filter(k => known.indexOf(k) === -1)
