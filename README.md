@@ -97,6 +97,16 @@ identities; once linked, her memory — including the **raw facts the profiler
 accumulates** (name, pets, job, preferences…) — follows the person across both
 platforms. Linking is manual, from the dashboard.
 
+**Structured profile (qualifying questions).** Alongside the prose memory, the
+profiler keeps a small **structured `fans.profile`** (name, age, location,
+occupation, relationship, interests) and injects it back into her replies so she
+references what she knows. On **Telegram** the classifier decides — sparingly —
+when Candace gets casually curious and slips in **one** natural qualifying
+question about a gap (never an interview); on **TikTok** she doesn't ask (the job
+there is the funnel), but any fact he volunteers is still captured. The profile
+is merged **cross-platform** in `dm_ingest` (per key, the most-recently-seen
+linked fan wins) and is viewable/editable on the dashboard fan page.
+
 **Human, not botty:** random aloof delay, rapid-message debounce, and
 duplicate-delivery protection so she never double-texts.
 
