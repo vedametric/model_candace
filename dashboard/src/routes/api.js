@@ -134,11 +134,13 @@ router.get('/accounts/:slug', wrap(async (req, res) => {
   // pull the heavy system_prompt (+ editable guards config) only here
   let system_prompt = '';
   let guards = {};
+  let troll = {};
   if (hasKey()) {
     try {
-      const r = await select('bots', `id=eq.${bot.id}&select=system_prompt,guards`);
+      const r = await select('bots', `id=eq.${bot.id}&select=system_prompt,guards,settings`);
       system_prompt = (r[0] && r[0].system_prompt) || '';
       guards = (r[0] && r[0].guards) || {};
+      troll = (r[0] && r[0].settings && r[0].settings.troll) || {};
     } catch (_) {}
   }
   res.json({
@@ -151,6 +153,7 @@ router.get('/accounts/:slug', wrap(async (req, res) => {
     reply_delay: normalizeDelay(bot.reply_delay),
     system_prompt,
     guards,
+    troll,
     hasContent: hasContent(bot.slug),
     socials: parseSocials(bot.slug),
     references: listReference(bot.slug),
@@ -284,10 +287,18 @@ router.patch('/accounts/:slug', wrap(async (req, res) => {
     if (typeof g !== 'object' || g === null || Array.isArray(g)) throw Object.assign(new Error('guards must be a json object'), { status: 400 });
     body.guards = g;
   }
-  if (!Object.keys(body).length) throw Object.assign(new Error('no editable fields supplied'), { status: 400 });
-  const updated = await patch('bots', `id=eq.${bot.id}`, body);
+  // troll / zero-intent config lives in bots.settings->'troll'; merge-write via
+  // dm_set_troll so we never clobber other settings keys (reply_delay, spice…).
+  let troll;
+  if ('troll' in (req.body || {})) {
+    const t = req.body.troll;
+    if (typeof t !== 'object' || t === null || Array.isArray(t)) throw Object.assign(new Error('troll must be a json object'), { status: 400 });
+    troll = await rpc('dm_set_troll', { p_slug: bot.slug, p_troll: t });
+  }
+  if (!Object.keys(body).length && troll === undefined) throw Object.assign(new Error('no editable fields supplied'), { status: 400 });
+  const updated = Object.keys(body).length ? await patch('bots', `id=eq.${bot.id}`, body) : [bot];
   invalidateBots();
-  res.json({ ok: true, bot: updated[0] });
+  res.json({ ok: true, bot: updated[0], troll: (troll && troll.troll) || undefined });
 }));
 
 // edit a persona markdown doc on disk; commit+push if a deploy token is present

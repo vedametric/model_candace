@@ -97,6 +97,10 @@ input[type=search]{min-width:220px}
 /* intent bar */
 .ibar{height:7px;width:90px;background:var(--surface3);border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle}
 .ibar i{display:block;height:100%;background:linear-gradient(90deg,var(--secondary),var(--primary))}
+.ibar.wide{width:140px}
+
+/* compact config grid (troll detector groups etc.) */
+.grid-mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 14px}
 
 /* ---------- tables ---------- */
 table{width:100%;border-collapse:collapse;font-size:13.5px}

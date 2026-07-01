@@ -272,6 +272,7 @@ async function persona(slug) {
       <div class="muted" style="margin-top:6px;font-size:12px">Saving writes to <code>bots.system_prompt</code> — used by the live n8n DM flow on the next message.</div>
     </div>
     ${guardsPanel(d.guards || {})}
+    ${trollPanel(d.troll || {})}
     <div class="panel"><h3>Persona docs</h3>${(d.docs || []).map(doc => docBlock(slug, doc)).join('')}</div>`;
 
   $('#save-bot').onclick = async () => {
@@ -296,6 +297,19 @@ async function persona(slug) {
       toast('guards saved — live on the next message');
     } catch (e) { toast('error: ' + e.message); }
     saveGuards.disabled = false;
+  };
+  const saveTroll = $('#save-troll');
+  if (saveTroll) saveTroll.onclick = async () => {
+    const troll = collectTroll(d.troll || {});
+    saveTroll.disabled = true;
+    try {
+      await api('/accounts/' + slug, { method: 'PATCH', body: JSON.stringify({ troll }) });
+      const fresh = await api('/accounts/' + slug);
+      d.troll = fresh.troll || {};
+      toast('troll detector saved — live on the next message');
+      persona(slug);
+    } catch (e) { toast('error: ' + e.message); }
+    saveTroll.disabled = false;
   };
   $('#pausebtn').onclick = async (ev) => {
     const paused = !d.automation_paused;
@@ -379,6 +393,64 @@ function collectGuards(current) {
     const en = document.querySelector(`#guards-panel [data-genable="${k}"]`); if (en) out[k].enabled = !!en.checked;
     const tx = document.querySelector(`#guards-panel [data-gtext="${k}"]`);   if (tx) out[k].text = tx.value;
     const kw = document.querySelector(`#guards-panel [data-gkw="${k}"]`);     if (kw) out[k].keywords = kw.value.split(',').map(s => s.trim()).filter(Boolean);
+  });
+  return out;
+}
+// troll / zero-intent detector config — stored in bots.settings->'troll',
+// applied live via the n8n Troll Gate on the next message (no redeploy).
+const TROLL_SCALARS = {
+  decay:                { label: 'Score decay per turn',   help: 'fraction of the prior troll score carried into the next turn (0–1). higher = slower to forgive.' },
+  bot_test_after_turn:  { label: '"Are you AI?" grace turns', help: 'calling her a bot only counts as a signal after this many turns.' },
+  minimal_reply_chance: { label: 'Minimal-mode reply chance', help: 'at "minimal" mode, chance she bothers to reply at all (0–1).' },
+};
+const TROLL_GROUPS = {
+  weights:       { label: 'Signal weights (points added)', help: 'how many points each time-wasting signal adds to the score.' },
+  cooldown:      { label: 'Cooldowns (points subtracted)', help: 'genuine signals that pull the score back down.' },
+  bands:         { label: 'Score bands → mode',           help: 'score thresholds that switch her into cool / minimal / ghost.' },
+  stall_ladder:  { label: 'Post-funnel stall ladder',     help: 'consecutive "telegram won\'t work / been busy" stalls that force cool / minimal / ghost.' },
+  delay_penalty: { label: 'Delay penalty (seconds)',       help: 'extra seconds added before a flagged reply is sent.' },
+};
+function trollPanel(t) {
+  t = (t && typeof t === 'object' && !Array.isArray(t)) ? t : {};
+  if (!Object.keys(t).length) return '';
+  const enabled = t.enabled !== false, shadow = t.shadow_mode !== false;
+  const stateTag = !enabled ? '<span class="tag">disabled</span>'
+    : shadow ? '<span class="tag" style="background:#5a4a00;color:#ffcc66">shadow · observing</span>'
+             : '<span class="tag" style="background:#0a3a1e;color:#3ddc84">ARMED</span>';
+  const numField = (group, key, val) =>
+    `<div class="field" style="margin:0"><label style="font-size:12px">${key}</label>
+      <input type="number" step="any" ${group ? `data-tgroup="${group}" data-tk="${key}"` : `data-tkey="${key}"`} value="${val == null ? '' : esc(String(val))}"></div>`;
+  const groupBlock = (g) => {
+    const obj = (t[g] && typeof t[g] === 'object') ? t[g] : null; if (!obj) return '';
+    const meta = TROLL_GROUPS[g];
+    return `<div class="field" style="border-top:1px solid var(--line);padding-top:10px">
+      <label><b>${meta.label}</b></label><div class="muted" style="font-size:12px;margin:2px 0 8px">${meta.help}</div>
+      <div class="grid-mini">${Object.keys(obj).map(k => numField(g, k, obj[k])).join('')}</div></div>`;
+  };
+  const scalarBlock = Object.keys(TROLL_SCALARS).filter(k => k in t).map(k =>
+    `<div class="field" style="margin:0"><label style="font-size:12px">${TROLL_SCALARS[k].label}</label>
+      <input type="number" step="any" data-tkey="${k}" value="${t[k] == null ? '' : esc(String(t[k]))}">
+      <div class="muted" style="font-size:11px">${TROLL_SCALARS[k].help}</div></div>`).join('');
+  return `<div class="panel" id="troll-panel">
+    <div class="row between"><h3 style="margin:0">Troll / zero-intent detector ${stateTag}</h3>
+      <button id="save-troll" class="btn primary sm">Save detector</button></div>
+    <div class="muted" style="margin:6px 0 10px;font-size:12px">Scores time-wasting (bot-baiting, mockery, "talk dirty first", post-funnel stalling) and escalates cool → minimal (delay penalty) → ghost (no reply). Stored in <code>bots.settings.troll</code>, applied on the next message. <b>Shadow mode</b> logs a score without changing replies — uncheck it to arm.</div>
+    <div class="field"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" data-tkey="enabled" ${enabled ? 'checked' : ''} style="width:auto"> <b>Enabled</b></label></div>
+    <div class="field"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" data-tkey="shadow_mode" ${shadow ? 'checked' : ''} style="width:auto"> <b>Shadow mode</b> <span class="muted" style="font-weight:normal">(observe + log only; uncheck to arm)</span></label></div>
+    <div class="grid-mini" style="margin:6px 0">${scalarBlock}</div>
+    ${Object.keys(TROLL_GROUPS).map(groupBlock).join('')}
+  </div>`;
+}
+function collectTroll(current) {
+  const out = JSON.parse(JSON.stringify(current || {}));
+  document.querySelectorAll('#troll-panel [data-tkey]').forEach(el => {
+    const k = el.dataset.tkey;
+    out[k] = el.type === 'checkbox' ? el.checked : (el.value === '' ? null : Number(el.value));
+  });
+  document.querySelectorAll('#troll-panel [data-tgroup]').forEach(el => {
+    const g = el.dataset.tgroup, k = el.dataset.tk;
+    if (typeof out[g] !== 'object' || out[g] === null) out[g] = {};
+    out[g][k] = el.value === '' ? null : Number(el.value);
   });
   return out;
 }
@@ -889,6 +961,7 @@ async function fanDetail(slug, id) {
             <span class="tag">${esc(md.temperature || '')}</span>
             <span class="tag">msgs ${f.msg_count}</span></div>
         </div>
+        ${trollFanPanel(md)}
         <div class="panel"><h3>Memory</h3>
           <div class="field"><label>Summary</label><div class="doc-md">${esc(f.summary || '—')}</div></div>
           ${md.technique ? `<div class="field"><label>Technique</label><div>${esc(md.technique)}</div></div>` : ''}
@@ -931,6 +1004,25 @@ async function fanDetail(slug, id) {
   };
 }
 
+// troll / zero-intent read for this fan (persisted by the profiler each turn)
+function trollFanPanel(md) {
+  md = md || {};
+  const score = (typeof md.troll_score === 'number') ? md.troll_score : null;
+  const mode = md.troll_mode || null;
+  const stall = (typeof md.stall_hits === 'number') ? md.stall_hits : null;
+  if (score == null && mode == null && stall == null) return '';
+  const col = score == null ? 'var(--line)' : score >= 85 ? '#ff5c5c' : score >= 60 ? '#ff9f43' : score >= 30 ? '#ffcc66' : '#3ddc84';
+  const modeTag = mode ? `<span class="tag" style="background:${mode==='ghost'?'#3a0a0a':mode==='minimal'?'#3a1e00':mode==='cool'?'#2a2a00':'#0a2a1a'}">${esc(mode)}</span>` : '';
+  return `<div class="panel"><h3>Troll / zero-intent ${md.troll_shadow ? '<span class="tag" style="background:#5a4a00;color:#ffcc66">shadow</span>' : ''}</h3>
+    <div class="row" style="align-items:center;gap:10px;margin-top:4px">
+      <div class="ibar wide"><i style="width:${score==null?0:Math.min(100,score)}%;background:${col}"></i></div>
+      <span class="mono">${score==null?'—':score}</span></div>
+    <div class="row" style="margin-top:10px;gap:8px">
+      <span class="tag">mode ${modeTag || '—'}</span>
+      <span class="tag">stalls ${stall==null?'—':stall}</span></div>
+    <div class="muted" style="font-size:11px;margin-top:8px">${md.troll_shadow ? 'shadow mode: scored + logged, not changing replies yet.' : 'live: cool → minimal (delay) → ghost (no reply) as this climbs.'} 0–29 engage · 30–59 cool · 60–84 minimal · 85+ ghost.</div>
+  </div>`;
+}
 // structured profile the profiler accumulates (occupation, location, age…).
 // merged cross-platform, injected back into her replies. editable here.
 function profilePanel(f) {
