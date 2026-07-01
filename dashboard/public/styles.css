@@ -329,6 +329,12 @@ details.prompt p{white-space:pre-wrap;margin:7px 0 2px}
 /* thin countdown progress bar */
 .qbar{height:6px;border-radius:var(--pill);background:var(--surface3);overflow:hidden;width:100%;max-width:150px;margin-top:5px}
 .qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent))}
+/* inline queue actions (shown on the row/card) */
+.qactions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+/* clickable status-filter pills */
+.q-filter{cursor:pointer;font:inherit;border:1px solid transparent;transition:filter var(--dur-1) var(--ease),box-shadow var(--dur-1) var(--ease)}
+.q-filter:hover{filter:brightness(.96)}
+.q-filter.on{box-shadow:0 0 0 2px var(--dark)}
 
 /* ---------- action menu (⋯) ---------- */
 .menu-btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;cursor:pointer;
@@ -438,6 +444,9 @@ details.prompt p{white-space:pre-wrap;margin:7px 0 2px}
     letter-spacing:.04em;color:var(--text-soft);text-align:left;flex:0 0 auto}
   .datacards td.truncate{max-width:none;white-space:normal;text-overflow:clip}
   .datacards td[data-label=""]::before{display:none}
+  /* action cell: label above, buttons full-width below */
+  .datacards td[data-label="Actions"]{flex-direction:column;align-items:stretch;text-align:left}
+  .datacards td[data-label="Actions"] .qactions{justify-content:flex-start;margin-top:6px}
 }
 
 /* ---------- mobile bottom nav ---------- */

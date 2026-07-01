@@ -1431,9 +1431,10 @@ let Q = [];
 let Q_FIRED = new Set(); // event_ids the user hit "send now" on (optimistic, until server confirms)
 let Q_CANCELLED = new Set(); // event_ids the user cancelled (optimistic)
 let QP = 'all';          // queue platform filter
+let QS = 'all';          // queue status filter (all | waiting | sent | debounced)
 async function queueForIdentity(key) {
   loading();
-  Q_FIRED = new Set(); Q_CANCELLED = new Set(); QP = 'all';
+  Q_FIRED = new Set(); Q_CANCELLED = new Set(); QP = 'all'; QS = 'all';
   const members = membersOf(key);
   const plats = [...new Set(members.map(botPlatform))];
   view.innerHTML = `
@@ -1442,9 +1443,9 @@ async function queueForIdentity(key) {
         <h3 class="card-title"><span class="live-dot"></span>Live message queue <span class="sub">incoming DMs, the delay she picked, and when they send</span></h3>
         <div class="card-actions">
           ${plats.length > 1 ? `<select id="q-plat"><option value="all">All platforms</option>${plats.map(p => `<option value="${p}">${sourceLabel(p)}</option>`).join('')}</select>` : ''}
-          <span class="badge warn"><span class="dot"></span>waiting <b id="q-w">0</b></span>
-          <span class="badge good"><span class="dot"></span>sent <b id="q-s">0</b></span>
-          <span class="badge neutral"><span class="dot"></span>debounced <b id="q-x">0</b></span>
+          <button class="badge warn q-filter" data-qs="waiting" title="Show only waiting"><span class="dot"></span>waiting <b id="q-w">0</b></button>
+          <button class="badge good q-filter" data-qs="sent" title="Show only sent"><span class="dot"></span>sent <b id="q-s">0</b></button>
+          <button class="badge neutral q-filter" data-qs="debounced" title="Show only debounced / cancelled / no-reply"><span class="dot"></span>debounced <b id="q-x">0</b></button>
         </div>
       </div>
       <div class="legend">
@@ -1459,6 +1460,8 @@ async function queueForIdentity(key) {
     <div class="card datacards" style="padding-top:10px"><table><thead><tr><th>Queued</th><th>Platform</th><th>User</th><th>Incoming</th><th>Delay</th><th>Status</th><th>Sends in / reply</th><th></th></tr></thead>
     <tbody id="q-body"><tr><td colspan="8" class="loading">loading…</td></tr></tbody></table></div>`;
   const sel = $('#q-plat'); if (sel) sel.onchange = e => { QP = e.target.value; qRender(key); };
+  // clickable status filters (toggle the active one back to "all")
+  view.querySelectorAll('.q-filter').forEach(b => b.onclick = () => { QS = (QS === b.dataset.qs) ? 'all' : b.dataset.qs; qRender(key); });
   async function poll() {
     try {
       const res = await Promise.all(members.map(m => api('/accounts/' + m.slug + '/queue')
@@ -1498,12 +1501,12 @@ function qRender(key) {
   const now = Date.now(); let cw = 0, cs = 0, cx = 0;
   const rows = Q.filter(r => QP === 'all' || r._platform === QP);
   const html = rows.map(r => {
-    let badge, last, actions = '';
+    let badge, last, actions = '', cat;
     const eid = String(r.event_id);
-    if (r.status === 'sent') { cs++; Q_FIRED.delete(eid); Q_CANCELLED.delete(eid); badge = '<span class="badge good"><span class="dot"></span>sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
-    else if (r.status === 'cancelled' || Q_CANCELLED.has(eid)) { cx++; Q_FIRED.delete(eid); badge = '<span class="badge neutral">cancelled</span>'; last = '<span class="dim">reply cancelled — nothing sent. send manually from the fan page.</span>'; }
-    else if (r.status === 'superseded') { cx++; Q_FIRED.delete(eid); badge = '<span class="badge neutral">debounced</span>'; last = '<span class="dim">newer message replaced this</span>'; }
-    else if (Q_FIRED.has(eid)) { cw++; badge = '<span class="badge info"><span class="dot"></span>sending…</span>'; last = '<span class="dim mono">fired — generating reply</span>'; }
+    if (r.status === 'sent') { cs++; cat = 'sent'; Q_FIRED.delete(eid); Q_CANCELLED.delete(eid); badge = '<span class="badge good"><span class="dot"></span>sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
+    else if (r.status === 'cancelled' || Q_CANCELLED.has(eid)) { cx++; cat = 'debounced'; Q_FIRED.delete(eid); badge = '<span class="badge neutral">cancelled</span>'; last = '<span class="dim">reply cancelled — nothing sent. send manually from the fan page.</span>'; }
+    else if (r.status === 'superseded') { cx++; cat = 'debounced'; Q_FIRED.delete(eid); badge = '<span class="badge neutral">debounced</span>'; last = '<span class="dim">newer message replaced this</span>'; }
+    else if (Q_FIRED.has(eid)) { cw++; cat = 'waiting'; badge = '<span class="badge info"><span class="dot"></span>sending…</span>'; last = '<span class="dim mono">fired — generating reply</span>'; }
     else {
       const base = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
       const hold = r.send_after ? new Date(r.send_after).getTime() : 0;
@@ -1511,37 +1514,36 @@ function qRender(key) {
       const heldMin = hold > base ? Math.round((hold - base) / 60000) : 0;
       const ms = sched - now;
       if (ms > 0) {
-        cw++; badge = '<span class="badge warn"><span class="dot"></span>waiting</span>';
+        cw++; cat = 'waiting'; badge = '<span class="badge warn"><span class="dot"></span>waiting</span>';
         const qat = r.queued_at ? new Date(r.queued_at).getTime() : (sched - (r.delay || 0) * 1000);
         const totalMs = Math.max(1000, sched - qat);
         const pct = Math.max(2, Math.min(100, Math.round(ms / totalMs * 100)));
         last = `<div><b class="mono">${fmtDur(ms / 1000)}</b>${heldMin > 0 ? ` <span class="tag" title="held back by the +15m button">+${heldMin}m held</span>` : ''}</div><div class="qbar"><i style="width:${pct}%"></i></div>`;
-        // actions → ⋯ menu (kept out of the polled subtree so it survives repaints)
-        const canHold = r.fan_id != null, canSend = !!r.resume_url, canCancel = r.fan_id != null;
-        if (canHold || canSend || canCancel) actions = `<button class="menu-btn" data-menu="1" data-eid="${r.event_id}" data-fan="${r.fan_id != null ? r.fan_id : ''}" data-slug="${esc(r._slug || '')}" data-resume="${canSend ? 1 : ''}" aria-label="Actions">⋯</button>`;
+        // inline actions, shown right on the row/card
+        const btns = [];
+        if (r.fan_id != null) btns.push(`<button class="btn sm" data-hold="${r.fan_id}" data-eid="${r.event_id}" data-slug="${esc(r._slug || '')}" title="Push this reply back 15 more minutes">⏱ +15m</button>`);
+        if (r.resume_url) btns.push(`<button class="btn sm" data-send="${r.event_id}" data-slug="${esc(r._slug || '')}" title="Send this reply now">➤ Send now</button>`);
+        if (r.fan_id != null) btns.push(`<button class="btn sm danger" data-cancel="1" data-eid="${r.event_id}" data-slug="${esc(r._slug || '')}" title="Cancel this reply so nothing sends — then send manually as Candace">✕ Cancel</button>`);
+        if (btns.length) actions = `<div class="qactions">${btns.join('')}</div>`;
       }
-      else if (now - sched < 90000) { cw++; badge = '<span class="badge info"><span class="dot"></span>generating…</span>'; last = '<span class="dim mono">any second</span>'; }
-      else { cx++; badge = '<span class="badge neutral">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
+      else if (now - sched < 90000) { cw++; cat = 'waiting'; badge = '<span class="badge info"><span class="dot"></span>generating…</span>'; last = '<span class="dim mono">any second</span>'; }
+      else { cx++; cat = 'debounced'; badge = '<span class="badge neutral">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
     }
+    if (QS !== 'all' && cat !== QS) return '';   // status filter
     const uname = (r.fan_id != null) ? `<a class="lnk" style="cursor:pointer" data-fan="${r.fan_id}" data-fslug="${esc(r._slug || '')}"><b>${esc(r.user)}</b></a>` : `<b>${esc(r.user)}</b>`;
     return `<tr><td class="mono dim" data-label="Queued">${fmtClock(r.queued_at)}</td><td data-label="Platform">${sourceBadge(r._platform)}</td><td data-label="User">${uname}</td>
-      <td class="truncate" data-label="Incoming">${esc(r.msg)}</td><td class="mono" data-label="Delay">${fmtDur(r.delay || 0)}</td><td data-label="Status">${badge}</td><td data-label="Sends in / reply">${last}</td><td data-label="">${actions}</td></tr>`;
-  }).join('') || '<tr><td colspan="8"><div class="empty"><span class="ico">⏱️</span><div class="t">No messages yet</div><div class="s">Incoming DMs will appear here as they arrive.</div></div></td></tr>';
+      <td class="truncate" data-label="Incoming">${esc(r.msg)}</td><td class="mono" data-label="Delay">${fmtDur(r.delay || 0)}</td><td data-label="Status">${badge}</td><td data-label="Sends in / reply">${last}</td><td data-label="Actions">${actions || '<span class="dim">—</span>'}</td></tr>`;
+  }).join('') || `<tr><td colspan="8"><div class="empty"><span class="ico">⏱️</span><div class="t">${QS === 'all' ? 'No messages yet' : 'Nothing ' + QS}</div><div class="s">${QS === 'all' ? 'Incoming DMs will appear here as they arrive.' : 'Tap the filter again to show all.'}</div></div></td></tr>`;
   $('#q-body').innerHTML = html;
   $('#q-w').textContent = cw; $('#q-s').textContent = cs; $('#q-x').textContent = cx;
+  view.querySelectorAll('.q-filter').forEach(b => b.classList.toggle('on', b.dataset.qs === QS));
   $('#q-body').querySelectorAll('[data-fan]').forEach(a => a.onclick = () => {
     const fan = a.dataset.fan, sl = a.dataset.fslug;
     if (fan && fan !== 'undefined' && sl) location.hash = `#/a/${key}/fans/${sl}.${fan}`;
   });
-  $('#q-body').querySelectorAll('[data-menu]').forEach(b => b.onclick = (e) => {
-    e.stopPropagation();
-    const eid = String(b.dataset.eid), sl = b.dataset.slug, fan = b.dataset.fan;
-    openActionMenu(b, [
-      fan ? { label: 'Hold +15 min', icon: '⏱', onClick: () => qHold(key, fan, sl, eid) } : null,
-      b.dataset.resume ? { label: 'Send now', icon: '➤', onClick: () => qSendNow(key, eid, sl) } : null,
-      fan ? { label: 'Cancel reply', icon: '✕', danger: true, onClick: () => qCancel(key, sl, eid) } : null,
-    ], 'Reply actions');
-  });
+  $('#q-body').querySelectorAll('[data-hold]').forEach(b => b.onclick = (e) => { e.stopPropagation(); b.disabled = true; qHold(key, b.dataset.hold, b.dataset.slug, String(b.dataset.eid)); });
+  $('#q-body').querySelectorAll('[data-send]').forEach(b => b.onclick = (e) => { e.stopPropagation(); qSendNow(key, String(b.dataset.send), b.dataset.slug); });
+  $('#q-body').querySelectorAll('[data-cancel]').forEach(b => b.onclick = (e) => { e.stopPropagation(); qCancel(key, b.dataset.slug, String(b.dataset.eid)); });
 }
 
 boot();
