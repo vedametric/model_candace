@@ -43,6 +43,34 @@ and must stay tasteful/SFW (suggestive, no nudity — no explicit content).
 - **Posting log:** archive every published asset in `posted images/` and append
   to `posted images/index.md` + `posted_log.json`.
 
+## 🧭 Where things live — READ THIS BEFORE BUILDING ANY ADMIN / SETTINGS / FAN-PAGE UI
+
+Read [`README.md`](./README.md) (esp. the **Admin dashboard** section + branching
+table) at the start of any automation/DM/dashboard task. Key facts that are easy
+to miss:
+
+- **The admin panel is a real, deployed app — not the `test/*.html` files.** It's
+  a Node/Express + vanilla SPA under **`dashboard/`** on branch
+  **`claude/admin-dashboard-multi-account-i2zcpq`**, live at
+  **`http://134.199.145.47`**, and **auto-deploys via GitHub Actions on push to
+  that branch.** It has accounts/**persona editor**, **fans + fan page (Profile
+  panel)**, queue, and cross-platform linking.
+- **Any human-editable setting goes IN that app** — persona/`system_prompt`,
+  behaviour **guards**, reply pacing, **troll/zero-intent config**, etc. The
+  dashboard reads/writes Supabase directly via its own `/accounts` API (`GET
+  /accounts/:slug` returns `guards`/settings; `PATCH /accounts/:slug` writes
+  them). **Do NOT build standalone HTML pages or parallel n8n webhooks for admin
+  settings — extend the dashboard app and let it deploy.**
+- **Per-bot source of truth (Supabase):** `bots.system_prompt`, `bots.guards`
+  (jsonb feature flags), `bots.settings` (jsonb: `reply_delay`, `spice`,
+  `troll`, …), and `fans.*` / `fans.profile`.
+- **⚠️ Live-first discipline (prod has drifted ahead of this repo).** The live
+  n8n workflows AND Supabase functions (`dm_ingest`, etc.) are ahead of the repo
+  copies. **Never recreate a live workflow or DB function from the repo version**
+  — always fetch the live definition and patch only the changed node/lines (see
+  `automation/README.md §10`). Recreating `dm_ingest` from an old copy silently
+  drops the `guards` + `profile` fields the responder depends on.
+
 ## 🎬 Motion-control / "put Candace in this video" workflow
 
 When the user gives a reference video (a file or a TikTok/IG link) and wants
