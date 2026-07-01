@@ -949,6 +949,14 @@ async function fanDetail(slug, id) {
     <div class="grid2">
       <div class="panel"><h3>Conversation (${(m.messages || []).length})</h3>
         <div class="chat" id="chat">${(m.messages || []).map(x => `<div class="bubble ${x.role === 'assistant' ? 'assistant' : 'user'}">${esc(x.content)}<span class="ts">${fmtClock(x.created_at)}</span></div>`).join('')}</div>
+        ${f.director_note ? `<div class="dnote" id="dnote-cur">🎬 director note: ${esc(f.director_note)} <button id="dnote-clear" class="btn sm" title="Clear the steer">clear</button></div>` : ''}
+        <div class="composer">
+          <textarea id="steer-text" rows="2" placeholder="type here — 'Inject note' steers how she replies (hidden), 'Send as Candace' messages him now"></textarea>
+          <div class="row" style="gap:8px;margin-top:6px">
+            <button id="steer-note" class="btn sm" title="Hidden instruction the model follows on her next replies (not sent to him)">🎬 Inject note</button>
+            <button id="steer-send" class="btn sm primary" title="Send this to him now as Candace (logged as her message)">➤ Send as Candace</button>
+          </div>
+        </div>
       </div>
       <div>
         ${contactPanel(f)}
@@ -973,6 +981,28 @@ async function fanDetail(slug, id) {
       </div>
     </div>`;
   const chat = $('#chat'); if (chat) chat.scrollTop = chat.scrollHeight;
+  const steerNote = $('#steer-note');
+  if (steerNote) steerNote.onclick = async () => {
+    const text = ($('#steer-text').value || '').trim();
+    if (!text) { toast('type a note first'); return; }
+    steerNote.disabled = true;
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ director_note: text }) }); toast('note injected — steers her next reply'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); steerNote.disabled = false; }
+  };
+  const steerSend = $('#steer-send');
+  if (steerSend) steerSend.onclick = async () => {
+    const text = ($('#steer-text').value || '').trim();
+    if (!text) { toast('type a message first'); return; }
+    if (!confirm('Send this to him now, as Candace?\n\n' + text)) return;
+    steerSend.disabled = true;
+    try { await api(`/accounts/${slug}/fans/${id}/send`, { method: 'POST', body: JSON.stringify({ text }) }); toast('sent as Candace'); setTimeout(() => fanDetail(slug, id), 800); }
+    catch (e) { toast('error: ' + e.message); steerSend.disabled = false; }
+  };
+  const dnoteClear = $('#dnote-clear');
+  if (dnoteClear) dnoteClear.onclick = async () => {
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ director_note: '' }) }); toast('note cleared'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); }
+  };
   $('#d-save').onclick = async () => {
     try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ stage: $('#d-stage').value, buyer_type: $('#d-buyer').value }) }); toast('funnel updated'); }
     catch (e) { toast('error: ' + e.message); }
@@ -1111,10 +1141,11 @@ function wireLinks(slug, id) {
 // ---------------- QUEUE ----------------
 let Q = [];
 let Q_FIRED = new Set(); // event_ids the user hit "send now" on (optimistic, until server confirms)
+let Q_HELD = new Map();  // event_id -> extra minutes added via "+15m" (optimistic display)
 let QP = 'all';          // queue platform filter
 async function queueForIdentity(key) {
   loading();
-  Q_FIRED = new Set(); QP = 'all';
+  Q_FIRED = new Set(); Q_HELD = new Map(); QP = 'all';
   const members = membersOf(key);
   const plats = [...new Set(members.map(botPlatform))];
   view.innerHTML = `
@@ -1152,7 +1183,7 @@ function qRender(key) {
     else {
       const sched = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
       const ms = sched - now;
-      if (ms > 0) { cw++; badge = '<span class="tag b-wait">waiting</span>'; last = `<b class="mono">${fmtDur(ms / 1000)}</b>${r.resume_url ? ` <button class="btn sm" data-send="${r.event_id}" data-slug="${esc(r._slug)}">send now</button>` : ''}`; }
+      if (ms > 0) { cw++; badge = '<span class="tag b-wait">waiting</span>'; const held = Q_HELD.get(eid); last = `<b class="mono">${fmtDur(ms / 1000)}</b>${held ? ` <span class="tag" title="extra hold added">+${held}m held</span>` : ''}${r.fan_id != null ? ` <button class="btn sm" data-hold="${r.fan_id}" data-eid="${r.event_id}" data-slug="${esc(r._slug)}" title="Push this reply back 15 more minutes">+15m</button>` : ''}${r.resume_url ? ` <button class="btn sm" data-send="${r.event_id}" data-slug="${esc(r._slug)}">send now</button>` : ''}`; }
       else if (now - sched < 90000) { cw++; badge = '<span class="tag b-flight">generating…</span>'; last = '<span class="dim mono">any second</span>'; }
       else { cx++; badge = '<span class="tag b-super">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
     }
@@ -1172,6 +1203,16 @@ function qRender(key) {
     Q_FIRED.add(ev); qRender(key); // optimistic: flip to "sending…" and drop the button now
     try { await api(`/accounts/${sl}/queue/${ev}/send-now`, { method: 'POST', body: '{}' }); toast('sent now'); }
     catch (err) { Q_FIRED.delete(ev); toast('error: ' + err.message); qRender(key); }
+  });
+  $('#q-body').querySelectorAll('[data-hold]').forEach(b => b.onclick = async (e) => {
+    e.stopPropagation();
+    const fan = b.dataset.hold, sl = b.dataset.slug, eid = String(b.dataset.eid);
+    b.disabled = true;
+    try {
+      await api(`/accounts/${sl}/fans/${fan}/hold`, { method: 'POST', body: JSON.stringify({ minutes: 15 }) });
+      Q_HELD.set(eid, (Q_HELD.get(eid) || 0) + 15);
+      toast('reply held +15m'); qRender(key);
+    } catch (err) { toast('error: ' + err.message); b.disabled = false; }
   });
 }
 

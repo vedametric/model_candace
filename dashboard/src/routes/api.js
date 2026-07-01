@@ -316,9 +316,9 @@ router.put('/accounts/:slug/docs/:name', wrap(async (req, res) => {
 // structured profile the responder's profiler accumulates.
 router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
-  const { stage, buyer_type, profile } = req.body || {};
-  if (stage == null && buyer_type == null && profile == null) {
-    throw Object.assign(new Error('supply stage, buyer_type and/or profile'), { status: 400 });
+  const { stage, buyer_type, profile, director_note } = req.body || {};
+  if (stage == null && buyer_type == null && profile == null && director_note === undefined) {
+    throw Object.assign(new Error('supply stage, buyer_type, profile and/or director_note'), { status: 400 });
   }
   if (stage != null || buyer_type != null) {
     await rpc('dm_set_stage', {
@@ -332,6 +332,43 @@ router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
       throw Object.assign(new Error('profile must be a json object'), { status: 400 });
     }
     await patch('fans', `id=eq.${Number(req.params.id)}&bot_id=eq.${bot.id}`, { profile });
+  }
+  // director's note: a hidden steer injected into the model's context on the
+  // next reply (empty string / null clears it).
+  if (director_note !== undefined) {
+    if (director_note != null && typeof director_note !== 'string') {
+      throw Object.assign(new Error('director_note must be a string'), { status: 400 });
+    }
+    await rpc('dm_set_director_note', { p_fan_id: Number(req.params.id), p_note: director_note || '' });
+  }
+  res.json({ ok: true });
+}));
+
+// "+15m" hold — push this fan's next auto-reply back by N minutes (default 15).
+router.post('/accounts/:slug/fans/:id/hold', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const minutes = Number((req.body && req.body.minutes) ?? 15);
+  if (!Number.isFinite(minutes) || minutes <= 0 || minutes > 1440) {
+    throw Object.assign(new Error('minutes must be 1–1440'), { status: 400 });
+  }
+  const send_after = await rpc('dm_add_hold', { p_fan_id: Number(req.params.id), p_minutes: Math.round(minutes) });
+  res.json({ ok: true, send_after });
+}));
+
+// send a manual message AS Candace (human takeover) — routes through n8n so it
+// logs an assistant turn and delivers on the fan's platform.
+router.post('/accounts/:slug/fans/:id/send', wrap(async (req, res) => {
+  const bot = await requireBot(req.params.slug);
+  const text = (req.body && req.body.text || '').trim();
+  if (!text) throw Object.assign(new Error('text required'), { status: 400 });
+  const base = process.env.N8N_BASE || 'https://automations.vedametric.com.au';
+  const r = await fetch(`${base}/webhook/candace-admin-send`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fan_id: Number(req.params.id), slug: bot.slug, text }),
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => '');
+    throw Object.assign(new Error(`send failed (${r.status}): ${t.slice(0, 150)}`), { status: 502 });
   }
   res.json({ ok: true });
 }));
