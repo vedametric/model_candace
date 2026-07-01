@@ -1,0 +1,123 @@
+{
+  "name": "Prune Execution Data (every 6h)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "prsched0-0001-4001-8001-000000000001",
+      "name": "Every 6h"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://automations.vedametric.com.au/api/v1/executions?limit=250",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "mvJjUVVITD6T2WS5",
+          "name": "n8n Internal API (self)"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        0
+      ],
+      "id": "prget000-0002-4002-8002-000000000002",
+      "name": "List executions"
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $json && Array.isArray($json.data) ? $json.data : (Array.isArray($json) ? $json : []);\nconst out = [];\nfor (const e of src) {\n  if (!e || e.id == null) continue;\n  if (e.waitTill || e.status === 'waiting' || e.status === 'running') continue; // never nuke an in-flight reply\n  out.push({ json: { id: e.id } });\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        0
+      ],
+      "id": "prids000-0003-4003-8003-000000000003",
+      "name": "Extract ids"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ 'https://automations.vedametric.com.au/api/v1/executions/' + $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "mvJjUVVITD6T2WS5",
+          "name": "n8n Internal API (self)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "id": "prdel000-0004-4004-8004-000000000004",
+      "name": "Delete execution"
+    }
+  ],
+  "connections": {
+    "Every 6h": {
+      "main": [
+        [
+          {
+            "node": "List executions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List executions": {
+      "main": [
+        [
+          {
+            "node": "Extract ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract ids": {
+      "main": [
+        [
+          {
+            "node": "Delete execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
