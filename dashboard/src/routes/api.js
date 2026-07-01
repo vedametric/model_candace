@@ -406,6 +406,16 @@ router.post('/accounts/:slug/fans/:id/cancel-reply', wrap(async (req, res) => {
   res.json({ ok: true, msg_count: count });
 }));
 
+// "Play hard to get": ignore this fan's next N inbound messages (log, don't reply).
+router.post('/accounts/:slug/fans/:id/ignore', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  let n = Math.round(Number((req.body && req.body.n) ?? 0));
+  if (!Number.isFinite(n) || n < 0) n = 0;
+  if (n > 50) n = 50;
+  const remaining = await rpc('dm_set_ignore', { p_fan_id: Number(req.params.id), p_n: n });
+  res.json({ ok: true, ignore_count: remaining });
+}));
+
 // pause / resume this bot's automation (flag honored by the n8n gate node)
 router.post('/accounts/:slug/automation', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);

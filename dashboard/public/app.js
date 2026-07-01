@@ -959,6 +959,13 @@ async function fanDetail(slug, id) {
             <button id="steer-note" class="btn sm" title="Ongoing hidden steer applied to every reply until cleared (e.g. 'stop funneling, be warmer')">🎬 Standing note</button>
             <button id="steer-send" class="btn sm primary" title="Send this to him now as Candace (logged as her message)">➤ Send as Candace</button>
           </div>
+          <div class="phtg">
+            <span title="She logs but does NOT reply to his next N messages, then resumes normally.">🙈 Play hard to get — ignore his next</span>
+            <input id="phtg-n" type="number" min="0" max="50" value="${f.ignore_count || 0}" style="width:60px">
+            <span>messages</span>
+            <button id="phtg-set" class="btn sm">Set</button>
+            ${(f.ignore_count > 0) ? `<span class="tag" style="background:#241b00;color:#ffcc66">ignoring next ${f.ignore_count}</span> <button id="phtg-clear" class="btn sm">clear</button>` : ''}
+          </div>
         </div>
       </div>
       <div>
@@ -1008,6 +1015,18 @@ async function fanDetail(slug, id) {
     steerSend.disabled = true;
     try { await api(`/accounts/${slug}/fans/${id}/send`, { method: 'POST', body: JSON.stringify({ text }) }); toast('sent as Candace'); setTimeout(() => fanDetail(slug, id), 800); }
     catch (e) { toast('error: ' + e.message); steerSend.disabled = false; }
+  };
+  const phtgSet = $('#phtg-set');
+  if (phtgSet) phtgSet.onclick = async () => {
+    const n = Math.max(0, Math.min(50, Number($('#phtg-n').value) || 0));
+    phtgSet.disabled = true;
+    try { await api(`/accounts/${slug}/fans/${id}/ignore`, { method: 'POST', body: JSON.stringify({ n }) }); toast(n > 0 ? `ignoring his next ${n} message${n===1?'':'s'}` : 'not ignoring'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); phtgSet.disabled = false; }
+  };
+  const phtgClear = $('#phtg-clear');
+  if (phtgClear) phtgClear.onclick = async () => {
+    try { await api(`/accounts/${slug}/fans/${id}/ignore`, { method: 'POST', body: JSON.stringify({ n: 0 }) }); toast('cleared — she\'ll reply normally'); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); }
   };
   const ndirClear = $('#ndir-clear');
   if (ndirClear) ndirClear.onclick = async () => {
