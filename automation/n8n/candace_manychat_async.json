@@ -69,7 +69,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { p_bot: 'candace_summers', p_platform: 'tiktok', p_username: $json.username, p_display: $json.display, p_user_msg: $json.msg, p_window: 12 } }}",
+        "jsonBody": "={{ { p_bot: 'candace_summers', p_platform: 'tiktok', p_username: $('Extract Inbound').first().json.username, p_display: $('Extract Inbound').first().json.display, p_user_msg: $('Extract Inbound').first().json.msg, p_window: 12 } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -376,6 +376,26 @@
       ],
       "id": "qs000001-0001-4001-8001-000000000001",
       "name": "Q: sent"
+    },
+    {
+      "name": "MIGRATE: history (addon)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1785,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://vvnefkexzhfgvuusavvl.supabase.co/rest/v1/rpc/dm_migrate_history",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_bot: 'candace_summers', p_platform: 'tiktok', p_username: $('Extract Inbound').first().json.username } }}",
+        "options": {}
+      }
     }
   ],
   "connections": {
@@ -416,7 +436,7 @@
       "main": [
         [
           {
-            "node": "DB: ingest",
+            "node": "MIGRATE: history (addon)",
             "type": "main",
             "index": 0
           }
@@ -598,6 +618,17 @@
         [
           {
             "node": "DB: patch fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MIGRATE: history (addon)": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
             "type": "main",
             "index": 0
           }
