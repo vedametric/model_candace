@@ -36,6 +36,12 @@ alter table public.bots add column if not exists reply_delay jsonb not null defa
   '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb;
 -- misc per-bot settings (e.g. telegram spice level).
 alter table public.bots add column if not exists settings jsonb not null default '{}'::jsonb;
+-- behaviour guards, editable from the dashboard Persona page. per-persona jsonb of
+-- {greeting_flat, no_question, funnel_stage_note} = {enabled,text} and
+-- {age_gate, relationship_gate} = {enabled[,keywords]}. returned by dm_ingest and
+-- read by the n8n Build Messages / Apply Profile nodes (which fall back to their
+-- built-in defaults when a key is absent). data, not code — no redeploy to tune.
+alter table public.bots add column if not exists guards jsonb not null default '{}'::jsonb;
 
 -- ---- one row per fan, per bot, per platform --------------------------------
 create table if not exists public.fans (
@@ -131,16 +137,16 @@ as $$
 declare
   v_bot_id bigint; v_fan_id bigint; v_summary text; v_stage text; v_count int;
   v_recent jsonb; v_prompt text; v_model text; v_paused boolean; v_delay jsonb;
-  v_person_id bigint; v_person_summary text; v_profile jsonb;
+  v_person_id bigint; v_person_summary text; v_profile jsonb; v_guards jsonb;
 begin
   -- bot (auto-create if new)
-  select id, system_prompt, model, automation_paused, reply_delay
-    into v_bot_id, v_prompt, v_model, v_paused, v_delay
+  select id, system_prompt, model, automation_paused, reply_delay, guards
+    into v_bot_id, v_prompt, v_model, v_paused, v_delay, v_guards
     from public.bots where slug = p_bot;
   if v_bot_id is null then
     insert into public.bots(slug, display_name) values (p_bot, p_bot)
-    returning id, system_prompt, model, automation_paused, reply_delay
-      into v_bot_id, v_prompt, v_model, v_paused, v_delay;
+    returning id, system_prompt, model, automation_paused, reply_delay, guards
+      into v_bot_id, v_prompt, v_model, v_paused, v_delay, v_guards;
   end if;
 
   -- fan (upsert) + source-platform contact fields
@@ -203,7 +209,8 @@ begin
     'reply_delay', coalesce(v_delay, '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb),
     'person_id', v_person_id,
     'person_summary', coalesce(v_person_summary, ''),
-    'profile', coalesce(v_profile, '{}'::jsonb)
+    'profile', coalesce(v_profile, '{}'::jsonb),
+    'guards', coalesce(v_guards, '{}'::jsonb)
   );
 end;
 $$;
