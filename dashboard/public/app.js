@@ -341,7 +341,9 @@ function timingPanel(d) {
 const GUARD_META = {
   greeting_flat:     { label: 'Greeting → short & flat',            type: 'text',     help: 'On a bare "hey" / one word, reply with one short cool line — no question, no probing.' },
   no_question:       { label: 'No-question line',                    type: 'text',     help: 'Used when she should make a statement instead of asking a question (classifier ask_back = false).' },
+  funnel_give:       { label: 'Funnel give (soft "massage it in")',   type: 'text',     help: 'When it is time to point him to Telegram: soft two-step (float it casually → let him ask → drop the @ offhand), never a cold drop or end-of-line CTA. (TikTok only.)' },
   funnel_stage_note: { label: 'Funnel (after telegram given)',       type: 'text',     help: 'Once funnelled: never repeat the username, no call-to-action, no eagerness. (TikTok only.)' },
+  funnel_friction:   { label: 'Funnel friction (trouble joining TG)', type: 'text',     help: 'When a willing lead reports Telegram trouble: help lightly once, then keep him warm and leave the door open instead of dismissing him. (TikTok only.)' },
   age_gate:          { label: 'Age gate (anti-hallucination)',       type: 'toggle',   help: 'Keep an extracted age only if he stated his OWN age (first person). Blocks guess-my-age numbers.' },
   relationship_gate: { label: 'Relationship gate (anti-hallucination)', type: 'keywords', help: 'Keep a relationship status only if his messages contain one of these keywords.' },
 };
