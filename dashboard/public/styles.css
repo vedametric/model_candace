@@ -104,6 +104,11 @@ th{text-align:left;color:var(--text-soft);font-weight:700;font-size:11px;text-tr
   padding:9px 11px;border-bottom:1px solid var(--line)}
 td{padding:11px;border-bottom:1px solid var(--line);vertical-align:middle}
 tbody tr{cursor:pointer}
+th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+th.sortable:hover{color:var(--primary)}
+.src-pill{cursor:pointer;user-select:none;border:1px solid transparent}
+.src-pill:hover{background:var(--surface3);filter:brightness(.97)}
+.src-pill.active{background:rgba(71,110,102,.14);color:var(--primary);border-color:var(--primary)}
 tbody tr:hover td{background:var(--surface2)}
 .mono{font-variant-numeric:tabular-nums}
 .dim{color:var(--text-soft)}

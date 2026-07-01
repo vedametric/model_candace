@@ -691,7 +691,7 @@ function postCard(p, slug) {
 }
 
 // ---------------- FANS ----------------
-let F = { rows: [], stage: 'all', buyer: 'all', q: '' };
+let F = { rows: [], stage: 'all', buyer: 'all', source: 'all', q: '', sort: { key: 'last_seen', dir: 'desc' } };
 async function fansForIdentity(key) {
   loading();
   const members = membersOf(key);
@@ -701,7 +701,7 @@ async function fansForIdentity(key) {
       .then(d => (d.fans || []).map(f => ({ ...f, _slug: m.slug }))).catch(() => [])));
     merged = res.flat();
   } catch (e) { view.innerHTML = errBox(e); return; }
-  F = { rows: merged, stage: 'all', buyer: 'all', source: 'all', q: '', key };
+  F = { rows: merged, stage: 'all', buyer: 'all', source: 'all', q: '', sort: { key: 'last_seen', dir: 'desc' }, key };
   const stages = [...new Set(F.rows.map(r => r.stage).filter(Boolean))];
   const buyers = [...new Set(F.rows.map(r => r.buyer_type).filter(Boolean))];
   // sources Candace will integrate (always show all three, even if 0 fans yet)
@@ -713,17 +713,26 @@ async function fansForIdentity(key) {
         <select id="f-source"><option value="all">All sources</option>${SOURCES.map(s => `<option value="${s}">${sourceLabel(s)} (${counts[s] || 0})</option>`).join('')}</select>
         <select id="f-stage"><option value="all">All stages</option>${stages.map(s => `<option>${esc(s)}</option>`).join('')}</select>
         <select id="f-buyer"><option value="all">All buyer types</option>${buyers.map(b => `<option>${esc(b)}</option>`).join('')}</select>
-        <span class="dim">${F.rows.length} fans</span></div>
-      <div class="row" style="gap:8px">${SOURCES.map(s => `<span class="tag">${sourceLabel(s)}: <b>${counts[s] || 0}</b></span>`).join('')}</div>
+        <span class="dim" id="f-count">${F.rows.length} fans</span></div>
+      <div class="row" style="gap:8px" id="f-pills">
+        <span class="tag src-pill" data-source="all">All: <b>${F.rows.length}</b></span>
+        ${SOURCES.map(s => `<span class="tag src-pill" data-source="${s}">${sourceLabel(s)}: <b>${counts[s] || 0}</b></span>`).join('')}
+      </div>
     </div>
-    <div class="panel"><table><thead><tr><th>Fan</th><th>Source</th><th>Stage</th><th>Buyer</th><th>Intent</th><th>Msgs</th><th>Last seen</th><th>Summary</th></tr></thead>
-    <tbody id="f-body"></tbody></table></div>`;
+    <div class="panel"><table id="f-table"></table></div>`;
   $('#f-q').oninput = e => { F.q = e.target.value.toLowerCase(); fBody(); };
   $('#f-source').onchange = e => { F.source = e.target.value; fBody(); };
   $('#f-stage').onchange = e => { F.stage = e.target.value; fBody(); };
   $('#f-buyer').onchange = e => { F.buyer = e.target.value; fBody(); };
+  // clickable source pills — filter, and stay in sync with the dropdown
+  view.querySelectorAll('.src-pill').forEach(el => el.onclick = () => {
+    F.source = el.dataset.source;
+    const sel = $('#f-source'); if (sel) sel.value = F.source;
+    fBody();
+  });
   fBody();
 }
+function sortArrow(key) { return F.sort.key === key ? (F.sort.dir === 'asc' ? ' ▲' : ' ▼') : ' <span class="dim">↕</span>'; }
 function sourceLabel(p) { return ({ instagram: '📸 Instagram', tiktok: '🎵 TikTok', telegram: '✈️ Telegram' }[p] || p); }
 function sourceBadge(p) {
   const key = (p || 'tiktok').toLowerCase();
@@ -731,10 +740,21 @@ function sourceBadge(p) {
   return `<span class="tag ${cls}">${sourceLabel(key)}</span>`;
 }
 function fBody() {
+  // keep the source pills + count in sync with the active filter
+  document.querySelectorAll('#f-pills .src-pill').forEach(el =>
+    el.classList.toggle('active', (el.dataset.source || 'all') === F.source));
   let rows = F.rows.filter(r => (F.stage === 'all' || r.stage === F.stage) && (F.buyer === 'all' || r.buyer_type === F.buyer)
     && (F.source === 'all' || (r.platform || 'tiktok').toLowerCase() === F.source));
   if (F.q) rows = rows.filter(r => (r.username + ' ' + (r.display_name || '') + ' ' + (r.first_name || '') + ' ' + (r.last_name || '') + ' ' + (r.email || '') + ' ' + (r.summary || '') + ' ' + (r.platform || '')).toLowerCase().includes(F.q));
-  $('#f-body').innerHTML = rows.map(r => {
+  // sort (time for last_seen, numeric for intent/msgs)
+  const dir = F.sort.dir === 'asc' ? 1 : -1;
+  const sv = (r) => {
+    if (F.sort.key === 'last_seen') return r.last_seen ? new Date(r.last_seen).getTime() : 0;
+    const v = r[F.sort.key]; return (v == null || v === '') ? -Infinity : v;
+  };
+  rows = rows.slice().sort((a, b) => { const av = sv(a), bv = sv(b); return av < bv ? -dir : av > bv ? dir : 0; });
+  const cnt = $('#f-count'); if (cnt) cnt.textContent = `${rows.length} fans`;
+  const body = rows.map(r => {
     const sc = r.intent_score == null ? '' : `<div class="ibar"><i style="width:${Math.min(100, r.intent_score)}%"></i></div> <span class="mono">${r.intent_score}</span>`;
     return `<tr data-id="${r.id}" data-slug="${esc(r._slug || '')}">
       <td><b>${esc(r.username)}</b>${r.person_id ? ' <span title="linked across platforms">🔗</span>' : ''}${r.display_name ? `<div class="dim">${esc(r.display_name)}</div>` : ''}</td>
@@ -744,7 +764,20 @@ function fBody() {
       <td>${sc}</td><td class="mono">${r.msg_count}</td><td class="dim">${fmtDateTime(r.last_seen)}</td>
       <td class="truncate dim">${esc(r.summary || '')}</td></tr>`;
   }).join('') || '<tr><td colspan="8" class="muted">no fans</td></tr>';
-  $('#f-body').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => location.hash = `#/a/${F.key}/fans/${tr.dataset.slug}.${tr.dataset.id}`);
+  const tbl = $('#f-table');
+  tbl.innerHTML = `<thead><tr>
+      <th>Fan</th><th>Source</th><th>Stage</th><th>Buyer</th>
+      <th class="sortable" data-sort="intent_score">Intent${sortArrow('intent_score')}</th>
+      <th class="sortable" data-sort="msg_count">Msgs${sortArrow('msg_count')}</th>
+      <th class="sortable" data-sort="last_seen">Last seen${sortArrow('last_seen')}</th>
+      <th>Summary</th></tr></thead><tbody>${body}</tbody>`;
+  tbl.querySelectorAll('th.sortable').forEach(th => th.onclick = () => {
+    const k = th.dataset.sort;
+    if (F.sort.key === k) F.sort.dir = F.sort.dir === 'asc' ? 'desc' : 'asc';
+    else F.sort = { key: k, dir: 'desc' };
+    fBody();
+  });
+  tbl.querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => location.hash = `#/a/${F.key}/fans/${tr.dataset.slug}.${tr.dataset.id}`);
 }
 
 function contactPanel(f) {
