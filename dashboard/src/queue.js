@@ -10,7 +10,7 @@ import { select } from './supabase.js';
 export async function queueRows(botId, { limit = 200 } = {}) {
   const events = await select(
     'events',
-    `bot_id=eq.${botId}&type=in.(dm_queued,dm_sent)&order=created_at.desc&limit=${limit}`,
+    `bot_id=eq.${botId}&type=in.(dm_queued,dm_sent,dm_cancelled)&order=created_at.desc&limit=${limit}`,
   );
   const rows = reconcile(events);
   // Attach any dashboard-set hold (fans.send_after) to pending rows, so the
@@ -30,11 +30,13 @@ export async function queueRows(botId, { limit = 200 } = {}) {
 
 export function reconcile(events) {
   const sent = {};
+  const cancelled = {};
   const queuedByFan = {};
   events.forEach((e) => {
     const p = e.payload || {};
     const key = e.fan_id + '|' + p.msg_count;
     if (e.type === 'dm_sent') sent[key] = { reply: p.reply, at: e.created_at };
+    if (e.type === 'dm_cancelled') cancelled[key] = e.created_at;
     if (e.type === 'dm_queued') {
       (queuedByFan[e.fan_id] = queuedByFan[e.fan_id] || []).push(p.msg_count);
     }
@@ -51,6 +53,7 @@ export function reconcile(events) {
       const key = e.fan_id + '|' + p.msg_count;
       let status;
       if (sent[key]) status = 'sent';
+      else if (cancelled[key]) status = 'cancelled';
       else if (p.msg_count < maxCount[e.fan_id]) status = 'superseded';
       else status = 'pending';
       return {

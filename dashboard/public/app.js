@@ -1212,10 +1212,10 @@ function qRender(key) {
   const html = rows.map(r => {
     let badge, last;
     const eid = String(r.event_id);
-    if (r.status === 'sent') { cs++; Q_FIRED.delete(eid); badge = '<span class="tag b-sent">sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
+    if (r.status === 'sent') { cs++; Q_FIRED.delete(eid); Q_CANCELLED.delete(eid); badge = '<span class="tag b-sent">sent</span>'; last = `<span class="dim" style="font-style:italic">${esc(r.reply || '')}</span>`; }
+    else if (r.status === 'cancelled' || Q_CANCELLED.has(eid)) { cx++; Q_FIRED.delete(eid); badge = '<span class="tag b-super">cancelled</span>'; last = '<span class="dim">reply cancelled — nothing sent. send manually from the fan page.</span>'; }
     else if (r.status === 'superseded') { cx++; Q_FIRED.delete(eid); badge = '<span class="tag b-super">debounced</span>'; last = '<span class="dim">newer message replaced this</span>'; }
     else if (Q_FIRED.has(eid)) { cw++; badge = '<span class="tag b-flight">sending…</span>'; last = '<span class="dim mono">fired — generating reply</span>'; }
-    else if (Q_CANCELLED.has(eid)) { cx++; badge = '<span class="tag b-super">cancelled</span>'; last = '<span class="dim">reply cancelled — send manually from the fan page</span>'; }
     else {
       const base = r.scheduled_for ? new Date(r.scheduled_for).getTime() : now;
       const hold = r.send_after ? new Date(r.send_after).getTime() : 0;
@@ -1258,13 +1258,14 @@ function qRender(key) {
   });
   $('#q-body').querySelectorAll('[data-cancel]').forEach(b => b.onclick = async (e) => {
     e.stopPropagation();
-    const fan = b.dataset.cancel, sl = b.dataset.slug, eid = String(b.dataset.eid);
+    const sl = b.dataset.slug, eid = String(b.dataset.eid);
     if (!confirm('Cancel this reply so nothing sends? You can then send manually as Candace.')) return;
     b.disabled = true;
+    Q_CANCELLED.add(eid); qRender(key); // optimistic; reconcile confirms it on next poll
     try {
-      await api(`/accounts/${sl}/fans/${fan}/cancel-reply`, { method: 'POST', body: '{}' });
-      Q_CANCELLED.add(eid); toast('reply cancelled — nothing will send'); qRender(key);
-    } catch (err) { toast('error: ' + err.message); b.disabled = false; }
+      await api(`/accounts/${sl}/queue/${eid}/cancel`, { method: 'POST', body: '{}' });
+      toast('reply cancelled — nothing will send');
+    } catch (err) { Q_CANCELLED.delete(eid); toast('error: ' + err.message); qRender(key); }
   });
 }
 

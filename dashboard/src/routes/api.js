@@ -406,6 +406,18 @@ router.post('/accounts/:slug/fans/:id/cancel-reply', wrap(async (req, res) => {
   res.json({ ok: true, msg_count: count });
 }));
 
+// Cancel a specific queued reply from the queue page: aborts the send AND marks
+// the row cancelled (persists on refresh) via a dm_cancelled marker.
+router.post('/accounts/:slug/queue/:eventId/cancel', wrap(async (req, res) => {
+  await requireBot(req.params.slug);
+  const ev = await select('events', `id=eq.${req.params.eventId}&select=fan_id,payload&limit=1`);
+  const row = ev[0];
+  if (!row || row.fan_id == null) throw Object.assign(new Error('queued event not found'), { status: 404 });
+  const queuedCount = row.payload && row.payload.msg_count;
+  await rpc('dm_cancel_queued', { p_fan_id: row.fan_id, p_queued_count: queuedCount ?? null });
+  res.json({ ok: true });
+}));
+
 // "Play hard to get": ignore this fan's next N inbound messages (log, don't reply).
 router.post('/accounts/:slug/fans/:id/ignore', wrap(async (req, res) => {
   await requireBot(req.params.slug);
