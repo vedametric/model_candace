@@ -341,6 +341,7 @@ function timingPanel(d) {
 const GUARD_META = {
   no_chatbot:        { label: 'Anti-chatbot voice (always on)',      type: 'text',     help: 'Kills the empathetic-assistant drift: no validating/mirroring, no interviewing, no brand words; stay short, teasing, the prize.' },
   paid_content_line: { label: 'Paid-content line (OnlyFans asks)',   type: 'text',     help: 'When he asks about OnlyFans / content / what he gets: not on OF (family), some content on Telegram. Coy, generic, no price, no hard sell.' },
+  ppv_naughty:       { label: 'PPV / naughty content',              type: 'text',     help: 'When he asks to see her / for pics / naughty content: share a tame selfie lightly, frame spicy pics as PPV — casual, no price, no hard sell, never explicit in chat. (Telegram only.)' },
   greeting_flat:     { label: 'Greeting → short & flat',            type: 'text',     help: 'On a bare "hey" / one word, reply with one short cool line — no question, no probing.' },
   no_question:       { label: 'No-question line',                    type: 'text',     help: 'Used when she should make a statement instead of asking a question (classifier ask_back = false).' },
   funnel_give:       { label: 'Funnel give (soft "massage it in")',   type: 'text',     help: 'When it is time to point him to Telegram: soft two-step (float it casually → let him ask → drop the @ offhand), never a cold drop or end-of-line CTA. (TikTok only.)' },
