@@ -125,6 +125,9 @@ export function buildPrompt(brief = {}) {
 
   const prefix = LOCKED_PREFIX.replace('{shot}', b.shot).replace('{light}', b.light);
   let body = `${IDENTITY_SENTENCE} ${actionSafe.text} in ${b.setting}. She wears ${outfitSafe.text}. ${b.mood}.`;
+  // Free-text styling (makeup, hair, "look a little younger", going-out glam, …). For a
+  // video this styles the nano_banana START FRAME, which motion control then animates.
+  if (b.details) { const d = filterSafe(b.details); notes.push(...d.notes); body += ` Styling details: ${d.text}.`; }
   if (brief.modest) body += ` ${MODESTY_CLAUSE}`;
   const tail = `${framing}. Vertical 9:16. No text.`;
   const prompt = `${prefix}\n${body}\n${tail}`.replace(/\s+\n/g, '\n').trim();
@@ -158,6 +161,7 @@ function buildReferencePrompt(brief) {
   if (s.setting) adj.push(`setting: ${s.setting}`);
   if (s.mood) adj.push(s.mood);
   if (s.framing) adj.push(`framing: ${s.framing}`);
+  if (s.details) { const d = filterSafe(s.details); notes.push(...d.notes); adj.push(`styling: ${d.text}`); }
   if (brief.modest) {
     body += `\nRender a MODEST, fully-covered version of the reference's outfit (override any ` +
       `revealing/swim wear): ${MODESTY_CLAUSE}`;
@@ -173,7 +177,7 @@ function buildReferencePrompt(brief) {
 // ---- helpers ----
 function sanitizeBrief(brief) {
   const out = {};
-  for (const k of ['shot', 'light', 'action', 'setting', 'outfit', 'framing', 'mood']) {
+  for (const k of ['shot', 'light', 'action', 'setting', 'outfit', 'framing', 'mood', 'details']) {
     if (typeof brief[k] === 'string' && brief[k].trim()) out[k] = brief[k].trim().slice(0, 600);
   }
   if (brief.framing && brief.framing.trim()) brief._framingExplicit = true;

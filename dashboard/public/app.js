@@ -437,6 +437,7 @@ async function studio(slug) {
         <div class="field"><label>Mood / expression</label><input id="s-mood" placeholder="soft confident flirty"></div>
         <div class="field span2"><label>Outfit (tasteful)</label><input id="s-outfit" placeholder="oversized knit sweater / fitted gym set — kept covered"></div>
         <div class="field span2"><label>Framing <span class="muted">(optional — blank = face-prominent default)</span></label><input id="s-framing" placeholder="CLOSE waist-up, face large &amp; sharp"></div>
+        <div class="field span2"><label>Extra details / styling <span class="muted">(makeup, hair, look a little younger, going-out glam… — for video this styles the start frame)</span></label><input id="s-details" placeholder="natural everyday makeup / going-out glam makeup / look a little younger, fresh-faced"></div>
         <div id="s-img-only" class="field"><label>How many options</label>
           <select id="s-count"><option value="2">2 (recommended)</option><option value="1">1</option><option value="3">3</option></select></div>
       </div>
@@ -493,7 +494,7 @@ async function studio(slug) {
     const brief = {
       kind, shot: $('#s-shot').value, action: $('#s-action').value, setting: $('#s-setting').value,
       outfit: $('#s-outfit').value, light: $('#s-light').value, mood: $('#s-mood').value,
-      framing: $('#s-framing').value, modest: $('#s-modest').checked,
+      framing: $('#s-framing').value, details: $('#s-details').value, modest: $('#s-modest').checked,
     };
     if (kind === 'image') brief.count = +$('#s-count').value;
     else {
@@ -515,6 +516,7 @@ async function studio(slug) {
     $('#s-shot').value = b.shot || ''; $('#s-action').value = b.action || '';
     $('#s-setting').value = b.setting || ''; $('#s-outfit').value = b.outfit || '';
     $('#s-light').value = b.light || ''; $('#s-mood').value = b.mood || ''; $('#s-framing').value = b.framing || '';
+    $('#s-details').value = b.details || '';
     $('#s-modest').checked = opts.modest || !!b.modest;
     S_CARRY = { reference_image: b.reference_image || null, parent_id: job.id };
     $('#s-carry-note').innerHTML = b.reference_image
