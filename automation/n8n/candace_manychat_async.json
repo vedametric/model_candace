@@ -10,7 +10,10 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-2160, 80],
+      "position": [
+        -2160,
+        80
+      ],
       "id": "wh000001-0001-4001-8001-000000000001",
       "name": "Webhook (ManyChat)",
       "webhookId": "candace-manychat-async"
@@ -21,7 +24,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1960, 80],
+      "position": [
+        -1960,
+        80
+      ],
       "id": "ex000001-0001-4001-8001-000000000001",
       "name": "Extract Inbound"
     },
@@ -35,7 +41,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1860, 240],
+      "position": [
+        -1860,
+        240
+      ],
       "id": "dd000001-0001-4001-8001-000000000001",
       "name": "Dedup: read fan"
     },
@@ -45,7 +54,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1810, 80],
+      "position": [
+        -1810,
+        80
+      ],
       "id": "dd000002-0002-4002-8002-000000000002",
       "name": "Dedup: gate"
     },
@@ -62,7 +74,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1760, 80],
+      "position": [
+        -1760,
+        80
+      ],
       "id": "in000001-0001-4001-8001-000000000001",
       "name": "DB: ingest"
     },
@@ -72,7 +87,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1560, 80],
+      "position": [
+        -1560,
+        80
+      ],
       "id": "dl000001-0001-4001-8001-000000000001",
       "name": "Set Delay"
     },
@@ -89,7 +107,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1460, 80],
+      "position": [
+        -1460,
+        80
+      ],
       "id": "qe000001-0001-4001-8001-000000000001",
       "name": "Q: enqueue"
     },
@@ -104,7 +125,10 @@
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [-1360, 80],
+      "position": [
+        -1360,
+        80
+      ],
       "id": "wt000001-0001-4001-8001-000000000001",
       "name": "Wait (human delay)",
       "webhookId": "wait-candace-async"
@@ -119,7 +143,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1160, 80],
+      "position": [
+        -1160,
+        80
+      ],
       "id": "gf000001-0001-4001-8001-000000000001",
       "name": "DB: get fan"
     },
@@ -129,7 +156,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-960, 80],
+      "position": [
+        -960,
+        80
+      ],
       "id": "ck000001-0001-4001-8001-000000000001",
       "name": "Check Latest"
     },
@@ -139,7 +169,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-760, 80],
+      "position": [
+        -760,
+        80
+      ],
       "id": "bc000001-0001-4001-8001-000000000001",
       "name": "Build Classify Request"
     },
@@ -156,7 +189,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-560, 80],
+      "position": [
+        -560,
+        80
+      ],
       "id": "cl000001-0001-4001-8001-000000000001",
       "name": "Classify (OpenAI)"
     },
@@ -166,7 +202,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-360, 80],
+      "position": [
+        -360,
+        80
+      ],
       "id": "bm000001-0001-4001-8001-000000000001",
       "name": "Build Messages"
     },
@@ -183,7 +222,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-160, 80],
+      "position": [
+        -160,
+        80
+      ],
       "id": "ai000001-0001-4001-8001-000000000001",
       "name": "Candace AI (OpenAI)"
     },
@@ -193,7 +235,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [40, 80],
+      "position": [
+        40,
+        80
+      ],
       "id": "fr000001-0001-4001-8001-000000000001",
       "name": "Format Reply"
     },
@@ -210,7 +255,10 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [240, 80],
+      "position": [
+        240,
+        80
+      ],
       "id": "lr000001-0001-4001-8001-000000000001",
       "name": "DB: log reply"
     },
@@ -223,7 +271,10 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -233,17 +284,23 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [440, 0],
+      "position": [
+        440,
+        0
+      ],
       "id": "mc000001-0001-4001-8001-000000000001",
       "name": "ManyChat: send reply"
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst sys = [\n'you are an expert conversion strategist for an adult creator dm funnel. candace is a flirty creator who chats with men in her dms and funnels them to her private telegram @candace_summers. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: his buying intent, where he is in the funnel, his type, and the exact technique to convert him. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"intent_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [cold, rapport, warming, hooked, funnelled, converted, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to move him closer to converting from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": two short sentences candace should remember about him, who he is and where things stand',\n'}',\n'intent_score rubric: 0-20 cold or tire kicker, low effort or skeptical, no real interest. 21-40 mild, casual chatting, no buying signals. 41-60 warming, engaged and complimenting and putting in effort. 61-80 hot, strong hooks like jealousy, calls her special or different, future talk, hints at wanting more, or spend or provider signals. 81-100 ready, explicitly asked for more or onlyfans or where to find her, eager, said he would spend or spoil her, or heading to or joined the telegram.',\n'stage: cold=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. funnelled=she has given him the telegram. converted=he has gone to or joined the telegram. lost=cold hostile or gone.',\n'technique by type: provider or baller, make him feel like the man and let him invest, funnel as exclusive access. submissive, dominate and make him earn it, funnel as a privilege. lonely or romantic, build emotional intimacy and girlfriend energy, funnel as getting closer. tire_kicker, do not over invest, keep light, let him go if no movement.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
+        "jsCode": "const ctx = $('DB: ingest').first().json || {};\nconst fr = $('Format Reply').first().json || {};\nconst recent = Array.isArray(ctx.recent) ? ctx.recent : [];\nconst lines = recent.map(function (t) { return (t.role === 'user' ? 'him: ' : 'her: ') + t.content; });\nlines.push('her: ' + (fr.reply || ''));\nconst convo = lines.join('\\n');\nconst prevNote = (ctx.summary && ctx.summary.length) ? ctx.summary : 'none';\nconst prevProfile = (ctx.profile && typeof ctx.profile === 'object' && !Array.isArray(ctx.profile)) ? ctx.profile : {};\nconst sys = [\n'you are an expert conversion strategist for an adult creator dm funnel. candace is a flirty creator who chats with men in her dms and funnels them to her private telegram @candace_summers. you read the conversation and produce an honest, accurate, unsentimental read of THIS man: his buying intent, where he is in the funnel, his type, and the exact technique to convert him. you are accurate, not optimistic. output one json object only.',\n'output exactly this json:',\n'{',\n'\"intent_score\": integer 0 to 100 by the rubric,',\n'\"stage\": one of [cold, rapport, warming, hooked, funnelled, converted, lost],',\n'\"buyer_type\": one of [provider, baller, submissive, lonely, romantic, tire_kicker, normal],',\n'\"temperature\": one of [cold, warm, hot],',\n'\"signals\": array of short evidence phrases taken from the actual conversation,',\n'\"technique\": one short line, the best technique to move him closer to converting from here,',\n'\"next_move\": one short line, the specific next thing candace should do,',\n'\"note\": two short sentences candace should remember about him, who he is and where things stand',\n'\"profile\": an object of DURABLE STRUCTURED facts about him, but ONLY when he actually revealed them in conversation (do not ask, do not guess). use ONLY these keys: name, age, location, occupation, relationship, interests. values are short strings except interests which is an array of short strings. MERGE with the previous profile given below: keep every known value, only add or correct from what he really said. omit any key still unknown.',\n'}',\n'intent_score rubric: 0-20 cold or tire kicker, low effort or skeptical, no real interest. 21-40 mild, casual chatting, no buying signals. 41-60 warming, engaged and complimenting and putting in effort. 61-80 hot, strong hooks like jealousy, calls her special or different, future talk, hints at wanting more, or spend or provider signals. 81-100 ready, explicitly asked for more or onlyfans or where to find her, eager, said he would spend or spoil her, or heading to or joined the telegram.',\n'stage: cold=just started. rapport=casual chatting. warming=clear interest building. hooked=clearly into her. funnelled=she has given him the telegram. converted=he has gone to or joined the telegram. lost=cold hostile or gone.',\n'technique by type: provider or baller, make him feel like the man and let him invest, funnel as exclusive access. submissive, dominate and make him earn it, funnel as a privilege. lonely or romantic, build emotional intimacy and girlfriend energy, funnel as getting closer. tire_kicker, do not over invest, keep light, let him go if no movement.'\n].join('\\n');\nconst usr = 'previous notes on him: ' + prevNote + '\\nprevious structured profile (merge into it, do not lose these): ' + JSON.stringify(prevProfile) + '\\nconversation so far (oldest first):\\n' + convo + '\\noutput the json now.';\nreturn [{ json: { profileMessages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], fan_id: ctx.fan_id, reply: (fr.reply || '') } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 200],
+      "position": [
+        440,
+        200
+      ],
       "id": "bp000001-0001-4001-8001-000000000001",
       "name": "Build Profile Request"
     },
@@ -260,17 +317,23 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 200],
+      "position": [
+        640,
+        200
+      ],
       "id": "pf000001-0001-4001-8001-000000000001",
       "name": "Profiler (OpenAI)"
     },
     {
       "parameters": {
-        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst reply = src.reply || '';\nlet stage = p.stage || 'rapport';\nif (/candace_summers|telegram/i.test(reply) && stage !== 'converted') stage = 'funnelled';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.intent_score === 'number') ? p.intent_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst metadata = { intent_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata } }];"
+        "jsCode": "const d = $json || {};\nlet p = {};\ntry { const raw = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) ? d.choices[0].message.content : '{}'; p = JSON.parse(raw); } catch (e) { p = {}; }\nconst src = $('Build Profile Request').first().json || {};\nconst fan_id = src.fan_id;\nconst reply = src.reply || '';\nlet stage = p.stage || 'rapport';\nif (/candace_summers|telegram/i.test(reply) && stage !== 'converted') stage = 'funnelled';\nconst note = (p.note && String(p.note).length) ? p.note : 'still building rapport.';\nconst buyer = p.buyer_type || null;\nconst score = (typeof p.intent_score === 'number') ? p.intent_score : null;\nconst interaction = ($('Extract Inbound').first().json.interaction) || null;\nconst prevProfile = (($('DB: ingest').first().json || {}).profile) || {};\nconst newProfile = (p.profile && typeof p.profile === 'object' && !Array.isArray(p.profile)) ? p.profile : {};\nconst mergedProfile = Object.assign({}, (typeof prevProfile === 'object' && !Array.isArray(prevProfile)) ? prevProfile : {});\nObject.keys(newProfile).forEach(function (k) { var v = newProfile[k]; if (v === null || v === '' || (Array.isArray(v) && v.length === 0)) return; mergedProfile[k] = v; });\nconst metadata = { intent_score: score, stage: stage, buyer_type: buyer, temperature: p.temperature || null, signals: Array.isArray(p.signals) ? p.signals : [], technique: p.technique || null, next_move: p.next_move || null, last_interaction_ts: interaction };\nreturn [{ json: { fan_id: fan_id, summary: note, stage: stage, buyer_type: buyer, metadata: metadata, profile: mergedProfile } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [840, 200],
+      "position": [
+        840,
+        200
+      ],
       "id": "ap000001-0001-4001-8001-000000000001",
       "name": "Apply Profile"
     },
@@ -282,12 +345,15 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { summary: $json.summary, stage: $json.stage, buyer_type: $json.buyer_type, metadata: $json.metadata } }}",
+        "jsonBody": "={{ { summary: $json.summary, stage: $json.stage, buyer_type: $json.buyer_type, metadata: $json.metadata, profile: $json.profile } }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1040, 200],
+      "position": [
+        1040,
+        200
+      ],
       "id": "pa000001-0001-4001-8001-000000000001",
       "name": "DB: patch fan"
     },
@@ -304,36 +370,246 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [640, 0],
+      "position": [
+        640,
+        0
+      ],
       "id": "qs000001-0001-4001-8001-000000000001",
       "name": "Q: sent"
     }
   ],
   "connections": {
-    "Webhook (ManyChat)": { "main": [[{ "node": "Extract Inbound", "type": "main", "index": 0 }]] },
-    "Extract Inbound": { "main": [[{ "node": "Dedup: read fan", "type": "main", "index": 0 }]] },
-    "Dedup: read fan": { "main": [[{ "node": "Dedup: gate", "type": "main", "index": 0 }]] },
-    "Dedup: gate": { "main": [[{ "node": "DB: ingest", "type": "main", "index": 0 }]] },
-    "DB: ingest": { "main": [[{ "node": "Set Delay", "type": "main", "index": 0 }]] },
-    "Set Delay": { "main": [[{ "node": "Q: enqueue", "type": "main", "index": 0 }]] },
-    "Q: enqueue": { "main": [[{ "node": "Wait (human delay)", "type": "main", "index": 0 }]] },
-    "Wait (human delay)": { "main": [[{ "node": "DB: get fan", "type": "main", "index": 0 }]] },
-    "DB: get fan": { "main": [[{ "node": "Check Latest", "type": "main", "index": 0 }]] },
-    "Check Latest": { "main": [[{ "node": "Build Classify Request", "type": "main", "index": 0 }]] },
-    "Build Classify Request": { "main": [[{ "node": "Classify (OpenAI)", "type": "main", "index": 0 }]] },
-    "Classify (OpenAI)": { "main": [[{ "node": "Build Messages", "type": "main", "index": 0 }]] },
-    "Build Messages": { "main": [[{ "node": "Candace AI (OpenAI)", "type": "main", "index": 0 }]] },
-    "Candace AI (OpenAI)": { "main": [[{ "node": "Format Reply", "type": "main", "index": 0 }]] },
-    "Format Reply": { "main": [[{ "node": "DB: log reply", "type": "main", "index": 0 }]] },
-    "DB: log reply": { "main": [[{ "node": "ManyChat: send reply", "type": "main", "index": 0 }, { "node": "Build Profile Request", "type": "main", "index": 0 }]] },
-    "ManyChat: send reply": { "main": [[{ "node": "Q: sent", "type": "main", "index": 0 }]] },
-    "Build Profile Request": { "main": [[{ "node": "Profiler (OpenAI)", "type": "main", "index": 0 }]] },
-    "Profiler (OpenAI)": { "main": [[{ "node": "Apply Profile", "type": "main", "index": 0 }]] },
-    "Apply Profile": { "main": [[{ "node": "DB: patch fan", "type": "main", "index": 0 }]] }
+    "Webhook (ManyChat)": {
+      "main": [
+        [
+          {
+            "node": "Extract Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inbound": {
+      "main": [
+        [
+          {
+            "node": "Dedup: read fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: read fan": {
+      "main": [
+        [
+          {
+            "node": "Dedup: gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup: gate": {
+      "main": [
+        [
+          {
+            "node": "DB: ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: ingest": {
+      "main": [
+        [
+          {
+            "node": "Set Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Delay": {
+      "main": [
+        [
+          {
+            "node": "Q: enqueue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Q: enqueue": {
+      "main": [
+        [
+          {
+            "node": "Wait (human delay)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (human delay)": {
+      "main": [
+        [
+          {
+            "node": "DB: get fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: get fan": {
+      "main": [
+        [
+          {
+            "node": "Check Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Latest": {
+      "main": [
+        [
+          {
+            "node": "Build Classify Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Classify Request": {
+      "main": [
+        [
+          {
+            "node": "Classify (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Messages": {
+      "main": [
+        [
+          {
+            "node": "Candace AI (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candace AI (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Format Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reply": {
+      "main": [
+        [
+          {
+            "node": "DB: log reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: log reply": {
+      "main": [
+        [
+          {
+            "node": "ManyChat: send reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Profile Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ManyChat: send reply": {
+      "main": [
+        [
+          {
+            "node": "Q: sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Profile Request": {
+      "main": [
+        [
+          {
+            "node": "Profiler (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profiler (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Apply Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Profile": {
+      "main": [
+        [
+          {
+            "node": "DB: patch fan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "pinData": {},
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "meta": {},
   "tags": []
 }

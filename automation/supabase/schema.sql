@@ -79,6 +79,12 @@ alter table public.fans add column if not exists phone        text;
 alter table public.fans add column if not exists subscribed_at text;
 alter table public.fans add column if not exists manychat_id  text;
 
+-- structured, durable profile the responder's profiler accumulates: a small
+-- jsonb of raw facts (name, age, location, occupation, relationship, interests).
+-- injected back into every reply so Candace references what she knows. merged
+-- cross-platform in dm_ingest (per key, the most-recently-seen linked fan wins).
+alter table public.fans add column if not exists profile jsonb not null default '{}'::jsonb;
+
 -- ---- full, permanent message log -------------------------------------------
 create table if not exists public.messages (
   id          bigint generated always as identity primary key,
@@ -125,7 +131,7 @@ as $$
 declare
   v_bot_id bigint; v_fan_id bigint; v_summary text; v_stage text; v_count int;
   v_recent jsonb; v_prompt text; v_model text; v_paused boolean; v_delay jsonb;
-  v_person_id bigint; v_person_summary text;
+  v_person_id bigint; v_person_summary text; v_profile jsonb;
 begin
   -- bot (auto-create if new)
   select id, system_prompt, model, automation_paused, reply_delay
@@ -170,6 +176,17 @@ begin
   select person_id into v_person_id from public.fans where id = v_fan_id;
   if v_person_id is not null then
     select summary into v_person_summary from public.persons where id = v_person_id;
+    -- cross-platform profile: per key, value from the most-recently-seen linked fan
+    select coalesce((
+      select jsonb_object_agg(key, value)
+      from (
+        select key, value, row_number() over (partition by key order by f.last_seen desc) rn
+        from public.fans f, lateral jsonb_each(coalesce(f.profile,'{}'::jsonb))
+        where f.person_id = v_person_id
+      ) x where rn = 1
+    ), '{}'::jsonb) into v_profile;
+  else
+    select profile into v_profile from public.fans where id = v_fan_id;
   end if;
 
   -- audit
@@ -185,7 +202,8 @@ begin
     'automation_paused', coalesce(v_paused, false),
     'reply_delay', coalesce(v_delay, '{"min_sec":120,"max_sec":600,"quick_chance":0.15,"quick_min_sec":45,"quick_max_sec":120}'::jsonb),
     'person_id', v_person_id,
-    'person_summary', coalesce(v_person_summary, '')
+    'person_summary', coalesce(v_person_summary, ''),
+    'profile', coalesce(v_profile, '{}'::jsonb)
   );
 end;
 $$;
