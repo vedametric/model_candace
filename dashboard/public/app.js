@@ -889,8 +889,14 @@ function profilePanel(f) {
   const extra = Object.keys(p).filter(k => known.indexOf(k) === -1)
     .map(k => `<div class="field"><label>${esc(k)}</label><input data-pkey="${esc(k)}" value="${esc(val(k))}"></div>`).join('');
   const filled = known.some(k => val(k)) || Object.keys(p).length;
+  // fixed identity fields straight from the platform/flow (not editable, not AI-learned)
+  const dispName = (f.display_name && f.display_name !== 'him') ? f.display_name : '—';
+  const fixedRows =
+    `<div class="field"><label>Handle <span class="dim">(from platform)</span></label><div class="doc-md">@${esc(f.username || '')}</div></div>` +
+    `<div class="field"><label>Display name <span class="dim">(from platform)</span></label><div class="doc-md">${esc(dispName)}</div></div>`;
   return `<div class="panel" id="profile-panel"><h3>Profile <span class="dim">${filled ? '' : '· nothing learned yet'}</span></h3>
-    <div class="muted" style="margin-bottom:8px;font-size:12px">structured facts Candace has learned about him (auto-filled by the profiler across TikTok + Telegram, and referenced in her replies). edit to correct.</div>
+    ${fixedRows}
+    <div class="muted" style="margin:10px 0 8px;font-size:12px">structured facts Candace has learned about him (auto-filled by the profiler across TikTok + Telegram, and referenced in her replies). edit to correct.</div>
     ${rows}${extra}
     <button id="p-save" class="btn primary sm" style="margin-top:8px">Save profile</button>
   </div>`;
