@@ -47,3 +47,16 @@ begin
   values (p_fan_id, 'hold_extended', jsonb_build_object('minutes', p_minutes, 'send_after', v_new));
   return v_new;
 end; $$;
+
+-- cancel a pending/waiting auto-reply: bump msg_count so the waiting responder
+-- execution aborts at its "Check Latest" debounce gate and sends nothing (the
+-- human then takes over with "Send as Candace"). Dashboard: queue "✕ cancel".
+create or replace function public.dm_cancel_pending_reply(p_fan_id bigint)
+returns bigint language plpgsql as $$
+declare v_count int;
+begin
+  update public.fans set msg_count = msg_count + 1 where id = p_fan_id returning msg_count into v_count;
+  insert into public.events(fan_id, type, payload)
+  values (p_fan_id, 'reply_cancelled', jsonb_build_object('msg_count', v_count));
+  return v_count;
+end; $$;
