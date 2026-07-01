@@ -131,12 +131,14 @@ router.get('/accounts', wrap(async (req, res) => {
 // ---- single account (persona) ----------------------------------------------
 router.get('/accounts/:slug', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
-  // pull the heavy system_prompt only here
+  // pull the heavy system_prompt (+ editable guards config) only here
   let system_prompt = '';
+  let guards = {};
   if (hasKey()) {
     try {
-      const r = await select('bots', `id=eq.${bot.id}&select=system_prompt`);
+      const r = await select('bots', `id=eq.${bot.id}&select=system_prompt,guards`);
       system_prompt = (r[0] && r[0].system_prompt) || '';
+      guards = (r[0] && r[0].guards) || {};
     } catch (_) {}
   }
   res.json({
@@ -148,6 +150,7 @@ router.get('/accounts/:slug', wrap(async (req, res) => {
     automation_paused: !!bot.automation_paused,
     reply_delay: normalizeDelay(bot.reply_delay),
     system_prompt,
+    guards,
     hasContent: hasContent(bot.slug),
     socials: parseSocials(bot.slug),
     references: listReference(bot.slug),
@@ -276,6 +279,11 @@ router.patch('/accounts/:slug', wrap(async (req, res) => {
   const body = {};
   for (const k of allow) if (k in (req.body || {})) body[k] = req.body[k];
   if ('reply_delay' in (req.body || {})) body.reply_delay = validateDelay(req.body.reply_delay);
+  if ('guards' in (req.body || {})) {
+    const g = req.body.guards;
+    if (typeof g !== 'object' || g === null || Array.isArray(g)) throw Object.assign(new Error('guards must be a json object'), { status: 400 });
+    body.guards = g;
+  }
   if (!Object.keys(body).length) throw Object.assign(new Error('no editable fields supplied'), { status: 400 });
   const updated = await patch('bots', `id=eq.${bot.id}`, body);
   invalidateBots();

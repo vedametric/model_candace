@@ -271,6 +271,7 @@ async function persona(slug) {
       <textarea id="f-prompt" rows="14" style="margin-top:10px">${esc(d.system_prompt || '')}</textarea>
       <div class="muted" style="margin-top:6px;font-size:12px">Saving writes to <code>bots.system_prompt</code> — used by the live n8n DM flow on the next message.</div>
     </div>
+    ${guardsPanel(d.guards || {})}
     <div class="panel"><h3>Persona docs</h3>${(d.docs || []).map(doc => docBlock(slug, doc)).join('')}</div>`;
 
   $('#save-bot').onclick = async () => {
@@ -282,6 +283,19 @@ async function persona(slug) {
   $('#save-prompt').onclick = async () => {
     try { await api('/accounts/' + slug, { method: 'PATCH', body: JSON.stringify({ system_prompt: $('#f-prompt').value }) }); toast('system prompt saved'); }
     catch (e) { toast('error: ' + e.message); }
+  };
+  const saveGuards = $('#save-guards');
+  if (saveGuards) saveGuards.onclick = async () => {
+    const guards = collectGuards(d.guards || {});
+    saveGuards.disabled = true;
+    try {
+      await api('/accounts/' + slug, { method: 'PATCH', body: JSON.stringify({ guards }) });
+      // verify → ok: re-read and confirm it persisted
+      const fresh = await api('/accounts/' + slug);
+      d.guards = fresh.guards || {};
+      toast('guards saved — live on the next message');
+    } catch (e) { toast('error: ' + e.message); }
+    saveGuards.disabled = false;
   };
   $('#pausebtn').onclick = async (ev) => {
     const paused = !d.automation_paused;
@@ -322,6 +336,46 @@ function timingPanel(d) {
       <div class="field" style="margin:0"><label>Quick delay — max (sec)</label><input id="t-qmax" type="number" min="0" value="${v.quick_max_sec}" style="width:120px"></div>
     </div>
   </div>`;
+}
+// behaviour guards editor (per persona) — stored in bots.guards, applied live via dm_ingest
+const GUARD_META = {
+  greeting_flat:     { label: 'Greeting → short & flat',            type: 'text',     help: 'On a bare "hey" / one word, reply with one short cool line — no question, no probing.' },
+  no_question:       { label: 'No-question line',                    type: 'text',     help: 'Used when she should make a statement instead of asking a question (classifier ask_back = false).' },
+  funnel_stage_note: { label: 'Funnel (after telegram given)',       type: 'text',     help: 'Once funnelled: never repeat the username, no call-to-action, no eagerness. (TikTok only.)' },
+  age_gate:          { label: 'Age gate (anti-hallucination)',       type: 'toggle',   help: 'Keep an extracted age only if he stated his OWN age (first person). Blocks guess-my-age numbers.' },
+  relationship_gate: { label: 'Relationship gate (anti-hallucination)', type: 'keywords', help: 'Keep a relationship status only if his messages contain one of these keywords.' },
+};
+function guardsPanel(guards) {
+  guards = (guards && typeof guards === 'object' && !Array.isArray(guards)) ? guards : {};
+  const keys = Object.keys(GUARD_META).filter(k => k in guards);
+  if (!keys.length) return '';
+  const block = (k) => {
+    const g = guards[k] || {}; const meta = GUARD_META[k]; const on = g.enabled !== false;
+    let body = '';
+    if (meta.type === 'text') body = `<textarea data-gtext="${k}" rows="4">${esc(g.text || '')}</textarea>`;
+    else if (meta.type === 'keywords') body = `<input data-gkw="${k}" value="${esc((g.keywords || []).join(', '))}" placeholder="single, married, girlfriend, …">`;
+    return `<div class="field" style="border-top:1px solid var(--line);padding-top:10px">
+      <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" data-genable="${k}" ${on ? 'checked' : ''} style="width:auto"> <b>${meta.label}</b></label>
+      <div class="muted" style="font-size:12px;margin:2px 0 6px">${meta.help}</div>
+      ${body}
+    </div>`;
+  };
+  return `<div class="panel" id="guards-panel">
+    <div class="row between"><h3 style="margin:0">Behavior &amp; guards</h3>
+      <button id="save-guards" class="btn primary sm">Save guards</button></div>
+    <div class="muted" style="margin:6px 0 10px;font-size:12px">Voice rules + anti-hallucination gates the live flow enforces. Stored in <code>bots.guards</code>, applied on the next message (no redeploy). Uncheck to disable a guard.</div>
+    ${keys.map(block).join('')}
+  </div>`;
+}
+function collectGuards(current) {
+  const out = JSON.parse(JSON.stringify(current || {}));
+  Object.keys(GUARD_META).forEach(k => {
+    if (!(k in out) || typeof out[k] !== 'object' || out[k] === null) return;
+    const en = document.querySelector(`#guards-panel [data-genable="${k}"]`); if (en) out[k].enabled = !!en.checked;
+    const tx = document.querySelector(`#guards-panel [data-gtext="${k}"]`);   if (tx) out[k].text = tx.value;
+    const kw = document.querySelector(`#guards-panel [data-gkw="${k}"]`);     if (kw) out[k].keywords = kw.value.split(',').map(s => s.trim()).filter(Boolean);
+  });
+  return out;
 }
 function docBlock(slug, doc) {
   return `<details class="prompt" style="margin-bottom:10px" data-docwrap="${esc(doc.name)}">
