@@ -801,6 +801,7 @@ async function fanDetail(slug, id) {
           ${md.next_move ? `<div class="field"><label>Next move</label><div>${esc(md.next_move)}</div></div>` : ''}
           ${signals ? `<div class="field"><label>Signals</label><div class="row">${signals}</div></div>` : ''}
         </div>
+        ${profilePanel(f)}
         ${linkPanel(slug, f, links)}
       </div>
     </div>`;
@@ -808,6 +809,19 @@ async function fanDetail(slug, id) {
   $('#d-save').onclick = async () => {
     try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ stage: $('#d-stage').value, buyer_type: $('#d-buyer').value }) }); toast('funnel updated'); }
     catch (e) { toast('error: ' + e.message); }
+  };
+  const psave = $('#p-save');
+  if (psave) psave.onclick = async () => {
+    const profile = {};
+    document.querySelectorAll('#profile-panel [data-pkey]').forEach(el => {
+      const k = el.getAttribute('data-pkey'); const v = el.value.trim();
+      if (!v) return;
+      profile[k] = (k === 'interests') ? v.split(',').map(s => s.trim()).filter(Boolean) : v;
+    });
+    psave.disabled = true;
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ profile }) }); toast('profile saved'); }
+    catch (e) { toast('error: ' + e.message); }
+    psave.disabled = false;
   };
   wireLinks(slug, id);
   const rb = $('#reengage');
@@ -821,6 +835,30 @@ async function fanDetail(slug, id) {
     } catch (e) { toast('error: ' + e.message); }
     rb.disabled = false; rb.textContent = '↻ Re-engage';
   };
+}
+
+// structured profile the profiler accumulates (occupation, location, age…).
+// merged cross-platform, injected back into her replies. editable here.
+function profilePanel(f) {
+  const p = (f.profile && typeof f.profile === 'object' && !Array.isArray(f.profile)) ? f.profile : {};
+  const FIELDS = [
+    ['name', 'Name'], ['age', 'Age'], ['location', 'Location'],
+    ['occupation', 'Occupation'], ['relationship', 'Relationship'], ['interests', 'Interests'],
+  ];
+  const known = FIELDS.map(k => k[0]);
+  const val = k => { const v = p[k]; return Array.isArray(v) ? v.join(', ') : (v == null ? '' : String(v)); };
+  const rows = FIELDS.map(([k, lbl]) =>
+    `<div class="field"><label>${lbl}${k === 'interests' ? ' <span class="dim">(comma-separated)</span>' : ''}</label>` +
+    `<input data-pkey="${k}" value="${esc(val(k))}" placeholder="—"></div>`).join('');
+  // any extra keys the model captured that aren't in the standard set
+  const extra = Object.keys(p).filter(k => known.indexOf(k) === -1)
+    .map(k => `<div class="field"><label>${esc(k)}</label><input data-pkey="${esc(k)}" value="${esc(val(k))}"></div>`).join('');
+  const filled = known.some(k => val(k)) || Object.keys(p).length;
+  return `<div class="panel" id="profile-panel"><h3>Profile <span class="dim">${filled ? '' : '· nothing learned yet'}</span></h3>
+    <div class="muted" style="margin-bottom:8px;font-size:12px">structured facts Candace has learned about him (auto-filled by the profiler across TikTok + Telegram, and referenced in her replies). edit to correct.</div>
+    ${rows}${extra}
+    <button id="p-save" class="btn primary sm" style="margin-top:8px">Save profile</button>
+  </div>`;
 }
 
 // cross-platform identity panel — shows linked profiles (click through to them)

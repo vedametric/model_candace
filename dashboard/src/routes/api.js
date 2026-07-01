@@ -293,18 +293,27 @@ router.put('/accounts/:slug/docs/:name', wrap(async (req, res) => {
   res.json({ ok: true, path: filePath, git });
 }));
 
-// set a fan's funnel stage / buyer type via the dm_set_stage RPC
+// set a fan's funnel stage / buyer type (via dm_set_stage RPC) and/or the
+// structured profile the responder's profiler accumulates.
 router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
-  await requireBot(req.params.slug);
-  const { stage, buyer_type } = req.body || {};
-  if (stage == null && buyer_type == null) {
-    throw Object.assign(new Error('supply stage and/or buyer_type'), { status: 400 });
+  const bot = await requireBot(req.params.slug);
+  const { stage, buyer_type, profile } = req.body || {};
+  if (stage == null && buyer_type == null && profile == null) {
+    throw Object.assign(new Error('supply stage, buyer_type and/or profile'), { status: 400 });
   }
-  await rpc('dm_set_stage', {
-    p_fan_id: Number(req.params.id),
-    p_stage: stage ?? null,
-    p_buyer_type: buyer_type ?? null,
-  });
+  if (stage != null || buyer_type != null) {
+    await rpc('dm_set_stage', {
+      p_fan_id: Number(req.params.id),
+      p_stage: stage ?? null,
+      p_buyer_type: buyer_type ?? null,
+    });
+  }
+  if (profile != null) {
+    if (typeof profile !== 'object' || Array.isArray(profile)) {
+      throw Object.assign(new Error('profile must be a json object'), { status: 400 });
+    }
+    await patch('fans', `id=eq.${Number(req.params.id)}&bot_id=eq.${bot.id}`, { profile });
+  }
   res.json({ ok: true });
 }));
 
