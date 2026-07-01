@@ -44,6 +44,10 @@ _Started with two sunset surf-walk frames (hot-pink hibiscus two-piece). User pi
 _Identity reference (`49aff4e5`). A = full side-profile head-to-toe (best pose match to the driving clip); B = 3/4 turn, face larger._
 > Authentic UGC iPhone mirror selfie taken in a gym, candid and unposed, natural gym lighting, no studio, no professional lighting, NOT retouched, natural skin texture, slightly imperfect handheld framing, phone visible held up to the mirror. The woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure. She stands side-on / side profile to a full-length gym mirror, taking a mirror selfie with her phone held up near her face, posing confidently. She wears a fitted black workout tank top and cute pink high-waisted gym shorts, with white sneakers and ankle socks. Behind her is a casual gym with equipment and dark mirrored walls. Her FACE is clear and in focus, fine facial detail. Candid cheeky-but-cute fitness vibe, tasteful, no nudity. Vertical 9:16. No text.
 
+### glam-bathroom A/B · `ea3a3eb7` (chosen) · `fda67867`  (native 2k; matches a sophieraiin glam-bathroom motion ref)
+_Identity reference (`49aff4e5`). Candace in a glam hotel bathroom, leopard-print + floral chiffon two-piece._
+> Authentic UGC iPhone photo, candid, warm natural ambient indoor evening light from wall sconces (no studio, no professional lighting), NOT retouched, natural skin texture. The woman from the reference image — keep her EXACT same face, long blonde hair, blue eyes, fair light skin and petite curvy figure — standing in a stylish hotel bathroom with a large mirror, a vanity counter with scattered beauty products, and a red door in the background. She wears a cute glam leopard-print and floral chiffon two-piece set: a plunging tie-front halter crop top with a matching low-rise ruched mini skirt (tasteful, fully covered, no nudity), with gold bangle bracelets and a dainty gold necklace, glam smokey-eye makeup and glossy lips. Confident sultry pose with one hand on her hip, front-facing, three-quarter body framing (head to mid-thigh), her face clear and in focus. Vertical 9:16. No text.
+
 ---
 
 ## Videos — seedance_2_0 (silent, 9:16)
@@ -87,3 +91,4 @@ why the nighty clip held identity far better than the gym one).
 | gym-mirror-A-motion · `ca3df7db` | `8feaf367` | user ref (Ellie-hub gym mirror selfie) | image | 720p |
 | beach-walk-motion · `5bd2305e` | `c51d30fa` | user ref (sophieraiin beach walk) | image | 1080p out |
 | beach-walk2-motion · `6ea7177a` | `c51d30fa` (same as #1) | user ref (sophieraiin beach #2) | image | 1080p out |
+| glam-bathroom-motion · `4f0b4aef` | `ea3a3eb7` | user ref (sophieraiin glam bathroom) | image | 1080p out |

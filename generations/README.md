@@ -109,5 +109,15 @@ via Higgsfield. Sessions: 2026-06-26 (persona v1 ref `0a3e996d…`) and 2026-06-
 | `2026-06-28_beach-walk-motion_5bd2305e.mp4` | motion | `5bd2305e` | animated from beach-glam-A + sophieraiin beach-walk ref (9s, 1080p out) |
 | `2026-06-28_beach-walk2-motion_6ea7177a.mp4` | motion | `6ea7177a` | SAME start frame (c51d30fa) as #1 + 2nd TikTok motion ref → identical Candace, new motion (8s, 1080p out) |
 
+## 2026-07-01 — glam hotel bathroom
+
+**Glam bathroom** (leopard + floral chiffon two-piece — native 2k, + motion control; matches a sophieraiin glam-bathroom clip):
+
+| File | Type | Job ID | Notes |
+|---|---|---|---|
+| `2026-07-01_glam-bathroom-A_ea3a3eb7.png` | image | `ea3a3eb7` | ✅ chosen → animated (hand-on-hip sultry) |
+| `2026-07-01_glam-bathroom-B_fda67867.png` | image | `fda67867` | alt (hand on vanity, softer) |
+| `2026-07-01_glam-bathroom-motion_4f0b4aef.mp4` | motion | `4f0b4aef` | animated from glam-bathroom-A + sophieraiin ref (13s, 1080p out); outfit + aesthetic matched, identity held |
+
 _All generations follow the locked CANDACE SYSTEM INSTRUCTIONS where applicable
 (see `../soul.md` §0 and `../CLAUDE.md`)._

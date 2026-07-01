@@ -59,6 +59,13 @@ P_BEACHGLAM = ("Iterated from the beach-sunset frame (identity ref + c6c91485 as
     "bikini top, with matching skin-tight SHORT light-pink booty shorts (higher on the thigh). More makeup — glam "
     "but natural beach look: defined eyes, mascara/lashes, bronzy eyeshadow, blush, glossy nude-pink lips. Fully "
     "covered, tasteful, no nudity. Candid mid-stride, face clear. Vertical 9:16. No text.")
+P_GLAMBATH = ("Authentic UGC iPhone photo, candid, warm natural ambient indoor evening light from wall sconces "
+    "(no studio, no professional lighting), NOT retouched. Candace (exact face, long blonde hair, blue eyes, fair "
+    "skin, petite curvy figure) in a stylish hotel bathroom (large mirror, vanity with beauty products, red door). "
+    "Glam leopard-print + floral chiffon two-piece: plunging tie-front halter crop top + matching low-rise ruched "
+    "mini skirt (tasteful, fully covered, no nudity), gold bangle bracelets, dainty gold necklace, glam smokey-eye "
+    "makeup and glossy lips. Confident sultry pose, one hand on hip, front-facing, three-quarter body, face clear. "
+    "Vertical 9:16. No text. [matches a sophieraiin glam-bathroom motion ref]")
 
 # filename -> metadata
 META = {
@@ -123,6 +130,10 @@ META = {
  # 2026-06-29 gym mirror re-render (phone now in hand)
  "2026-06-29_gym-mirror-A-motion-v2_9d22a08f.mp4": dict(model="motion_control 720p", job="9d22a08f", cost=23, batch="gym-mirror", at="2026-06-29T04:27Z", src="8feaf367", prompt="Kling 3.0 Motion Control. Still=gym-mirror-A (8feaf367), driven by Ellie-hub gym mirror-selfie ref (b08319ff). Scene from image. 13s, 720p. Re-render of ca3df7db.", notes="re-render: motion control still warped the held phone — superseded by the Seedance v3 below"),
  "2026-06-29_gym-mirror-seedance-v3_09489cc6.mp4": dict(model="seedance_2_0 (720p)", job="09489cc6", cost=36, batch="gym-mirror", at="2026-06-29T04:44Z", src="8feaf367", prompt="Seedance 2.0 image-to-video (start_image = gym-mirror-A 8feaf367), silent, 8s, 720p. Prompt: keep holding phone in right hand the ENTIRE time taking a mirror selfie, phone stays firmly/naturally in grip, subtle posing (weight shift, hip turn, free hand touches hair, glance at reflection).", notes="PHONE FIX: switched from motion_control to Seedance i2v + prompt so the phone stays naturally held throughout"),
+ # 2026-07-01 glam hotel bathroom (leopard + floral chiffon) — matches a sophieraiin motion ref
+ "2026-07-01_glam-bathroom-A_ea3a3eb7.png": dict(model="nano_banana_pro", job="ea3a3eb7", cost=2, batch="glam-bathroom", at="2026-07-01T14:03Z", prompt=P_GLAMBATH, notes="2k, CHOSEN -> animated (hand-on-hip sultry)"),
+ "2026-07-01_glam-bathroom-B_fda67867.png": dict(model="nano_banana_pro", job="fda67867", cost=2, batch="glam-bathroom", at="2026-07-01T14:06Z", prompt=P_GLAMBATH, notes="2k, alt (hand on vanity, softer)"),
+ "2026-07-01_glam-bathroom-motion_4f0b4aef.mp4": dict(model="motion_control 1080p", job="4f0b4aef", cost=23, batch="glam-bathroom", at="2026-07-01T14:16Z", src="ea3a3eb7", prompt="Kling 3.0 Motion Control. Still=glam-bathroom-A (ea3a3eb7), driven by user sophieraiin glam-bathroom motion ref (016aed57, sultry getting-ready posing). Scene from image. 13s, output 1080p.", notes="outfit + aesthetic matched; face/identity held"),
 }
 
 def human(n):
@@ -160,7 +171,7 @@ total_size = sum(i["size_bytes"] for i in items)
 # balance_start = balance right before Candace's first generation this project.
 # balance_now   = update each time you rebuild (Higgsfield `balance` tool).
 BALANCE_START = 1688.55
-BALANCE_NOW   = 308.98   # as of 2026-06-29 ~05:18 UTC
+BALANCE_NOW   = 150.98   # as of 2026-07-01 ~15:02 UTC
 net_spent = round(BALANCE_START - BALANCE_NOW, 2)
 
 out = {
