@@ -10,6 +10,17 @@ read that masterfile too; this runbook does not replace it, it sequences it.
 > pre-bakes the locked rules into `prompt`, but YOU are the last line of defense — keep
 > it UGC/natural-light/candid/not-retouched/SFW, identity ref first, 2k, count:2.
 
+> **Age / "look younger" policy (do NOT over-decline).** Candace is an adult persona
+> (canonically 21). A brief may ask her to read a little younger (e.g. "look younger",
+> "around 20") — that is fine and you SHOULD generate it: she stays a clearly adult woman
+> in her early twenties. The dashboard already runs `ageSafe`, which appends an ADULT
+> ANCHOR ("unmistakably an adult woman… never a minor, never child-like") whenever a
+> younger look is requested, and clamps any under-18 age up to a clearly-adult look. The
+> ONLY hard floor: never depict her as a minor / under 18 / child-like. If (and only if) a
+> prompt actually pushes a minor/child look, edit it back to a clearly-adult early-twenties
+> look and proceed — do not just reject an adult "look younger" request. Ages 18–21 in a
+> tasteful/SFW brief are in-bounds.
+
 ## How to run
 
 **On-demand:** in a Claude session with the Higgsfield + Supabase MCPs, say
@@ -62,6 +73,14 @@ Keep messages short and concrete (model, job id, what's happening, credits if kn
        generically — ADD the concrete scene/pose/outfit/props you actually see (e.g.
        "holding a fishing rod, standing in a sunlit living room with a bookshelf behind
        her") so banana reproduces it faithfully, while keeping Candace's identity.
+     - **Motion-control start frame — match the SOURCE clip's wardrobe.** For a `kind=video`
+       `motion_control` job with a `driving_video` but NO `reference_image`, the prompt now
+       says "keep her clothing consistent with the driving clip" instead of a default outfit
+       (we do NOT override the source video's clothing style). To honor that: download the
+       driving clip (`yt-dlp`, §6), extract a representative frame (`imageio`), upload it as
+       the **2nd `image`** the same way, and ADD the concrete outfit/scene you see so the
+       start frame matches what she's actually wearing in the clip. Do not invent a generic
+       outfit.
    - Use the row's `prompt` (already compliant). If it still reads filter-risky, reword
      per §4.4 before spending.
    - Poll `job_display`. For each completed option, get its CloudFront URL. Write them to

@@ -72,6 +72,36 @@ export const MODESTY_CLAUSE =
   'She is fully covered in a modest, tasteful outfit — opaque lightweight fabric, modest ' +
   'neckline, shoulders and midriff covered, no skin exposure beyond face/arms, no nudity.';
 
+// Adult anchor — appended whenever the brief asks for a younger / age-styled look, so a
+// "look younger" request stays locked to a CLEARLY ADULT woman and can never drift toward
+// a minor. Candace's canonical age is 21; this lets her read a little younger (~20) while
+// remaining unmistakably an adult.
+export const ADULT_ANCHOR =
+  'She is unmistakably an adult woman in her early twenties (around 20), with mature adult ' +
+  'facial features and adult proportions — clearly of legal adult age, never a minor, never child-like.';
+
+// Age/youth safety pass on the free-text styling. Keeps youthful-adult styling (the user may
+// want her to read ~20 instead of 21) but enforces a hard adult floor: any age under 18, or
+// any minor/child-implying wording, is rewritten to a clearly-adult look. Returns
+// { text, notes, youth } — youth=true means append ADULT_ANCHOR.
+export function ageSafe(text) {
+  if (!text) return { text: '', notes: [], youth: false };
+  let t = text; const notes = []; let youth = false;
+  // minor / near-minor wording → youthful ADULT (never a minor)
+  const minorTerms = /\b(teen(ager|aged)?|school[-\s]?girl|child(ish|like)?|kiddie|minor|under[-\s]?age|pre[-\s]?teen|jail[-\s]?bait|lolita?|barely[-\s]?legal|little\s+girl|young\s+girl)\b/gi;
+  if (minorTerms.test(t)) { t = t.replace(minorTerms, 'youthful adult'); notes.push('rewrote minor-implying wording → "youthful adult" (adult floor)'); youth = true; }
+  // explicit ages in an age context; clamp anything under 18 up to a clearly-adult look
+  const ageCtx = /(\b(?:looks?|look|aged?|age|about|around|like|appears?)\s+)(\d{1,2})\b|\b(\d{1,2})(\s*(?:yo\b|y\/o\b|years?\s*old\b|year[-\s]?old\b))/gi;
+  t = t.replace(ageCtx, (m, pre, a, b, suf) => {
+    const num = (a != null) ? a : b; const n = parseInt(num, 10);
+    if (n < 18) { notes.push(`requested age ${n} is under the adult floor → styled as clearly-adult early twenties (20)`); youth = true; return m.replace(num, '20'); }
+    if (n <= 21) youth = true; // a younger-but-adult look was asked for
+    return m;
+  });
+  if (/\byoung(er)?\b|\byouthful\b|\bfresh[-\s]?faced\b|\bbaby[-\s]?faced\b/i.test(t)) youth = true;
+  return { text: t, notes, youth };
+}
+
 // Suggest the video method per the §5 decision guide.
 //  - held object (phone/drink/glasses) → Seedance (only reliable way to keep it natural)
 //  - a driving clip provided + no held object → Motion Control (faithful motion copy)
@@ -119,15 +149,27 @@ export function buildPrompt(brief = {}) {
     ? 'CLOSE waist-up framing with her FACE LARGE, SHARP and clearly in focus (start frame for animation)'
     : b.framing;
 
-  const outfitSafe = filterSafe(b.outfit);
   const actionSafe = filterSafe(b.action);
-  const notes = [...outfitSafe.notes, ...actionSafe.notes];
+  const notes = [...actionSafe.notes];
+  // Only dictate an outfit when the user actually named one. On a VIDEO start frame we must
+  // NOT override the source clip's wardrobe with a generic default — leave it to the driving
+  // clip / reference frame instead of forcing "a casual fitted top".
+  const outfitExplicit = typeof brief.outfit === 'string' && brief.outfit.trim().length > 0;
 
   const prefix = LOCKED_PREFIX.replace('{shot}', b.shot).replace('{light}', b.light);
-  let body = `${IDENTITY_SENTENCE} ${actionSafe.text} in ${b.setting}. She wears ${outfitSafe.text}. ${b.mood}.`;
+  let body = `${IDENTITY_SENTENCE} ${actionSafe.text} in ${b.setting}.`;
+  if (outfitExplicit) { const outfitSafe = filterSafe(b.outfit); notes.push(...outfitSafe.notes); body += ` She wears ${outfitSafe.text}.`; }
+  else if (isVideoFrame) { body += ` Keep her clothing and outfit consistent with the driving clip — do NOT restyle her wardrobe or invent a new outfit.`; }
+  else { const outfitSafe = filterSafe(b.outfit); notes.push(...outfitSafe.notes); body += ` She wears ${outfitSafe.text}.`; }
+  body += ` ${b.mood}.`;
   // Free-text styling (makeup, hair, "look a little younger", going-out glam, …). For a
   // video this styles the nano_banana START FRAME, which motion control then animates.
-  if (b.details) { const d = filterSafe(b.details); notes.push(...d.notes); body += ` Styling details: ${d.text}.`; }
+  if (b.details) {
+    const d = filterSafe(b.details); const a = ageSafe(d.text);
+    notes.push(...d.notes, ...a.notes);
+    body += ` Styling details: ${a.text}.`;
+    if (a.youth) body += ` ${ADULT_ANCHOR}`;
+  }
   if (brief.modest) body += ` ${MODESTY_CLAUSE}`;
   const tail = `${framing}. Vertical 9:16. No text.`;
   const prompt = `${prefix}\n${body}\n${tail}`.replace(/\s+\n/g, '\n').trim();
@@ -161,7 +203,9 @@ function buildReferencePrompt(brief) {
   if (s.setting) adj.push(`setting: ${s.setting}`);
   if (s.mood) adj.push(s.mood);
   if (s.framing) adj.push(`framing: ${s.framing}`);
-  if (s.details) { const d = filterSafe(s.details); notes.push(...d.notes); adj.push(`styling: ${d.text}`); }
+  let youth = false;
+  if (s.details) { const d = filterSafe(s.details); const a = ageSafe(d.text); notes.push(...d.notes, ...a.notes); adj.push(`styling: ${a.text}`); youth = a.youth; }
+  if (youth) adj.push(ADULT_ANCHOR);
   if (brief.modest) {
     body += `\nRender a MODEST, fully-covered version of the reference's outfit (override any ` +
       `revealing/swim wear): ${MODESTY_CLAUSE}`;
