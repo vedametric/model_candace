@@ -506,37 +506,59 @@ async function persona(slug) {
   };
   view.querySelectorAll('[data-doc]').forEach(wireDoc(slug));
 }
+const DELAY_MAX_SEC = 64800; // 18 hours
 function fmtSecShort(s) { s = Math.round(s); return s >= 90 ? (s / 60).toFixed(s % 60 ? 1 : 0) + 'm' : s + 's'; }
+function fmtDelay(sec) { sec = Math.round(sec); if (sec >= 3600) { const h = sec / 3600; return (Number.isInteger(h) ? h : h.toFixed(1)) + 'h'; } if (sec >= 90) { const m = sec / 60; return (Number.isInteger(m) ? m : m.toFixed(1)) + 'm'; } return sec + 's'; }
 function timingPanel(d) {
   const v = {
     min_sec: d.min_sec ?? 120, max_sec: d.max_sec ?? 600,
     quick_chance: d.quick_chance ?? 0.15,
     quick_min_sec: d.quick_min_sec ?? 45, quick_max_sec: d.quick_max_sec ?? 120,
   };
-  const pct = Math.round(v.quick_chance * 100);
-  const slider = (id, val, max, step, fmt) =>
-    `<div class="slider"><input id="${id}" type="range" min="0" max="${max}" step="${step}" value="${val}" data-fmt="${fmt}"><span class="bubble"></span></div>`;
   const row = (label, help, ctrl) =>
-    `<div class="setting stack"><div class="setting-main"><div class="lbl">${label}</div>${help ? `<div class="help">${help}</div>` : ''}</div><div class="setting-control" style="width:100%;max-width:340px">${ctrl}</div></div>`;
+    `<div class="setting stack"><div class="setting-main"><div class="lbl">${label}</div>${help ? `<div class="help">${help}</div>` : ''}</div><div class="setting-control" style="width:100%">${ctrl}</div></div>`;
+  // delay control: wide range (0–18h, in seconds — read by collect) + an editable
+  // minutes "custom field", two-way synced, plus an hours hint for large values.
+  const delay = (id, sec) => `<div class="slider stacked" data-delay>
+    <input id="${id}" type="range" min="0" max="${DELAY_MAX_SEC}" step="1" value="${sec}">
+    <div class="slider-foot">
+      <input class="slider-num" type="number" min="0" max="${DELAY_MAX_SEC / 60}" step="0.5" value="${+(sec / 60).toFixed(2)}" aria-label="minutes">
+      <span class="dim slider-unit">min</span>
+      <span class="bubble" data-hint></span>
+    </div>
+  </div>`;
+  const chance = `<div class="slider" style="max-width:340px"><input id="t-qchance" type="range" min="0" max="1" step="0.05" value="${v.quick_chance}" data-fmt="pct"><span class="bubble"></span></div>`;
   return `<div class="section" id="sec-timing">
     <div class="sec-head"><span class="sec-title">Reply timing <span class="sec-sub">per persona</span></span></div>
     <div class="sec-body">
-      <p class="muted" style="font-size:12.5px;margin:0 0 8px">How long she waits before replying to a DM. Most replies use the normal window; a fraction of the time she fires back quicker. Read live by the n8n flow (see <code>automation/n8n/REPLY_TIMING.md</code>).</p>
-      ${row('Normal delay — min', '', slider('t-min', v.min_sec, 1800, 5, 'sec'))}
-      ${row('Normal delay — max', '', slider('t-max', v.max_sec, 1800, 5, 'sec'))}
-      ${row('Quick-reply chance', 'How often she replies from the quicker window instead.', slider('t-qchance', v.quick_chance, 1, 0.05, 'pct'))}
-      ${row('Quick delay — min', '', slider('t-qmin', v.quick_min_sec, 600, 5, 'sec'))}
-      ${row('Quick delay — max', '', slider('t-qmax', v.quick_max_sec, 600, 5, 'sec'))}
+      <p class="muted" style="font-size:12.5px;margin:0 0 8px">How long she waits before replying to a DM (up to 18h). Drag the slider or type an exact number of minutes. Most replies use the normal window; a fraction of the time she fires back quicker. Read live by the n8n flow (see <code>automation/n8n/REPLY_TIMING.md</code>).</p>
+      ${row('Normal delay — min', '', delay('t-min', v.min_sec))}
+      ${row('Normal delay — max', '', delay('t-max', v.max_sec))}
+      ${row('Quick-reply chance', 'How often she replies from the quicker window instead.', chance)}
+      ${row('Quick delay — min', '', delay('t-qmin', v.quick_min_sec))}
+      ${row('Quick delay — max', '', delay('t-qmax', v.quick_max_sec))}
       <div class="actionbar"><button id="save-timing" class="btn primary">Save timing</button></div>
     </div>
   </div>`;
 }
-// wire live value bubbles for all sliders under a root
+// wire live value bubbles + two-way sync between each delay slider (seconds) and
+// its editable minutes field. Chance sliders show a % bubble.
 function wireSliders(root = view) {
   root.querySelectorAll('input[type=range][data-fmt]').forEach(r => {
     const b = r.parentNode.querySelector('.bubble');
-    const upd = () => { if (b) b.textContent = r.dataset.fmt === 'pct' ? Math.round(r.value * 100) + '%' : fmtSecShort(+r.value); };
+    const upd = () => { if (b) b.textContent = r.dataset.fmt === 'pct' ? Math.round(r.value * 100) + '%' : fmtDelay(+r.value); };
     r.oninput = upd; upd();
+  });
+  root.querySelectorAll('.slider[data-delay]').forEach(w => {
+    const range = w.querySelector('input[type=range]');   // seconds — source of truth for collect
+    const num = w.querySelector('.slider-num');            // editable minutes
+    const hint = w.querySelector('[data-hint]');
+    const setHint = () => { const s = +range.value; if (hint) hint.textContent = s >= 3600 ? '= ' + fmtDelay(s) : ''; };
+    range.oninput = () => { num.value = +(range.value / 60).toFixed(2); setHint(); };
+    const fromNum = () => { let s = Math.round((+num.value || 0) * 60); s = Math.max(0, Math.min(DELAY_MAX_SEC, s)); range.value = s; setHint(); };
+    num.oninput = fromNum;
+    num.onchange = () => { fromNum(); num.value = +(range.value / 60).toFixed(2); }; // clamp the field on blur
+    setHint();
   });
 }
 // behaviour guards editor (per persona) — stored in bots.guards, applied live via dm_ingest

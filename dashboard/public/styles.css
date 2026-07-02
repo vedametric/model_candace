@@ -257,7 +257,14 @@ label{color:var(--text)}
 .slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
   background:var(--accent);box-shadow:0 2px 6px rgba(232,101,74,.4);cursor:pointer;border:2px solid #fff}
 .slider input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid #fff;cursor:pointer}
+.slider input[type=range]{min-width:120px}
+.slider.stacked{flex-direction:column;align-items:stretch;gap:10px}
+.slider.stacked input[type=range]{width:100%}
+.slider-foot{display:flex;align-items:center;gap:8px}
 .slider .bubble{min-width:60px;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:var(--text);font-size:13px}
+.slider .bubble[data-hint]{min-width:0;font-weight:600;color:var(--text-soft);white-space:nowrap}
+.slider .slider-num,.setting.stack .setting-control .slider-num{width:96px;flex:0 0 auto;text-align:right;padding:7px 9px}
+.slider .slider-unit{flex:0 0 auto;font-size:12px}
 
 /* fan chat composer + director note (light-theme now) */
 .composer{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
