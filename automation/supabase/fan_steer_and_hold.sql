@@ -53,11 +53,12 @@ end; $$;
 -- human then takes over with "Send as Candace"). Dashboard: queue "✕ cancel".
 create or replace function public.dm_cancel_pending_reply(p_fan_id bigint)
 returns bigint language plpgsql as $$
-declare v_count int;
+declare v_count int; v_bot bigint;
 begin
-  update public.fans set msg_count = msg_count + 1 where id = p_fan_id returning msg_count into v_count;
-  insert into public.events(fan_id, type, payload)
-  values (p_fan_id, 'reply_cancelled', jsonb_build_object('msg_count', v_count));
+  update public.fans set msg_count = msg_count + 1 where id = p_fan_id
+    returning msg_count, bot_id into v_count, v_bot;
+  insert into public.events(bot_id, fan_id, type, payload)
+  values (v_bot, p_fan_id, 'reply_cancelled', jsonb_build_object('msg_count', v_count));
   return v_count;
 end; $$;
 
@@ -90,12 +91,15 @@ end; $$;
 -- Cancel a specific queued reply from the queue page: bump msg_count (abort the
 -- waiting execution at its debounce gate) AND write a dm_cancelled marker keyed
 -- to that queued message's count so the queue UI shows it as cancelled.
+-- The marker MUST carry bot_id: the dashboard queue reconcile filters events by
+-- bot_id, so a null-bot_id marker is invisible and the row stays "waiting".
 create or replace function public.dm_cancel_queued(p_fan_id bigint, p_queued_count int)
 returns bigint language plpgsql as $$
-declare v_count int;
+declare v_count int; v_bot bigint;
 begin
-  update public.fans set msg_count = msg_count + 1 where id = p_fan_id returning msg_count into v_count;
-  insert into public.events(fan_id, type, payload)
-  values (p_fan_id, 'dm_cancelled', jsonb_build_object('msg_count', p_queued_count));
+  update public.fans set msg_count = msg_count + 1 where id = p_fan_id
+    returning msg_count, bot_id into v_count, v_bot;
+  insert into public.events(bot_id, fan_id, type, payload)
+  values (v_bot, p_fan_id, 'dm_cancelled', jsonb_build_object('msg_count', p_queued_count));
   return v_count;
 end; $$;
