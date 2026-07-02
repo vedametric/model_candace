@@ -316,9 +316,9 @@ router.put('/accounts/:slug/docs/:name', wrap(async (req, res) => {
 // structured profile the responder's profiler accumulates.
 router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
   const bot = await requireBot(req.params.slug);
-  const { stage, buyer_type, profile, director_note, next_directive } = req.body || {};
-  if (stage == null && buyer_type == null && profile == null && director_note === undefined && next_directive === undefined) {
-    throw Object.assign(new Error('supply stage, buyer_type, profile, director_note and/or next_directive'), { status: 400 });
+  const { stage, buyer_type, profile, director_note, next_directive, troll_score } = req.body || {};
+  if (stage == null && buyer_type == null && profile == null && director_note === undefined && next_directive === undefined && troll_score === undefined) {
+    throw Object.assign(new Error('supply stage, buyer_type, profile, director_note, next_directive and/or troll_score'), { status: 400 });
   }
   if (stage != null || buyer_type != null) {
     await rpc('dm_set_stage', {
@@ -348,6 +348,13 @@ router.patch('/accounts/:slug/fans/:id', wrap(async (req, res) => {
       throw Object.assign(new Error('next_directive must be a string'), { status: 400 });
     }
     await rpc('dm_set_next_directive', { p_fan_id: Number(req.params.id), p_note: next_directive || '' });
+  }
+  // manual troll-score override (0–100): a human bumps/lowers the score after
+  // reading the thread. Recomputes mode from bands; carries forward next turn.
+  if (troll_score !== undefined) {
+    const n = Math.round(Number(troll_score));
+    if (!Number.isFinite(n)) throw Object.assign(new Error('troll_score must be a number'), { status: 400 });
+    await rpc('dm_set_troll_score', { p_fan_id: Number(req.params.id), p_score: n });
   }
   res.json({ ok: true });
 }));

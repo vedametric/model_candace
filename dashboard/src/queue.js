@@ -13,17 +13,22 @@ export async function queueRows(botId, { limit = 200 } = {}) {
     `bot_id=eq.${botId}&type=in.(dm_queued,dm_sent,dm_cancelled)&order=created_at.desc&limit=${limit}`,
   );
   const rows = reconcile(events);
-  // Attach any dashboard-set hold (fans.send_after) to pending rows, so the
-  // "+15m" button visibly extends the countdown and survives a page refresh
-  // (it's persisted in the DB, not just client memory).
-  const pendingIds = [...new Set(rows.filter((r) => r.status === 'pending' && r.fan_id != null).map((r) => r.fan_id))];
-  if (pendingIds.length) {
+  // Attach each fan's display name (shown next to the handle, like the fan page)
+  // and any dashboard-set hold (fans.send_after) so the "+15m" button visibly
+  // extends the countdown and survives a refresh (persisted, not client memory).
+  const fanIds = [...new Set(rows.filter((r) => r.fan_id != null).map((r) => r.fan_id))];
+  if (fanIds.length) {
     try {
-      const fans = await select('fans', `id=in.(${pendingIds.join(',')})&select=id,send_after`);
-      const holdById = {};
-      fans.forEach((f) => { if (f.send_after) holdById[f.id] = f.send_after; });
-      rows.forEach((r) => { if (holdById[r.fan_id]) r.send_after = holdById[r.fan_id]; });
-    } catch (_) { /* hold is best-effort; ignore */ }
+      const fans = await select('fans', `id=in.(${fanIds.join(',')})&select=id,display_name,send_after`);
+      const byId = {};
+      fans.forEach((f) => { byId[f.id] = f; });
+      rows.forEach((r) => {
+        const f = byId[r.fan_id];
+        if (!f) return;
+        if (f.display_name) r.display_name = f.display_name;
+        if (f.send_after) r.send_after = f.send_after;
+      });
+    } catch (_) { /* best-effort; ignore */ }
   }
   return rows;
 }

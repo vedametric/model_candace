@@ -1162,7 +1162,7 @@ function fBody() {
     const sc = r.intent_score == null ? '<span class="dim">—</span>' : `<div class="ibar"><i style="width:${Math.min(100, r.intent_score)}%"></i></div> <span class="mono">${r.intent_score}</span>`;
     const summary = esc(r.summary || '');
     return `<tr data-id="${r.id}" data-slug="${esc(r._slug || '')}">
-      <td data-label="Fan"><div class="row" style="gap:9px;flex-wrap:nowrap;justify-content:flex-end"><span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--secondary),var(--primary));color:#fff;font-weight:700;font-size:12px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto">${esc(initials(r.display_name || r.username))}</span><span style="min-width:0"><b>${esc(r.username)}</b>${r.person_id ? ' <span title="linked across platforms">🔗</span>' : ''}${r.display_name ? `<div class="dim" style="font-size:12px">${esc(r.display_name)}</div>` : ''}</span></div></td>
+      <td data-label="Fan"><div class="fan-cell"><span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--secondary),var(--primary));color:#fff;font-weight:700;font-size:12px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto">${esc(initials(r.display_name || r.username))}</span><span style="min-width:0"><b>${esc(r.username)}</b>${r.person_id ? ' <span title="linked across platforms">🔗</span>' : ''}${r.display_name ? `<div class="dim" style="font-size:12px">${esc(r.display_name)}</div>` : ''}</span></div></td>
       <td data-label="Source">${sourceBadge(r.platform)}</td>
       <td data-label="Stage">${r.stage ? `<span class="tag stage">${esc(r.stage)}</span>` : '—'}</td>
       <td data-label="Buyer">${r.buyer_type ? `<span class="tag buyer">${esc(r.buyer_type)}</span>` : '—'}</td>
@@ -1328,6 +1328,18 @@ async function fanDetail(slug, id) {
     catch (e) { toast('error: ' + e.message); }
     psave.disabled = false;
   };
+  // manual troll-score override
+  view.querySelectorAll('[data-bump]').forEach(b => b.onclick = () => {
+    const inp = $('#ts-score'); if (!inp) return;
+    inp.value = Math.max(0, Math.min(100, (Number(inp.value) || 0) + Number(b.dataset.bump)));
+  });
+  const tsSet = $('#ts-set');
+  if (tsSet) tsSet.onclick = async () => {
+    const n = Math.max(0, Math.min(100, Math.round(Number($('#ts-score').value) || 0)));
+    tsSet.disabled = true;
+    try { await api(`/accounts/${slug}/fans/${id}`, { method: 'PATCH', body: JSON.stringify({ troll_score: n }) }); toast('troll score set to ' + n); fanDetail(slug, id); }
+    catch (e) { toast('error: ' + e.message); tsSet.disabled = false; }
+  };
   wireLinks(slug, id);
   const rb = $('#reengage');
   if (rb) rb.onclick = async () => {
@@ -1348,7 +1360,6 @@ function trollFanPanel(md) {
   const score = (typeof md.troll_score === 'number') ? md.troll_score : null;
   const mode = md.troll_mode || null;
   const stall = (typeof md.stall_hits === 'number') ? md.stall_hits : null;
-  if (score == null && mode == null && stall == null) return '';
   const col = score == null ? 'var(--line)' : score >= 85 ? 'var(--heat-3)' : score >= 60 ? 'var(--heat-2)' : score >= 30 ? 'var(--heat-1)' : 'var(--heat-0)';
   const modeCls = { ghost: 'err', minimal: 'warn', cool: 'neutral', engage: 'good' }[mode] || 'neutral';
   const modeTag = mode ? `<span class="badge ${modeCls}">${esc(mode)}</span>` : '<span class="dim">—</span>';
@@ -1360,6 +1371,16 @@ function trollFanPanel(md) {
       <span class="dim" style="font-size:12px">mode</span>${modeTag}
       <span class="dim" style="font-size:12px;margin-left:8px">stalls</span><span class="badge neutral">${stall==null?'—':stall}</span></div>
     <div class="muted" style="font-size:11px;margin-top:10px">${md.troll_shadow ? 'shadow mode: scored + logged, not changing replies yet.' : 'live: cool → minimal (delay) → ghost (no reply) as this climbs.'} 0–29 engage · 30–59 cool · 60–84 minimal · 85+ ghost.</div>
+    <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px">
+      <div class="lbl" style="font-weight:700;font-size:12.5px;margin-bottom:6px">Manual override</div>
+      <div class="row" style="gap:8px">
+        <input id="ts-score" type="number" min="0" max="100" value="${score == null ? 0 : score}" style="width:84px">
+        <button class="btn sm" data-bump="10">+10</button>
+        <button class="btn sm" data-bump="25">+25</button>
+        <button id="ts-set" class="btn primary sm" style="margin-left:auto">Set score</button>
+      </div>
+      <div class="muted" style="font-size:11px;margin-top:6px">Read the thread, then set the score (0–100). Recomputes her mode and carries forward on her next reply.</div>
+    </div>
   </div>`;
 }
 // structured profile the profiler accumulates (occupation, location, age…).
@@ -1552,7 +1573,8 @@ function qRender(key) {
       else { cx++; cat = 'debounced'; badge = '<span class="badge neutral">no reply</span>'; last = '<span class="dim">never sent (aborted/error)</span>'; }
     }
     if (QS !== 'all' && cat !== QS) return '';   // status filter
-    const uname = (r.fan_id != null) ? `<a class="lnk" style="cursor:pointer" data-fan="${r.fan_id}" data-fslug="${esc(r._slug || '')}"><b>${esc(r.user)}</b></a>` : `<b>${esc(r.user)}</b>`;
+    const dn = (r.display_name && r.display_name !== r.user) ? ` <span class="dim">(${esc(r.display_name)})</span>` : '';
+    const uname = (r.fan_id != null) ? `<a class="lnk" style="cursor:pointer" data-fan="${r.fan_id}" data-fslug="${esc(r._slug || '')}"><b>${esc(r.user)}</b>${dn}</a>` : `<b>${esc(r.user)}</b>${dn}`;
     return `<tr><td class="mono dim" data-label="Queued">${fmtClock(r.queued_at)}</td><td data-label="Platform">${sourceBadge(r._platform)}</td><td data-label="User">${uname}</td>
       <td class="truncate" data-label="Incoming">${esc(r.msg)}</td><td class="mono" data-label="Delay">${fmtDur(r.delay || 0)}</td><td data-label="Status">${badge}</td><td data-label="Sends in / reply">${last}</td><td data-label="Actions">${actions || '<span class="dim">—</span>'}</td></tr>`;
   }).join('') || `<tr><td colspan="8"><div class="empty"><span class="ico">⏱️</span><div class="t">${QS === 'all' ? 'No messages yet' : 'Nothing ' + QS}</div><div class="s">${QS === 'all' ? 'Incoming DMs will appear here as they arrive.' : 'Tap the filter again to show all.'}</div></div></td></tr>`;
